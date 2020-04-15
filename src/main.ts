@@ -6,6 +6,12 @@ async function run(): Promise<void> {
     const ms: string = core.getInput('milliseconds')
     core.debug(`Waiting ${ms} milliseconds ...`)
 
+    const registry: string | undefined = process.env.REGISTRY_NAME
+    if (registry === undefined) {
+      throw new Error('REGISTRY_NAME is not set.')
+    }
+    core.debug(registry)
+
     core.debug(new Date().toTimeString())
     await wait(parseInt(ms, 10))
     core.debug(new Date().toTimeString())
