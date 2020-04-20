@@ -1,6 +1,6 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Image Assembly Line'
+description: 'GitHub Action that runs our docker image build flow.'
+author: 'freee K.K.'
 inputs:
   myInput:              # change this
     description: 'input description here'
