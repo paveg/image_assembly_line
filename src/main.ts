@@ -1,26 +1,22 @@
 import * as core from '@actions/core'
-import * as exec from '@actions/exec'
-import {wait} from './wait'
+import {build} from './docker'
 
 async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
-    core.debug(`Waiting ${ms} milliseconds ...`)
-    const target = 'hello'
-
+    // REGISTRY_NAME はユーザー側から渡せない様にする
     const registry: string | undefined = process.env.REGISTRY_NAME
     if (registry === undefined) {
       throw new Error('REGISTRY_NAME is not set.')
     }
     core.debug(registry)
 
-    exec.exec(`echo ${target}`)
+    const target = core.getInput('target')
+    core.debug(`target: ${target}`)
 
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
+    const imageName = core.getInput('image_name')
+    core.debug(`image_name: ${imageName}`)
 
-    core.setOutput('time', new Date().toTimeString())
+    build(registry, imageName, target)
   } catch (error) {
     core.setFailed(error.message)
   }

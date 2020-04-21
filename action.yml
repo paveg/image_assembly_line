@@ -5,6 +5,11 @@ inputs:
   myInput:              # change this
     description: 'input description here'
     default: 'default value if applicable'
+  image_name:
+    require: true
+  target:
+    description: 'make target'
+    default: 'build'
 runs:
   using: 'node12'
   main: 'dist/index.js'
