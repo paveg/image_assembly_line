@@ -1,0 +1,11 @@
+.git
+.gitignore
+.envrc
+
+coverage
+log
+node_modules
+tmp
+tools
+src
+dist
