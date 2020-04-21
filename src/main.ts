@@ -16,7 +16,7 @@ async function run(): Promise<void> {
     const imageName = core.getInput('image_name')
     core.debug(`image_name: ${imageName}`)
 
-    build(registry, imageName, target)
+    await build(registry, imageName, target)
   } catch (error) {
     core.setFailed(error.message)
   }

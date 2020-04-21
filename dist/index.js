@@ -971,8 +971,6 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
-// import * as exec from '@actions/exec'
-// import {wait} from './wait'
 const docker_1 = __webpack_require__(231);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -987,8 +985,7 @@ function run() {
             core.debug(`target: ${target}`);
             const imageName = core.getInput('image_name');
             core.debug(`image_name: ${imageName}`);
-            docker_1.build(registry, imageName, target);
-            // push(registry, imageName)
+            yield docker_1.build(registry, imageName, target);
         }
         catch (error) {
             core.setFailed(error.message);
