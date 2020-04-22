@@ -5,7 +5,7 @@ async function run(): Promise<void> {
   try {
     // REGISTRY_NAME はユーザー側から渡せない様にする
     const registry: string | undefined = process.env.REGISTRY_NAME
-    if (registry === undefined) {
+    if (!registry) {
       throw new Error('REGISTRY_NAME is not set.')
     }
     core.debug(registry)
