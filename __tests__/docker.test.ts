@@ -6,18 +6,30 @@ import {resolve} from 'dns'
 
 describe('constructor', () => {
   test('registry and imageName is given', async () => {
-    expect(
-      new Docker(
-        '1234567890.dkr.ecr.ap-northeast-1.amazonaws.com/',
-        'imagename/app'
-      )
-    ).toBeInstanceOf(Docker)
+    const docker = new Docker(
+      '1234567890.dkr.ecr.ap-northeast-1.amazonaws.com',
+      'imagename/app'
+    )
+    expect(docker).toBeInstanceOf(Docker)
+    expect(docker.repository).toEqual(
+      '1234567890.dkr.ecr.ap-northeast-1.amazonaws.com/imagename/app'
+    )
   })
 
   test('registry is empty', () => {
     expect(() => {
       new Docker('', 'imagename/app')
     }).toThrowError()
+  })
+
+  test('registry ends with /', () => {
+    const docker = new Docker(
+      '1234567890.dkr.ecr.ap-northeast-1.amazonaws.com/',
+      'imagename/app'
+    )
+    expect(docker.repository).toEqual(
+      '1234567890.dkr.ecr.ap-northeast-1.amazonaws.com/imagename/app'
+    )
   })
 })
 

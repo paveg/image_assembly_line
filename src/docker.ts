@@ -6,7 +6,8 @@ import * as im from '@actions/exec/lib/interfaces'
 export default class Docker {
   private registry: string
   private imageName: string
-  private repository: string
+  private _repository: string
+
   constructor(registry: string, imageName: string) {
     if (!registry) {
       throw new Error('registry is empty')
@@ -15,9 +16,14 @@ export default class Docker {
       throw new Error('imageName is empty')
     }
 
-    this.registry = registry
+    // remove the last '/'
+    this.registry = sanitizedDomain(registry)
     this.imageName = imageName
-    this.repository = getRepository(this.registry, this.imageName)
+    this._repository = `${this.registry}/${this.imageName}`
+  }
+
+  get repository(): string {
+    return this._repository
   }
 
   async build(target: string): Promise<number> {
@@ -32,57 +38,51 @@ export default class Docker {
     }
   }
 
-  async tag(tags: string[]): Promise<number> {
-    if (tags.length === 0) {
-      return 0
-    }
-
-    let argline = ''
-    for (const tag of tags) {
-      argline += ' -t '
-      argline += tag
-    }
-
-    try {
-      return await exec.exec(`docker tag ${this.repository} ${argline}`)
-    } catch (e) {
-      core.debug('tag() error')
-      throw e
-    }
-  }
-
   async login(): Promise<void> {
     core.debug('login()')
     let ecrLoginPass = ''
     let ecrLoginError = ''
 
-    const options: im.ExecOptions = {}
-    options.silent = true
-    options.listeners = {
-      stdout: (data: Buffer) => {
-        ecrLoginPass += data.toString()
-      },
-      stderr: (data: Buffer) => {
-        ecrLoginError += data.toString()
+    const options: im.ExecOptions = {
+      // set silent, not to log the password
+      silent: true,
+      listeners: {
+        stdout: (data: Buffer) => {
+          ecrLoginPass += data.toString()
+        },
+        stderr: (data: Buffer) => {
+          ecrLoginError += data.toString()
+        }
       }
     }
     await exec.exec('aws', ['ecr', 'get-login-password'], options)
 
-    core.setSecret('ecrLoginPass')
-    core.saveState('ecrLoginPass', ecrLoginPass)
     core.debug(ecrLoginError)
-
-    await exec.exec(
-      'docker login',
-      ['--username', 'AWS', '-p', core.getState('ecrLoginPass'), this.registry],
-      {silent: true}
-    )
+    let stderr = ''
+    try {
+      options.ignoreReturnCode = true
+      options.listeners = {
+        stderr: (data: Buffer) => {
+          stderr += data.toString()
+        }
+      }
+      await exec.exec(
+        'docker login',
+        ['--username', 'AWS', '-p', ecrLoginPass, this.registry],
+        options
+      )
+      core.debug('logged in')
+    } catch (e) {
+      core.debug('login() failed')
+      core.debug(stderr)
+      throw e
+    }
   }
 
   async push(): Promise<number> {
     try {
       await this.login()
-      const result = await exec.exec(`docker image push ${this.repository}`)
+      const result = exec.exec('docker', ['image', 'push', this.repository])
       return result
     } catch (e) {
       core.debug('push() error')
@@ -91,10 +91,6 @@ export default class Docker {
   }
 }
 
-function getRepository(registry: string, imageName: string): string {
-  if (registry.endsWith('/')) {
-    return `${registry}${imageName}`
-  } else {
-    return `${registry}/${imageName}`
-  }
+function sanitizedDomain(str: string): string {
+  return str.endsWith('/') ? str.substr(0, str.length - 1) : str
 }

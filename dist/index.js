@@ -992,7 +992,6 @@ function run() {
             core.debug(`docker: ${docker.toString()}`);
             yield docker.build(target);
             yield docker.push();
-            // await build(registry, imageName, target)
         }
         catch (error) {
             core.error(error.toString());
@@ -1038,9 +1037,13 @@ class Docker {
         if (!imageName) {
             throw new Error('imageName is empty');
         }
-        this.registry = registry;
+        // remove the last '/'
+        this.registry = sanitizedDomain(registry);
         this.imageName = imageName;
-        this.repository = getRepository(this.registry, this.imageName);
+        this._repository = `${this.registry}/${this.imageName}`;
+    }
+    get repository() {
+        return this._repository;
     }
     build(target) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -1054,52 +1057,48 @@ class Docker {
             }
         });
     }
-    tag(tags) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (tags.length === 0) {
-                return 0;
-            }
-            let argline = '';
-            for (const tag of tags) {
-                argline += ' -t ';
-                argline += tag;
-            }
-            try {
-                return yield exec.exec(`docker tag ${this.repository} ${argline}`);
-            }
-            catch (e) {
-                core.debug('tag() error');
-                throw e;
-            }
-        });
-    }
     login() {
         return __awaiter(this, void 0, void 0, function* () {
             core.debug('login()');
             let ecrLoginPass = '';
             let ecrLoginError = '';
-            const options = {};
-            options.silent = true;
-            options.listeners = {
-                stdout: (data) => {
-                    ecrLoginPass += data.toString();
-                },
-                stderr: (data) => {
-                    ecrLoginError += data.toString();
+            const options = {
+                // set silent, not to log the password
+                silent: true,
+                listeners: {
+                    stdout: (data) => {
+                        ecrLoginPass += data.toString();
+                    },
+                    stderr: (data) => {
+                        ecrLoginError += data.toString();
+                    }
                 }
             };
             yield exec.exec('aws', ['ecr', 'get-login-password'], options);
-            core.setSecret('ecrLoginPass');
-            core.saveState('ecrLoginPass', ecrLoginPass);
             core.debug(ecrLoginError);
-            yield exec.exec('docker login', ['--username', 'AWS', '-p', core.getState('ecrLoginPass'), this.registry], { silent: true });
+            let stderr = '';
+            try {
+                options.ignoreReturnCode = true;
+                options.listeners = {
+                    stderr: (data) => {
+                        stderr += data.toString();
+                    }
+                };
+                yield exec.exec('docker login', ['--username', 'AWS', '-p', ecrLoginPass, this.registry], options);
+                core.debug('logged in');
+            }
+            catch (e) {
+                core.debug('login() failed');
+                core.debug(stderr);
+                throw e;
+            }
         });
     }
     push() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 yield this.login();
-                const result = yield exec.exec(`docker image push ${this.repository}`);
+                const result = exec.exec('docker', ['image', 'push', this.repository]);
                 return result;
             }
             catch (e) {
@@ -1110,13 +1109,8 @@ class Docker {
     }
 }
 exports.default = Docker;
-function getRepository(registry, imageName) {
-    if (registry.endsWith('/')) {
-        return `${registry}${imageName}`;
-    }
-    else {
-        return `${registry}/${imageName}`;
-    }
+function sanitizedDomain(str) {
+    return str.endsWith('/') ? str.substr(0, str.length - 1) : str;
 }
 
 

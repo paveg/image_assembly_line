@@ -20,8 +20,8 @@ async function run(): Promise<void> {
     core.debug(`docker: ${docker.toString()}`)
 
     await docker.build(target)
+
     await docker.push()
-    // await build(registry, imageName, target)
   } catch (error) {
     core.error(error.toString())
     core.setFailed(error.message)
