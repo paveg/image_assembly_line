@@ -1,5 +1,7 @@
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
+import * as im from '@actions/exec/lib/interfaces'
+// import {spawnSync, SpawnSyncReturns} from 'child_process'
 
 export default class Docker {
   private registry: string
@@ -49,17 +51,38 @@ export default class Docker {
     }
   }
 
-  async login(): Promise<number> {
-    const result = await exec.exec(
-      `aws ecr get-login-password | docker login --username AWS --password-stdin ${this.registry}`
+  async login(): Promise<void> {
+    core.debug('login()')
+    let ecrLoginPass = ''
+    let ecrLoginError = ''
+
+    const options: im.ExecOptions = {}
+    options.silent = true
+    options.listeners = {
+      stdout: (data: Buffer) => {
+        ecrLoginPass += data.toString()
+      },
+      stderr: (data: Buffer) => {
+        ecrLoginError += data.toString()
+      }
+    }
+    await exec.exec('aws', ['ecr', 'get-login-password'], options)
+
+    core.setSecret('ecrLoginPass')
+    core.saveState('ecrLoginPass', ecrLoginPass)
+    core.debug(ecrLoginError)
+
+    await exec.exec(
+      'docker login',
+      ['--username', 'AWS', '-p', core.getState('ecrLoginPass'), this.registry],
+      {silent: true}
     )
-    return result
   }
 
   async push(): Promise<number> {
     try {
       await this.login()
-      const result = exec.exec(`docker image push ${this.repository}`)
+      const result = await exec.exec(`docker image push ${this.repository}`)
       return result
     } catch (e) {
       core.debug('push() error')

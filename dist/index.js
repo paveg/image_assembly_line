@@ -1029,6 +1029,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
 const exec = __importStar(__webpack_require__(986));
+// import {spawnSync, SpawnSyncReturns} from 'child_process'
 class Docker {
     constructor(registry, imageName) {
         if (!registry) {
@@ -1074,15 +1075,31 @@ class Docker {
     }
     login() {
         return __awaiter(this, void 0, void 0, function* () {
-            const result = yield exec.exec(`aws ecr get-login-password | docker login --username AWS --password-stdin ${this.registry}`);
-            return result;
+            core.debug('login()');
+            let ecrLoginPass = '';
+            let ecrLoginError = '';
+            const options = {};
+            options.silent = true;
+            options.listeners = {
+                stdout: (data) => {
+                    ecrLoginPass += data.toString();
+                },
+                stderr: (data) => {
+                    ecrLoginError += data.toString();
+                }
+            };
+            yield exec.exec('aws', ['ecr', 'get-login-password'], options);
+            core.setSecret('ecrLoginPass');
+            core.saveState('ecrLoginPass', ecrLoginPass);
+            core.debug(ecrLoginError);
+            yield exec.exec('docker login', ['--username', 'AWS', '-p', core.getState('ecrLoginPass'), this.registry], { silent: true });
         });
     }
     push() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 yield this.login();
-                const result = exec.exec(`docker image push ${this.repository}`);
+                const result = yield exec.exec(`docker image push ${this.repository}`);
                 return result;
             }
             catch (e) {
