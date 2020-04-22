@@ -1,5 +1,5 @@
 import * as core from '@actions/core'
-import {build} from './docker'
+import Docker from './docker'
 
 async function run(): Promise<void> {
   try {
@@ -16,8 +16,14 @@ async function run(): Promise<void> {
     const imageName = core.getInput('image_name')
     core.debug(`image_name: ${imageName}`)
 
-    await build(registry, imageName, target)
+    const docker = new Docker(registry, imageName)
+    core.debug(`docker: ${docker.toString()}`)
+
+    await docker.build(target)
+    await docker.push()
+    // await build(registry, imageName, target)
   } catch (error) {
+    core.error(error.toString())
     core.setFailed(error.message)
   }
 }

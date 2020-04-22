@@ -969,9 +969,12 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
-const docker_1 = __webpack_require__(231);
+const docker_1 = __importDefault(__webpack_require__(231));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -985,9 +988,14 @@ function run() {
             core.debug(`target: ${target}`);
             const imageName = core.getInput('image_name');
             core.debug(`image_name: ${imageName}`);
-            yield docker_1.build(registry, imageName, target);
+            const docker = new docker_1.default(registry, imageName);
+            core.debug(`docker: ${docker.toString()}`);
+            yield docker.build(target);
+            yield docker.push();
+            // await build(registry, imageName, target)
         }
         catch (error) {
+            core.error(error.toString());
             core.setFailed(error.message);
         }
     });
@@ -1021,20 +1029,78 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
 const exec = __importStar(__webpack_require__(986));
-function build(registry, imageName, target) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const result = yield exec.exec(`make REGISTRY_NAME=${registry} IMAGE_NAME=${imageName} ${target}`);
-            core.debug(`build(): ${result.toString()}`);
+class Docker {
+    constructor(registry, imageName) {
+        if (!registry) {
+            throw new Error('registry is empty');
+        }
+        if (!imageName) {
+            throw new Error('imageName is empty');
+        }
+        this.registry = registry;
+        this.imageName = imageName;
+        this.repository = getRepository(this.registry, this.imageName);
+    }
+    build(target) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const result = exec.exec(`make REGISTRY_NAME=${this.registry} IMAGE_NAME=${this.imageName} ${target}`);
+                return result;
+            }
+            catch (e) {
+                core.debug('build() error');
+                throw e;
+            }
+        });
+    }
+    tag(tags) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (tags.length === 0) {
+                return 0;
+            }
+            let argline = '';
+            for (const tag of tags) {
+                argline += ' -t ';
+                argline += tag;
+            }
+            try {
+                return yield exec.exec(`docker tag ${this.repository} ${argline}`);
+            }
+            catch (e) {
+                core.debug('tag() error');
+                throw e;
+            }
+        });
+    }
+    login() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const result = yield exec.exec(`aws ecr get-login-password | docker login --username AWS --password-stdin ${this.registry}`);
             return result;
-        }
-        catch (e) {
-            core.debug('build() error');
-            throw e;
-        }
-    });
+        });
+    }
+    push() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield this.login();
+                const result = exec.exec(`docker image push ${this.repository}`);
+                return result;
+            }
+            catch (e) {
+                core.debug('push() error');
+                throw e;
+            }
+        });
+    }
 }
-exports.build = build;
+exports.default = Docker;
+function getRepository(registry, imageName) {
+    if (registry.endsWith('/')) {
+        return `${registry}${imageName}`;
+    }
+    else {
+        return `${registry}/${imageName}`;
+    }
+}
 
 
 /***/ }),
