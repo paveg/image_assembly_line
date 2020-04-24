@@ -28,9 +28,11 @@ export default class Docker {
 
   async build(target: string): Promise<number> {
     try {
-      const result = exec.exec(
-        `make REGISTRY_NAME=${this.registry} IMAGE_NAME=${this.imageName} ${target}`
-      )
+      const result = exec.exec('make', [
+        `REGISTRY_NAME=${this.registry}`,
+        `IMAGE_NAME=${this.imageName}`,
+        target
+      ])
       return result
     } catch (e) {
       core.debug('build() error')
