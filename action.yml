@@ -2,9 +2,11 @@ name: 'Image Assembly Line'
 description: 'GitHub Action that runs our docker image build flow.'
 author: 'freee K.K.'
 inputs:
-  myInput:              # change this
-    description: 'input description here'
-    default: 'default value if applicable'
+  image_name:
+    require: true
+  target:
+    description: 'make target'
+    default: 'build'
 runs:
   using: 'node12'
   main: 'dist/index.js'

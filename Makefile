@@ -15,6 +15,7 @@ run_all:
 		-v ${PWD}/lib:/app/lib \
 		-v ${PWD}/dist:/app/dist \
 		-v ${PWD}/__tests__:/app/__tests__ \
+		-t ${IMAGE_NAME}:latest \
 		sh -c 'npm run all'
 
 build_test:

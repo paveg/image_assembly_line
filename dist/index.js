@@ -969,33 +969,160 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
-const exec = __importStar(__webpack_require__(986));
-const wait_1 = __webpack_require__(521);
+const docker_1 = __importDefault(__webpack_require__(231));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const ms = core.getInput('milliseconds');
-            core.debug(`Waiting ${ms} milliseconds ...`);
-            const target = 'hello';
+            // REGISTRY_NAME はユーザー側から渡せない様にする
             const registry = process.env.REGISTRY_NAME;
-            if (registry === undefined) {
+            if (!registry) {
                 throw new Error('REGISTRY_NAME is not set.');
             }
             core.debug(registry);
-            exec.exec(`echo ${target}`);
-            core.debug(new Date().toTimeString());
-            yield wait_1.wait(parseInt(ms, 10));
-            core.debug(new Date().toTimeString());
-            core.setOutput('time', new Date().toTimeString());
+            const target = core.getInput('target');
+            core.debug(`target: ${target}`);
+            const imageName = core.getInput('image_name');
+            core.debug(`image_name: ${imageName}`);
+            const docker = new docker_1.default(registry, imageName);
+            core.debug(`docker: ${docker.toString()}`);
+            yield docker.build(target);
+            yield docker.push();
         }
         catch (error) {
+            core.error(error.toString());
             core.setFailed(error.message);
         }
     });
 }
 run();
+
+
+/***/ }),
+
+/***/ 231:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const core = __importStar(__webpack_require__(470));
+const exec = __importStar(__webpack_require__(986));
+// import {spawnSync, SpawnSyncReturns} from 'child_process'
+class Docker {
+    constructor(registry, imageName) {
+        if (!registry) {
+            throw new Error('registry is empty');
+        }
+        if (!imageName) {
+            throw new Error('imageName is empty');
+        }
+        // remove the last '/'
+        this.registry = sanitizedDomain(registry);
+        this.imageName = imageName;
+        this._repository = `${this.registry}/${this.imageName}`;
+    }
+    get repository() {
+        return this._repository;
+    }
+    build(target) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const result = exec.exec('make', [
+                    `REGISTRY_NAME=${this.registry}/`,
+                    `IMAGE_NAME=${this.imageName}`,
+                    target
+                ]);
+                return result;
+            }
+            catch (e) {
+                core.debug('build() error');
+                throw e;
+            }
+        });
+    }
+    login() {
+        return __awaiter(this, void 0, void 0, function* () {
+            core.debug('login()');
+            // aws ecr get-login-password
+            let ecrLoginPass = '';
+            let ecrLoginError = '';
+            const options = {
+                // set silent, not to log the password
+                silent: true,
+                listeners: {
+                    stdout: (data) => {
+                        ecrLoginPass += data.toString();
+                    },
+                    stderr: (data) => {
+                        ecrLoginError += data.toString();
+                    }
+                }
+            };
+            try {
+                yield exec.exec('aws', ['ecr', 'get-login-password'], options);
+            }
+            catch (e) {
+                core.error(ecrLoginError.trim());
+                throw e;
+            }
+            // docker login
+            let stderr = '';
+            try {
+                options.ignoreReturnCode = true;
+                options.listeners = {
+                    stderr: (data) => {
+                        stderr += data.toString();
+                    }
+                };
+                yield exec.exec('docker login', ['--username', 'AWS', '-p', ecrLoginPass, this.registry], options);
+                core.debug('logged in');
+            }
+            catch (e) {
+                core.error('login() failed');
+                core.error(stderr);
+                throw e;
+            }
+        });
+    }
+    push() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield this.login();
+                const result = exec.exec('docker', ['image', 'push', this.repository]);
+                return result;
+            }
+            catch (e) {
+                core.error('push() error');
+                throw e;
+            }
+        });
+    }
+}
+exports.default = Docker;
+function sanitizedDomain(str) {
+    return str.endsWith('/') ? str.substr(0, str.length - 1) : str;
+}
 
 
 /***/ }),
@@ -1279,36 +1406,6 @@ function getState(name) {
 }
 exports.getState = getState;
 //# sourceMappingURL=core.js.map
-
-/***/ }),
-
-/***/ 521:
-/***/ (function(__unusedmodule, exports) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-function wait(milliseconds) {
-    return __awaiter(this, void 0, void 0, function* () {
-        return new Promise(resolve => {
-            if (isNaN(milliseconds)) {
-                throw new Error('milliseconds not a number');
-            }
-            setTimeout(() => resolve('done!'), milliseconds);
-        });
-    });
-}
-exports.wait = wait;
-
 
 /***/ }),
 
