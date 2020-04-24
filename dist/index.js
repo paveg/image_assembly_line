@@ -1049,7 +1049,7 @@ class Docker {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const result = exec.exec('make', [
-                    `REGISTRY_NAME=${this.registry}`,
+                    `REGISTRY_NAME=${this.registry}/`,
                     `IMAGE_NAME=${this.imageName}`,
                     target
                 ]);

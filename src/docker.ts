@@ -29,7 +29,7 @@ export default class Docker {
   async build(target: string): Promise<number> {
     try {
       const result = exec.exec('make', [
-        `REGISTRY_NAME=${this.registry}`,
+        `REGISTRY_NAME=${this.registry}/`,
         `IMAGE_NAME=${this.imageName}`,
         target
       ])
