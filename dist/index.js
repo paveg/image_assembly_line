@@ -1048,7 +1048,11 @@ class Docker {
     build(target) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = exec.exec(`make REGISTRY_NAME=${this.registry} IMAGE_NAME=${this.imageName} ${target}`);
+                const result = exec.exec('make', [
+                    `REGISTRY_NAME=${this.registry}`,
+                    `IMAGE_NAME=${this.imageName}`,
+                    target
+                ]);
                 return result;
             }
             catch (e) {
@@ -1060,6 +1064,7 @@ class Docker {
     login() {
         return __awaiter(this, void 0, void 0, function* () {
             core.debug('login()');
+            // aws ecr get-login-password
             let ecrLoginPass = '';
             let ecrLoginError = '';
             const options = {
@@ -1074,8 +1079,14 @@ class Docker {
                     }
                 }
             };
-            yield exec.exec('aws', ['ecr', 'get-login-password'], options);
-            core.debug(ecrLoginError);
+            try {
+                yield exec.exec('aws', ['ecr', 'get-login-password'], options);
+            }
+            catch (e) {
+                core.error(ecrLoginError.trim());
+                throw e;
+            }
+            // docker login
             let stderr = '';
             try {
                 options.ignoreReturnCode = true;
@@ -1088,8 +1099,8 @@ class Docker {
                 core.debug('logged in');
             }
             catch (e) {
-                core.debug('login() failed');
-                core.debug(stderr);
+                core.error('login() failed');
+                core.error(stderr);
                 throw e;
             }
         });
@@ -1102,7 +1113,7 @@ class Docker {
                 return result;
             }
             catch (e) {
-                core.debug('push() error');
+                core.error('push() error');
                 throw e;
             }
         });

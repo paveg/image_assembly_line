@@ -40,11 +40,12 @@ export default class Docker {
     }
   }
 
-  async login(): Promise<void> {
+  private async login(): Promise<void> {
     core.debug('login()')
+
+    // aws ecr get-login-password
     let ecrLoginPass = ''
     let ecrLoginError = ''
-
     const options: im.ExecOptions = {
       // set silent, not to log the password
       silent: true,
@@ -57,9 +58,14 @@ export default class Docker {
         }
       }
     }
-    await exec.exec('aws', ['ecr', 'get-login-password'], options)
+    try {
+      await exec.exec('aws', ['ecr', 'get-login-password'], options)
+    } catch (e) {
+      core.error(ecrLoginError.trim())
+      throw e
+    }
 
-    core.debug(ecrLoginError)
+    // docker login
     let stderr = ''
     try {
       options.ignoreReturnCode = true
@@ -75,8 +81,8 @@ export default class Docker {
       )
       core.debug('logged in')
     } catch (e) {
-      core.debug('login() failed')
-      core.debug(stderr)
+      core.error('login() failed')
+      core.error(stderr)
       throw e
     }
   }
@@ -87,7 +93,7 @@ export default class Docker {
       const result = exec.exec('docker', ['image', 'push', this.repository])
       return result
     } catch (e) {
-      core.debug('push() error')
+      core.error('push() error')
       throw e
     }
   }
