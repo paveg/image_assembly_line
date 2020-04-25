@@ -1,8 +1,8 @@
 import Docker from '../src/docker'
 import {defaultCoreCipherList} from 'constants'
-import {createHash} from 'crypto'
 import * as exec from '@actions/exec'
-import {resolve} from 'dns'
+
+jest.mock('@actions/exec');
 
 describe('constructor', () => {
   test('registry and imageName is given', async () => {
@@ -40,6 +40,7 @@ describe('Docker#build()', () => {
   )
 
   test('build', async () => {
+    exec.exec.mockResolvedValue(0)
     // 成功して結果が 0 であること
     expect(await docker.build('build')).toEqual(0)
   })
