@@ -1,4 +1,4 @@
-import Docker from '../src/docker'
+import {Docker, dockerLs} from '../src/docker'
 import {defaultCoreCipherList} from 'constants'
 import * as exec from '@actions/exec'
 

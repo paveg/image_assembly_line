@@ -3,10 +3,11 @@ import * as exec from '@actions/exec'
 import * as im from '@actions/exec/lib/interfaces'
 // import {spawnSync, SpawnSyncReturns} from 'child_process'
 
+jest.mock('@actions/exec')
 export default class Docker {
   private registry: string
   private imageName: string
-  private _repository: string
+  private builtImage?: DockerImage
 
   constructor(registry: string, imageName: string) {
     if (!registry) {
@@ -19,21 +20,20 @@ export default class Docker {
     // remove the last '/'
     this.registry = sanitizedDomain(registry)
     this.imageName = imageName
-    this._repository = `${this.registry}/${this.imageName}`
   }
 
-  get repository(): string {
-    return this._repository
-  }
-
-  async build(target: string): Promise<number> {
+  async build(target: string): Promise<DockerImage> {
     try {
-      const result = exec.exec('make', [
-        `REGISTRY_NAME=${this.registry}/`,
+      if (!(await noBuiltImage())) {
+        throw new Error('Built image exists')
+      }
+      await exec.exec('make', [
+        `REGISTRY_NAME=${this.registry}`,
         `IMAGE_NAME=${this.imageName}`,
         target
       ])
-      return result
+
+      return this.update()
     } catch (e) {
       core.debug('build() error')
       throw e
@@ -90,15 +90,98 @@ export default class Docker {
   async push(): Promise<number> {
     try {
       await this.login()
-      const result = exec.exec('docker', ['image', 'push', this.repository])
+      const result = exec.exec('docker', [
+        'image',
+        'push',
+        this.upstreamRepository()
+      ])
       return result
     } catch (e) {
       core.error('push() error')
       throw e
     }
   }
+
+  upstreamRepository(): string {
+    ;`${this.registry}/${this.builtImage.imageName}`
+  }
+
+  private async update(): Promise<DockerImage> {
+    this.builtImage = await latestBuiltImage(this.imageName)
+    return this.builtImage
+  }
 }
 
 function sanitizedDomain(str: string): string {
   return str.endsWith('/') ? str.substr(0, str.length - 1) : str
+}
+
+// Return true when check is OK
+async function noBuiltImage(): Promise<boolean> {
+  let stdout = ''
+  const options: im.ExecOptions = {
+    // set silent, not to log the password
+    silent: true,
+    listeners: {
+      stdout: (data: Buffer) => {
+        stdout += data.toString()
+      }
+    }
+  }
+  await exec.exec('docker', ['image', 'ls', '-q'], options)
+
+  const imageCount = stdout.split('\n').length
+
+  if (imageCount > 0) {
+    return false
+  } else {
+    return true
+  }
+}
+
+interface DockerImage {
+  imageID: string
+  imageName: string
+  tags: string[]
+}
+
+async function latestBuiltImage(imageName: string): Promise<DockerImage> {
+  enum DockerFormat {
+    repository = 0,
+    tag = 1,
+    id = 2
+  }
+
+  let stdout = ''
+  await exec.exec(
+    'docker',
+    [
+      'image',
+      'ls',
+      `--filter=reference='${imageName}'`,
+      `--format`,
+      '{{.Repository}},{{.Tag}},{{.ID}}'
+    ],
+    {
+      listeners: {
+        stdout: (data: Buffer) => {
+          stdout += data.toString()
+        }
+      }
+    }
+  )
+  const imageLines = stdout.split('\n')
+  if (imageLines.length < 1) {
+    throw new Error('No images built')
+  }
+
+  let tags = []
+  for (const imageLine of imageLines) {
+    tags.push(imageLine[DockerFormat.tag])
+  }
+  return {
+    imageName: imageLines[0][DockerFormat.repository],
+    imageID: imageLines[0][DockerFormat.id],
+    tags
+  }
 }

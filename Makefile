@@ -1,5 +1,6 @@
 IMAGE_NAME ?= image_assembly_line/dev
 NODE_VERSION ?= 12
+DOCKER_VERSION ?= 18.09.9
 
 build:
 	echo "hello"
@@ -7,6 +8,7 @@ build:
 build_dev_image:
 	docker build -f dev.Dockerfile \
 		--build-arg NODE_VERSION=${NODE_VERSION} \
+		--build-arg DOCKER_VERSION=${DOCKER_VERSION} \
 		-t ${IMAGE_NAME} .
 
 run_all:
