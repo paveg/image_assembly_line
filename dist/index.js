@@ -1028,6 +1028,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
 const exec = __importStar(__webpack_require__(986));
+const docker_util_1 = __webpack_require__(708);
 // import {spawnSync, SpawnSyncReturns} from 'child_process'
 class Docker {
     constructor(registry, imageName) {
@@ -1040,20 +1041,19 @@ class Docker {
         // remove the last '/'
         this.registry = sanitizedDomain(registry);
         this.imageName = imageName;
-        this._repository = `${this.registry}/${this.imageName}`;
-    }
-    get repository() {
-        return this._repository;
     }
     build(target) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const result = exec.exec('make', [
-                    `REGISTRY_NAME=${this.registry}/`,
+                if (!(yield docker_util_1.noBuiltImage())) {
+                    throw new Error('Built image exists');
+                }
+                yield exec.exec('make', [
+                    `REGISTRY_NAME=${this.registry}`,
                     `IMAGE_NAME=${this.imageName}`,
                     target
                 ]);
-                return result;
+                return this.update();
             }
             catch (e) {
                 core.debug('build() error');
@@ -1108,14 +1108,39 @@ class Docker {
     push() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                if (!this.builtImage) {
+                    throw new Error('No built image to push');
+                }
                 yield this.login();
-                const result = exec.exec('docker', ['image', 'push', this.repository]);
+                for (const tag of this.builtImage.tags) {
+                    docker_util_1.imageTag(`${this.builtImage.imageName}:${tag}`, `${this.upstreamRepository()}:${tag}`);
+                }
+                const result = exec.exec('docker', [
+                    'image',
+                    'push',
+                    this.upstreamRepository()
+                ]);
                 return result;
             }
             catch (e) {
                 core.error('push() error');
                 throw e;
             }
+        });
+    }
+    upstreamRepository() {
+        if (this.builtImage) {
+            return `${this.registry}/${this.builtImage.imageName}`;
+        }
+        else {
+            throw new Error('No image built');
+        }
+    }
+    update() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.builtImage = yield docker_util_1.latestBuiltImage(this.imageName);
+            core.debug(this.builtImage.toString());
+            return this.builtImage;
         });
     }
 }
@@ -1629,6 +1654,116 @@ function isUnixExecutable(stats) {
         ((stats.mode & 64) > 0 && stats.uid === process.getuid()));
 }
 //# sourceMappingURL=io-util.js.map
+
+/***/ }),
+
+/***/ 708:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const exec = __importStar(__webpack_require__(986));
+const core = __importStar(__webpack_require__(470));
+var DockerFormat;
+(function (DockerFormat) {
+    DockerFormat[DockerFormat["repository"] = 0] = "repository";
+    DockerFormat[DockerFormat["tag"] = 1] = "tag";
+    DockerFormat[DockerFormat["id"] = 2] = "id";
+})(DockerFormat || (DockerFormat = {}));
+function latestBuiltImage(imageName) {
+    return __awaiter(this, void 0, void 0, function* () {
+        core.debug('latestBuiltImage()');
+        const imageLines = yield exports.imageLs(imageName);
+        if (imageLines.length < 1) {
+            throw new Error('No images built');
+        }
+        let builtImageName = '';
+        let builtImageID = '';
+        const tags = [];
+        for (const imageLineStr of imageLines) {
+            const imageLine = imageLineStr.split(',');
+            if (!builtImageName && !builtImageID) {
+                builtImageName = imageLine[DockerFormat.repository];
+                builtImageID = imageLine[DockerFormat.id];
+            }
+            else if (builtImageID !== imageLine[DockerFormat.id]) {
+                break;
+            }
+            tags.push(imageLine[DockerFormat.tag]);
+        }
+        return {
+            imageName: builtImageName,
+            imageID: builtImageID,
+            tags
+        };
+    });
+}
+exports.latestBuiltImage = latestBuiltImage;
+function imageLs(imageName) {
+    return __awaiter(this, void 0, void 0, function* () {
+        core.debug(`imageLs(): ${imageName}`);
+        let stdout = '';
+        yield exec.exec('docker', ['image', 'ls', `--format`, '{{.Repository}},{{.Tag}},{{.ID}}'], {
+            listeners: {
+                stdout: (data) => {
+                    stdout += data.toString();
+                }
+            }
+        });
+        const result = stdout
+            .split('\n')
+            .filter(line => line.startsWith(`${imageName},`));
+        core.debug(`filtered: ${result.toString()}`);
+        return result;
+    });
+}
+exports.imageLs = imageLs;
+// Return true when check is OK
+function noBuiltImage() {
+    return __awaiter(this, void 0, void 0, function* () {
+        let stdout = '';
+        yield exec.exec('docker', ['image', 'ls', '-q'], {
+            listeners: {
+                stdout: (data) => {
+                    stdout += data.toString();
+                }
+            }
+        });
+        const imageCount = stdout.split('\n').filter(word => !!word).length;
+        core.debug(`built image count: ${imageCount}`);
+        if (imageCount > 0) {
+            return false;
+        }
+        else {
+            return true;
+        }
+    });
+}
+exports.noBuiltImage = noBuiltImage;
+function imageTag(source, target) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield exec.exec('docker', ['image', 'tag', source, target]);
+    });
+}
+exports.imageTag = imageTag;
+
 
 /***/ }),
 

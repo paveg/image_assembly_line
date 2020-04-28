@@ -1,9 +1,10 @@
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 import * as im from '@actions/exec/lib/interfaces'
+import {latestBuiltImage, noBuiltImage, imageTag} from './docker-util'
+
 // import {spawnSync, SpawnSyncReturns} from 'child_process'
 
-jest.mock('@actions/exec')
 export default class Docker {
   private registry: string
   private imageName: string
@@ -89,7 +90,17 @@ export default class Docker {
 
   async push(): Promise<number> {
     try {
+      if (!this.builtImage) {
+        throw new Error('No built image to push')
+      }
       await this.login()
+      for (const tag of this.builtImage.tags) {
+        imageTag(
+          `${this.builtImage.imageName}:${tag}`,
+          `${this.upstreamRepository()}:${tag}`
+        )
+      }
+
       const result = exec.exec('docker', [
         'image',
         'push',
@@ -103,11 +114,16 @@ export default class Docker {
   }
 
   upstreamRepository(): string {
-    ;`${this.registry}/${this.builtImage.imageName}`
+    if (this.builtImage) {
+      return `${this.registry}/${this.builtImage.imageName}`
+    } else {
+      throw new Error('No image built')
+    }
   }
 
   private async update(): Promise<DockerImage> {
     this.builtImage = await latestBuiltImage(this.imageName)
+    core.debug(this.builtImage.toString())
     return this.builtImage
   }
 }
@@ -116,72 +132,8 @@ function sanitizedDomain(str: string): string {
   return str.endsWith('/') ? str.substr(0, str.length - 1) : str
 }
 
-// Return true when check is OK
-async function noBuiltImage(): Promise<boolean> {
-  let stdout = ''
-  const options: im.ExecOptions = {
-    // set silent, not to log the password
-    silent: true,
-    listeners: {
-      stdout: (data: Buffer) => {
-        stdout += data.toString()
-      }
-    }
-  }
-  await exec.exec('docker', ['image', 'ls', '-q'], options)
-
-  const imageCount = stdout.split('\n').length
-
-  if (imageCount > 0) {
-    return false
-  } else {
-    return true
-  }
-}
-
-interface DockerImage {
+export interface DockerImage {
   imageID: string
   imageName: string
   tags: string[]
-}
-
-async function latestBuiltImage(imageName: string): Promise<DockerImage> {
-  enum DockerFormat {
-    repository = 0,
-    tag = 1,
-    id = 2
-  }
-
-  let stdout = ''
-  await exec.exec(
-    'docker',
-    [
-      'image',
-      'ls',
-      `--filter=reference='${imageName}'`,
-      `--format`,
-      '{{.Repository}},{{.Tag}},{{.ID}}'
-    ],
-    {
-      listeners: {
-        stdout: (data: Buffer) => {
-          stdout += data.toString()
-        }
-      }
-    }
-  )
-  const imageLines = stdout.split('\n')
-  if (imageLines.length < 1) {
-    throw new Error('No images built')
-  }
-
-  let tags = []
-  for (const imageLine of imageLines) {
-    tags.push(imageLine[DockerFormat.tag])
-  }
-  return {
-    imageName: imageLines[0][DockerFormat.repository],
-    imageID: imageLines[0][DockerFormat.id],
-    tags
-  }
 }
