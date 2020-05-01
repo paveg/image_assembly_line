@@ -1,12 +1,14 @@
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 import * as im from '@actions/exec/lib/interfaces'
+import {latestBuiltImage, noBuiltImage, imageTag} from './docker-util'
+
 // import {spawnSync, SpawnSyncReturns} from 'child_process'
 
 export default class Docker {
   private registry: string
   private imageName: string
-  private _repository: string
+  private builtImage?: DockerImage
 
   constructor(registry: string, imageName: string) {
     if (!registry) {
@@ -19,21 +21,20 @@ export default class Docker {
     // remove the last '/'
     this.registry = sanitizedDomain(registry)
     this.imageName = imageName
-    this._repository = `${this.registry}/${this.imageName}`
   }
 
-  get repository(): string {
-    return this._repository
-  }
-
-  async build(target: string): Promise<number> {
+  async build(target: string): Promise<DockerImage> {
     try {
-      const result = exec.exec('make', [
-        `REGISTRY_NAME=${this.registry}/`,
+      if (!(await noBuiltImage())) {
+        throw new Error('Built image exists')
+      }
+      await exec.exec('make', [
+        `REGISTRY_NAME=${this.registry}`,
         `IMAGE_NAME=${this.imageName}`,
         target
       ])
-      return result
+
+      return this.update()
     } catch (e) {
       core.debug('build() error')
       throw e
@@ -89,16 +90,50 @@ export default class Docker {
 
   async push(): Promise<number> {
     try {
+      if (!this.builtImage) {
+        throw new Error('No built image to push')
+      }
       await this.login()
-      const result = exec.exec('docker', ['image', 'push', this.repository])
+      for (const tag of this.builtImage.tags) {
+        imageTag(
+          `${this.builtImage.imageName}:${tag}`,
+          `${this.upstreamRepository()}:${tag}`
+        )
+      }
+
+      const result = exec.exec('docker', [
+        'image',
+        'push',
+        this.upstreamRepository()
+      ])
       return result
     } catch (e) {
       core.error('push() error')
       throw e
     }
   }
+
+  upstreamRepository(): string {
+    if (this.builtImage) {
+      return `${this.registry}/${this.builtImage.imageName}`
+    } else {
+      throw new Error('No image built')
+    }
+  }
+
+  private async update(): Promise<DockerImage> {
+    this.builtImage = await latestBuiltImage(this.imageName)
+    core.debug(this.builtImage.toString())
+    return this.builtImage
+  }
 }
 
 function sanitizedDomain(str: string): string {
   return str.endsWith('/') ? str.substr(0, str.length - 1) : str
+}
+
+export interface DockerImage {
+  imageID: string
+  imageName: string
+  tags: string[]
 }

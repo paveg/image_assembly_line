@@ -1,8 +1,5 @@
 import Docker from '../src/docker'
-import {defaultCoreCipherList} from 'constants'
-import * as exec from '@actions/exec'
-
-jest.mock('@actions/exec');
+import * as dockerUtil from '../src/docker-util'
 
 describe('constructor', () => {
   test('registry and imageName is given', async () => {
@@ -11,25 +8,12 @@ describe('constructor', () => {
       'imagename/app'
     )
     expect(docker).toBeInstanceOf(Docker)
-    expect(docker.repository).toEqual(
-      '1234567890.dkr.ecr.ap-northeast-1.amazonaws.com/imagename/app'
-    )
   })
 
   test('registry is empty', () => {
     expect(() => {
       new Docker('', 'imagename/app')
     }).toThrowError()
-  })
-
-  test('registry ends with /', () => {
-    const docker = new Docker(
-      '1234567890.dkr.ecr.ap-northeast-1.amazonaws.com/',
-      'imagename/app'
-    )
-    expect(docker.repository).toEqual(
-      '1234567890.dkr.ecr.ap-northeast-1.amazonaws.com/imagename/app'
-    )
   })
 })
 
@@ -40,8 +24,22 @@ describe('Docker#build()', () => {
   )
 
   test('build', async () => {
-    exec.exec.mockResolvedValue(0)
-    // 成功して結果が 0 であること
-    expect(await docker.build('build')).toEqual(0)
+    jest.spyOn(dockerUtil, 'noBuiltImage').mockResolvedValue(true)
+    jest.spyOn(dockerUtil, 'latestBuiltImage').mockResolvedValueOnce({
+      imageID: '1234567890',
+      imageName: 'build-image/debug',
+      tags: ['latest']
+    })
+    const result = await docker.build('build')
+    expect(result).toEqual({
+      imageID: '1234567890',
+      imageName: 'build-image/debug',
+      tags: ['latest']
+    })
+  })
+
+  test('throw error when built image exists on the machine', async () => {
+    jest.spyOn(dockerUtil, 'noBuiltImage').mockResolvedValue(false)
+    await expect(docker.build('build')).rejects.toThrowError()
   })
 })
