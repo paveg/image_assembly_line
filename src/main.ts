@@ -9,6 +9,9 @@ async function run(): Promise<void> {
       throw new Error('REGISTRY_NAME is not set.')
     }
     core.debug(registry)
+    if (process.env.GITHUB_TOKEN) {
+      core.setSecret(process.env.GITHUB_TOKEN)
+    }
 
     const target = core.getInput('target')
     core.debug(`target: ${target}`)
