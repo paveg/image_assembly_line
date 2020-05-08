@@ -4,6 +4,7 @@ on: # rebuild any PRs and main branch changes
   push:
     branches:
       - master
+      - develop
       - 'releases/*'
       - test
 
@@ -17,8 +18,10 @@ jobs:
         npm run all
   test: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
+    env:
+      REGISTRY_NAME: '1234567890.dkr.ecr.ap-northeast-1.amazonaws.com'
     steps:
     - uses: actions/checkout@v1
     - uses: ./
-      with: 
+      with:
         milliseconds: 1000

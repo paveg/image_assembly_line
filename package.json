@@ -1,8 +1,8 @@
 {
-  "name": "typescript-action",
+  "name": "image_assembly_line",
   "version": "0.0.0",
   "private": true,
-  "description": "TypeScript template action",
+  "description": "GitHub Action that runs our docker image build flow.",
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
@@ -15,17 +15,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/typescript-action.git"
+    "url": "git+https://github.com/freee/image_assembly_line.git"
   },
   "keywords": [
     "actions",
     "node",
     "setup"
   ],
-  "author": "YourNameOrOrganization",
+  "author": "freee K.K.",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.2.0"
+    "@actions/core": "^1.2.0",
+    "@actions/exec": "^1.0.3"
   },
   "devDependencies": {
     "@types/jest": "^24.0.23",
@@ -40,6 +41,8 @@
     "js-yaml": "^3.13.1",
     "prettier": "^1.19.1",
     "ts-jest": "^24.2.0",
-    "typescript": "^3.6.4"
+    "typescript": "^3.6.4",
+    "minimist": "^0.2.1",
+    "kind-of": "^6.0.3"
   }
 }
