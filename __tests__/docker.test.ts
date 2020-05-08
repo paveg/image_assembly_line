@@ -51,19 +51,14 @@ describe('Docker#scan()', () => {
     'imagename/app'
   )
 
-  test('build', async () => {
+  beforeAll(async () => {
     jest.spyOn(dockerUtil, 'noBuiltImage').mockResolvedValue(true)
     jest.spyOn(dockerUtil, 'latestBuiltImage').mockResolvedValueOnce({
       imageID: '1234567890',
       imageName: 'build-image/debug',
       tags: ['latest']
     })
-    const result = await docker.build('build')
-    expect(result).toEqual({
-      imageID: '1234567890',
-      imageName: 'build-image/debug',
-      tags: ['latest']
-    })
+    await docker.build('build')
   })
 
   test('scan passed', async () => {
