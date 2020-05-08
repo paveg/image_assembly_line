@@ -991,10 +991,17 @@ function run() {
             core.debug(`target: ${target}`);
             const imageName = core.getInput('image_name');
             core.debug(`image_name: ${imageName}`);
+            const noPush = core.getInput('no_push');
+            core.debug(`no_push: ${noPush.toString()}`);
             const docker = new docker_1.default(registry, imageName);
             core.debug(`docker: ${docker.toString()}`);
             yield docker.build(target);
-            yield docker.push();
+            if (noPush.toString() === 'true') {
+                core.info('no_push: true');
+            }
+            else {
+                yield docker.push();
+            }
         }
         catch (error) {
             core.error(error.toString());
