@@ -24,6 +24,8 @@ async function run(): Promise<void> {
 
     await docker.build(target)
 
+    await docker.scan()
+
     await docker.push()
   } catch (error) {
     core.error(error.toString())
