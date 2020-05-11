@@ -1079,6 +1079,7 @@ class Docker {
                     throw new Error('No built image to scan');
                 }
                 const result = exec.exec('trivy', [
+                    '--light',
                     '--no-progress',
                     `${this.builtImage.imageName}:${this.builtImage.tags[0]}`
                 ]);
