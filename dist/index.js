@@ -996,6 +996,7 @@ function run() {
             const docker = new docker_1.default(registry, imageName);
             core.debug(`docker: ${docker.toString()}`);
             yield docker.build(target);
+            yield docker.scan();
             if (noPush.toString() === 'true') {
                 core.info('no_push: true');
             }
@@ -1067,6 +1068,24 @@ class Docker {
             }
             catch (e) {
                 core.debug('build() error');
+                throw e;
+            }
+        });
+    }
+    scan() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                if (!this.builtImage) {
+                    throw new Error('No built image to scan');
+                }
+                const result = exec.exec('trivy', [
+                    '--no-progress',
+                    `${this.builtImage.imageName}:${this.builtImage.tags[0]}`
+                ]);
+                return result;
+            }
+            catch (e) {
+                core.error('scan() error');
                 throw e;
             }
         });

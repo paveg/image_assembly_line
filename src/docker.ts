@@ -41,6 +41,23 @@ export default class Docker {
     }
   }
 
+  async scan(): Promise<number> {
+    try {
+      if (!this.builtImage) {
+        throw new Error('No built image to scan')
+      }
+
+      const result = exec.exec('trivy', [
+        '--no-progress',
+        `${this.builtImage.imageName}:${this.builtImage.tags[0]}`
+      ])
+      return result
+    } catch (e) {
+      core.error('scan() error')
+      throw e
+    }
+  }
+
   private async login(): Promise<void> {
     core.debug('login()')
 
