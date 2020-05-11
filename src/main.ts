@@ -19,6 +19,9 @@ async function run(): Promise<void> {
     const imageName = core.getInput('image_name')
     core.debug(`image_name: ${imageName}`)
 
+    const noPush = core.getInput('no_push')
+    core.debug(`no_push: ${noPush.toString()}`)
+
     const docker = new Docker(registry, imageName)
     core.debug(`docker: ${docker.toString()}`)
 
@@ -26,7 +29,11 @@ async function run(): Promise<void> {
 
     await docker.scan()
 
-    await docker.push()
+    if (noPush.toString() === 'true') {
+      core.info('no_push: true')
+    } else {
+      await docker.push()
+    }
   } catch (error) {
     core.error(error.toString())
     core.setFailed(error.message)
