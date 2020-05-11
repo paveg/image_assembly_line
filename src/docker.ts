@@ -48,6 +48,7 @@ export default class Docker {
       }
 
       const result = exec.exec('trivy', [
+        '--light',
         '--no-progress',
         `${this.builtImage.imageName}:${this.builtImage.tags[0]}`
       ])
