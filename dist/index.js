@@ -1078,9 +1078,13 @@ class Docker {
                 if (!this.builtImage) {
                     throw new Error('No built image to scan');
                 }
+                // Available values: UNKNOWN, LOW, MEDIUM, HIGH, CRITICAL
+                let severityLevel = 'HIGH,CRITICAL';
                 const result = exec.exec('trivy', [
                     '--light',
                     '--no-progress',
+                    '--exit-code', '1',
+                    '--severity', severityLevel,
                     `${this.builtImage.imageName}:${this.builtImage.tags[0]}`
                 ]);
                 return result;
