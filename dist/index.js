@@ -934,6 +934,42 @@ class ExecState extends events.EventEmitter {
 
 /***/ }),
 
+/***/ 25:
+/***/ (function(__unusedmodule, exports) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+class baseError extends Error {
+    constructor(e) {
+        super(e);
+        this.name = new.target.name;
+        Object.setPrototypeOf(this, new.target.prototype);
+    }
+}
+exports.baseError = baseError;
+class buildError extends baseError {
+    constructor(e) {
+        super(e);
+    }
+}
+exports.buildError = buildError;
+class scanError extends baseError {
+    constructor(e) {
+        super(e);
+    }
+}
+exports.scanError = scanError;
+class pushError extends baseError {
+    constructor(e) {
+        super(e);
+    }
+}
+exports.pushError = pushError;
+
+
+/***/ }),
+
 /***/ 87:
 /***/ (function(module) {
 
@@ -975,6 +1011,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
 const docker_1 = __importDefault(__webpack_require__(231));
+const error_1 = __webpack_require__(25);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -1004,9 +1041,20 @@ function run() {
                 yield docker.push();
             }
         }
-        catch (error) {
-            core.error(error.toString());
-            core.setFailed(error.message);
+        catch (e) {
+            if (e instanceof error_1.buildError) {
+                console.error('image build error');
+            }
+            else if (e instanceof error_1.scanError) {
+                console.error('image scan error');
+            }
+            else if (e instanceof error_1.pushError) {
+                console.error('ecr push error');
+            }
+            else {
+                console.error('unknown error');
+            }
+            core.setFailed(e);
         }
     });
 }
@@ -1040,6 +1088,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
 const exec = __importStar(__webpack_require__(986));
 const docker_util_1 = __webpack_require__(708);
+const error_1 = __webpack_require__(25);
 // import {spawnSync, SpawnSyncReturns} from 'child_process'
 class Docker {
     constructor(registry, imageName) {
@@ -1068,7 +1117,7 @@ class Docker {
             }
             catch (e) {
                 core.debug('build() error');
-                throw e;
+                throw new error_1.buildError(e);
             }
         });
     }
@@ -1087,7 +1136,7 @@ class Docker {
             }
             catch (e) {
                 core.error('scan() error');
-                throw e;
+                throw new error_1.scanError(e);
             }
         });
     }
@@ -1154,7 +1203,7 @@ class Docker {
             }
             catch (e) {
                 core.error('push() error');
-                throw e;
+                throw new error_1.pushError(e);
             }
         });
     }
