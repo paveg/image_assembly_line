@@ -19,6 +19,9 @@ async function run(): Promise<void> {
     const imageName = core.getInput('image_name')
     core.debug(`image_name: ${imageName}`)
 
+    const severityLevel = core.getInput('severity_level')
+    core.debug(`severity_level: ${severityLevel.toString()}`)
+
     const noPush = core.getInput('no_push')
     core.debug(`no_push: ${noPush.toString()}`)
 
@@ -27,7 +30,7 @@ async function run(): Promise<void> {
 
     await docker.build(target)
 
-    await docker.scan()
+    await docker.scan(severityLevel)
 
     if (noPush.toString() === 'true') {
       core.info('no_push: true')

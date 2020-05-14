@@ -41,14 +41,15 @@ export default class Docker {
     }
   }
 
-  async scan(): Promise<number> {
+  async scan(severityLevel: string): Promise<number> {
     try {
       if (!this.builtImage) {
         throw new Error('No built image to scan')
       }
 
-      // Available values: UNKNOWN, LOW, MEDIUM, HIGH, CRITICAL
-      let severityLevel = 'HIGH,CRITICAL'
+      if (severityLevel.indexOf('CRITICAL') === -1) {
+        severityLevel = `CRITICAL,${severityLevel}`
+      }
 
       const result = exec.exec('trivy', [
         '--light',
