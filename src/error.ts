@@ -1,4 +1,4 @@
-export class baseError extends Error {
+export class BaseError extends Error {
   constructor(e?: string) {
     super(e);
     this.name = new.target.name;
@@ -6,20 +6,8 @@ export class baseError extends Error {
   }
 }
 
-export class buildError extends baseError {
-  constructor(e?: string) {
-    super(e)
-  }
-}
+export class BuildError extends BaseError {}
 
-export class scanError extends baseError {
-  constructor(e?: string) {
-    super(e)
-  }
-}
+export class ScanError extends BaseError {}
 
-export class pushError extends baseError {
-  constructor(e?: string) {
-    super(e)
-  }
-}
+export class PushError extends BaseError {}

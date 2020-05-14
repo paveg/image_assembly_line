@@ -2,7 +2,7 @@ import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 import * as im from '@actions/exec/lib/interfaces'
 import {latestBuiltImage, noBuiltImage, imageTag} from './docker-util'
-import {buildError, scanError, pushError} from './error'
+import {BuildError, ScanError, PushError} from './error'
 
 // import {spawnSync, SpawnSyncReturns} from 'child_process'
 
@@ -38,7 +38,7 @@ export default class Docker {
       return this.update()
     } catch (e) {
       core.debug('build() error')
-      throw new buildError(e)
+      throw new BuildError(e)
     }
   }
 
@@ -56,7 +56,7 @@ export default class Docker {
       return result
     } catch (e) {
       core.error('scan() error')
-      throw new scanError(e)
+      throw new ScanError(e)
     }
   }
 
@@ -128,7 +128,7 @@ export default class Docker {
       return result
     } catch (e) {
       core.error('push() error')
-      throw new pushError(e)
+      throw new PushError(e)
     }
   }
 

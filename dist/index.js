@@ -940,32 +940,23 @@ class ExecState extends events.EventEmitter {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-class baseError extends Error {
+class BaseError extends Error {
     constructor(e) {
         super(e);
         this.name = new.target.name;
         Object.setPrototypeOf(this, new.target.prototype);
     }
 }
-exports.baseError = baseError;
-class buildError extends baseError {
-    constructor(e) {
-        super(e);
-    }
+exports.BaseError = BaseError;
+class BuildError extends BaseError {
 }
-exports.buildError = buildError;
-class scanError extends baseError {
-    constructor(e) {
-        super(e);
-    }
+exports.BuildError = BuildError;
+class ScanError extends BaseError {
 }
-exports.scanError = scanError;
-class pushError extends baseError {
-    constructor(e) {
-        super(e);
-    }
+exports.ScanError = ScanError;
+class PushError extends BaseError {
 }
-exports.pushError = pushError;
+exports.PushError = PushError;
 
 
 /***/ }),
@@ -1042,13 +1033,13 @@ function run() {
             }
         }
         catch (e) {
-            if (e instanceof error_1.buildError) {
+            if (e instanceof error_1.BuildError) {
                 console.error('image build error');
             }
-            else if (e instanceof error_1.scanError) {
+            else if (e instanceof error_1.ScanError) {
                 console.error('image scan error');
             }
-            else if (e instanceof error_1.pushError) {
+            else if (e instanceof error_1.PushError) {
                 console.error('ecr push error');
             }
             else {
@@ -1117,7 +1108,7 @@ class Docker {
             }
             catch (e) {
                 core.debug('build() error');
-                throw new error_1.buildError(e);
+                throw new error_1.BuildError(e);
             }
         });
     }
@@ -1136,7 +1127,7 @@ class Docker {
             }
             catch (e) {
                 core.error('scan() error');
-                throw new error_1.scanError(e);
+                throw new error_1.ScanError(e);
             }
         });
     }
@@ -1203,7 +1194,7 @@ class Docker {
             }
             catch (e) {
                 core.error('push() error');
-                throw new error_1.pushError(e);
+                throw new error_1.PushError(e);
             }
         });
     }
