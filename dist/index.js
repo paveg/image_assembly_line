@@ -1034,16 +1034,16 @@ function run() {
         }
         catch (e) {
             if (e instanceof error_1.BuildError) {
-                console.error('image build error');
+                core.error('image build error');
             }
             else if (e instanceof error_1.ScanError) {
-                console.error('image scan error');
+                core.error('image scan error');
             }
             else if (e instanceof error_1.PushError) {
-                console.error('ecr push error');
+                core.error('ecr push error');
             }
             else {
-                console.error('unknown error');
+                core.error('unknown error');
             }
             core.setFailed(e);
         }

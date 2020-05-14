@@ -37,13 +37,13 @@ async function run(): Promise<void> {
     }
   } catch (e) {
     if (e instanceof BuildError) {
-      console.error('image build error');
+      core.error('image build error')
     } else if (e instanceof ScanError) {
-      console.error('image scan error');
+      core.error('image scan error')
     } else if (e instanceof PushError) {
-      console.error('ecr push error');
+      core.error('ecr push error')
     } else {
-      console.error('unknown error');
+      core.error('unknown error')
     }
     core.setFailed(e)
   }
