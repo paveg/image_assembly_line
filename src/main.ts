@@ -1,5 +1,6 @@
 import * as core from '@actions/core'
 import Docker from './docker'
+import {BuildError, ScanError, PushError} from './error'
 
 async function run(): Promise<void> {
   try {
@@ -34,9 +35,17 @@ async function run(): Promise<void> {
     } else {
       await docker.push()
     }
-  } catch (error) {
-    core.error(error.toString())
-    core.setFailed(error.message)
+  } catch (e) {
+    if (e instanceof BuildError) {
+      core.error('image build error')
+    } else if (e instanceof ScanError) {
+      core.error('image scan error')
+    } else if (e instanceof PushError) {
+      core.error('ecr push error')
+    } else {
+      core.error('unknown error')
+    }
+    core.setFailed(e)
   }
 }
 

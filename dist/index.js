@@ -934,6 +934,33 @@ class ExecState extends events.EventEmitter {
 
 /***/ }),
 
+/***/ 25:
+/***/ (function(__unusedmodule, exports) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+class BaseError extends Error {
+    constructor(e) {
+        super(e);
+        this.name = new.target.name;
+        Object.setPrototypeOf(this, new.target.prototype);
+    }
+}
+exports.BaseError = BaseError;
+class BuildError extends BaseError {
+}
+exports.BuildError = BuildError;
+class ScanError extends BaseError {
+}
+exports.ScanError = ScanError;
+class PushError extends BaseError {
+}
+exports.PushError = PushError;
+
+
+/***/ }),
+
 /***/ 87:
 /***/ (function(module) {
 
@@ -975,6 +1002,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
 const docker_1 = __importDefault(__webpack_require__(231));
+const error_1 = __webpack_require__(25);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -1004,9 +1032,20 @@ function run() {
                 yield docker.push();
             }
         }
-        catch (error) {
-            core.error(error.toString());
-            core.setFailed(error.message);
+        catch (e) {
+            if (e instanceof error_1.BuildError) {
+                core.error('image build error');
+            }
+            else if (e instanceof error_1.ScanError) {
+                core.error('image scan error');
+            }
+            else if (e instanceof error_1.PushError) {
+                core.error('ecr push error');
+            }
+            else {
+                core.error('unknown error');
+            }
+            core.setFailed(e);
         }
     });
 }
@@ -1040,6 +1079,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
 const exec = __importStar(__webpack_require__(986));
 const docker_util_1 = __webpack_require__(708);
+const error_1 = __webpack_require__(25);
 // import {spawnSync, SpawnSyncReturns} from 'child_process'
 class Docker {
     constructor(registry, imageName) {
@@ -1068,7 +1108,7 @@ class Docker {
             }
             catch (e) {
                 core.debug('build() error');
-                throw e;
+                throw new error_1.BuildError(e);
             }
         });
     }
@@ -1087,7 +1127,7 @@ class Docker {
             }
             catch (e) {
                 core.error('scan() error');
-                throw e;
+                throw new error_1.ScanError(e);
             }
         });
     }
@@ -1154,7 +1194,7 @@ class Docker {
             }
             catch (e) {
                 core.error('push() error');
-                throw e;
+                throw new error_1.PushError(e);
             }
         });
     }
