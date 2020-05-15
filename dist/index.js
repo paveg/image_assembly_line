@@ -1019,12 +1019,14 @@ function run() {
             core.debug(`target: ${target}`);
             const imageName = core.getInput('image_name');
             core.debug(`image_name: ${imageName}`);
+            const severityLevel = core.getInput('severity_level');
+            core.debug(`severity_level: ${severityLevel.toString()}`);
             const noPush = core.getInput('no_push');
             core.debug(`no_push: ${noPush.toString()}`);
             const docker = new docker_1.default(registry, imageName);
             core.debug(`docker: ${docker.toString()}`);
             yield docker.build(target);
-            yield docker.scan();
+            yield docker.scan(severityLevel);
             if (noPush.toString() === 'true') {
                 core.info('no_push: true');
             }
@@ -1112,15 +1114,22 @@ class Docker {
             }
         });
     }
-    scan() {
+    scan(severityLevel) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 if (!this.builtImage) {
                     throw new Error('No built image to scan');
                 }
+                if (!severityLevel.includes('CRITICAL')) {
+                    severityLevel = `CRITICAL,${severityLevel}`;
+                }
                 const result = exec.exec('trivy', [
                     '--light',
                     '--no-progress',
+                    '--exit-code',
+                    '1',
+                    '--severity',
+                    severityLevel,
                     `${this.builtImage.imageName}:${this.builtImage.tags[0]}`
                 ]);
                 return result;
