@@ -1,1 +1,1 @@
-FROM node:12-slim AS base
+FROM alpine:latest AS base

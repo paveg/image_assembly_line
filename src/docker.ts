@@ -2,6 +2,7 @@ import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 import * as im from '@actions/exec/lib/interfaces'
 import {latestBuiltImage, noBuiltImage, imageTag} from './docker-util'
+import {BuildError, ScanError, PushError} from './error'
 
 // import {spawnSync, SpawnSyncReturns} from 'child_process'
 
@@ -37,7 +38,33 @@ export default class Docker {
       return this.update()
     } catch (e) {
       core.debug('build() error')
-      throw e
+      throw new BuildError(e)
+    }
+  }
+
+  async scan(severityLevel: string): Promise<number> {
+    try {
+      if (!this.builtImage) {
+        throw new Error('No built image to scan')
+      }
+
+      if (!severityLevel.includes('CRITICAL')) {
+        severityLevel = `CRITICAL,${severityLevel}`
+      }
+
+      const result = exec.exec('trivy', [
+        '--light',
+        '--no-progress',
+        '--exit-code',
+        '1',
+        '--severity',
+        severityLevel,
+        `${this.builtImage.imageName}:${this.builtImage.tags[0]}`
+      ])
+      return result
+    } catch (e) {
+      core.error('scan() error')
+      throw new ScanError(e)
     }
   }
 
@@ -109,7 +136,7 @@ export default class Docker {
       return result
     } catch (e) {
       core.error('push() error')
-      throw e
+      throw new PushError(e)
     }
   }
 

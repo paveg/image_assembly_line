@@ -7,6 +7,12 @@ inputs:
   target:
     description: 'make target'
     default: 'build'
+  severity_level:
+    description: 'severities of vulnerabilities to be displayed'
+    default: 'CRITICAL' # Available values: UNKNOWN, LOW, MEDIUM, HIGH, CRITICAL
+  no_push:
+    description: 'set true if you do not want to push image to ECR'
+    default: ''
 runs:
   using: 'node12'
   main: 'dist/index.js'
