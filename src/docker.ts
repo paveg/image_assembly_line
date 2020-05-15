@@ -47,15 +47,17 @@ export default class Docker {
         throw new Error('No built image to scan')
       }
 
-      if (severityLevel.indexOf('CRITICAL') === -1) {
+      if (!severityLevel.includes('CRITICAL')) {
         severityLevel = `CRITICAL,${severityLevel}`
       }
 
       const result = exec.exec('trivy', [
         '--light',
         '--no-progress',
-        '--exit-code', '1',
-        '--severity', severityLevel,
+        '--exit-code',
+        '1',
+        '--severity',
+        severityLevel,
         `${this.builtImage.imageName}:${this.builtImage.tags[0]}`
       ])
       return result
