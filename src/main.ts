@@ -1,9 +1,11 @@
 import * as core from '@actions/core'
 import Docker from './docker'
 import {BuildError, ScanError, PushError} from './error'
+import * as exec from '@actions/exec'
 
 async function run(): Promise<void> {
   try {
+    await exec.exec('env')
     // REGISTRY_NAME はユーザー側から渡せない様にする
     const registry: string | undefined = process.env.REGISTRY_NAME
     if (!registry) {
@@ -38,6 +40,9 @@ async function run(): Promise<void> {
     } else {
       await docker.push()
     }
+
+    core.setOutput('generated_name', 'testdocker/image')
+    core.setOutput('generated_id', '1234abcDEF')
   } catch (e) {
     if (e instanceof BuildError) {
       core.error('image build error')

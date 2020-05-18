@@ -1003,9 +1003,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
 const docker_1 = __importDefault(__webpack_require__(231));
 const error_1 = __webpack_require__(25);
+const exec = __importStar(__webpack_require__(986));
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            yield exec.exec('env');
             // REGISTRY_NAME はユーザー側から渡せない様にする
             const registry = process.env.REGISTRY_NAME;
             if (!registry) {
@@ -1033,6 +1035,8 @@ function run() {
             else {
                 yield docker.push();
             }
+            core.setOutput('generated_name', 'testdocker/image');
+            core.setOutput('generated_id', '1234abcDEF');
         }
         catch (e) {
             if (e instanceof error_1.BuildError) {
