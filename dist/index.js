@@ -1003,11 +1003,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(470));
 const docker_1 = __importDefault(__webpack_require__(231));
 const error_1 = __webpack_require__(25);
-const exec = __importStar(__webpack_require__(986));
+const deliver_1 = __webpack_require__(852);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            yield exec.exec('env');
             // REGISTRY_NAME はユーザー側から渡せない様にする
             const registry = process.env.REGISTRY_NAME;
             if (!registry) {
@@ -1035,8 +1034,12 @@ function run() {
             else {
                 yield docker.push();
             }
-            core.setOutput('generated_name', 'testdocker/image');
-            core.setOutput('generated_id', '1234abcDEF');
+            if (docker.builtImage && process.env.GITHUB_RUN_ID) {
+                yield deliver_1.setDelivery({
+                    dockerImage: docker.builtImage,
+                    gitHubRunID: process.env.GITHUB_RUN_ID
+                });
+            }
         }
         catch (e) {
             if (e instanceof error_1.BuildError) {
@@ -1099,6 +1102,9 @@ class Docker {
         this.registry = sanitizedDomain(registry);
         this.imageName = imageName;
     }
+    get builtImage() {
+        return this._builtImage;
+    }
     build(target) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -1121,7 +1127,7 @@ class Docker {
     scan(severityLevel) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                if (!this.builtImage) {
+                if (!this._builtImage) {
                     throw new Error('No built image to scan');
                 }
                 if (!severityLevel.includes('CRITICAL')) {
@@ -1134,7 +1140,7 @@ class Docker {
                     '1',
                     '--severity',
                     severityLevel,
-                    `${this.builtImage.imageName}:${this.builtImage.tags[0]}`
+                    `${this._builtImage.imageName}:${this._builtImage.tags[0]}`
                 ]);
                 return result;
             }
@@ -1191,12 +1197,12 @@ class Docker {
     push() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                if (!this.builtImage) {
+                if (!this._builtImage) {
                     throw new Error('No built image to push');
                 }
                 yield this.login();
-                for (const tag of this.builtImage.tags) {
-                    docker_util_1.imageTag(`${this.builtImage.imageName}:${tag}`, `${this.upstreamRepository()}:${tag}`);
+                for (const tag of this._builtImage.tags) {
+                    docker_util_1.imageTag(`${this._builtImage.imageName}:${tag}`, `${this.upstreamRepository()}:${tag}`);
                 }
                 const result = exec.exec('docker', [
                     'image',
@@ -1212,8 +1218,8 @@ class Docker {
         });
     }
     upstreamRepository() {
-        if (this.builtImage) {
-            return `${this.registry}/${this.builtImage.imageName}`;
+        if (this._builtImage) {
+            return `${this.registry}/${this._builtImage.imageName}`;
         }
         else {
             throw new Error('No image built');
@@ -1221,9 +1227,9 @@ class Docker {
     }
     update() {
         return __awaiter(this, void 0, void 0, function* () {
-            this.builtImage = yield docker_util_1.latestBuiltImage(this.imageName);
-            core.debug(this.builtImage.toString());
-            return this.builtImage;
+            this._builtImage = yield docker_util_1.latestBuiltImage(this.imageName);
+            core.debug(this._builtImage.toString());
+            return this._builtImage;
         });
     }
 }
@@ -1854,6 +1860,41 @@ exports.imageTag = imageTag;
 /***/ (function(module) {
 
 module.exports = require("fs");
+
+/***/ }),
+
+/***/ 852:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const core = __importStar(__webpack_require__(470));
+function setDelivery(delivery) {
+    return __awaiter(this, void 0, void 0, function* () {
+        core.setOutput('built_image_name', delivery.dockerImage.imageName);
+        core.setOutput('built_image_id', delivery.dockerImage.imageID);
+        core.setOutput('git_hub_run_id', delivery.gitHubRunID);
+    });
+}
+exports.setDelivery = setDelivery;
+
 
 /***/ }),
 

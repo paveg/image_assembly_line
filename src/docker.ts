@@ -9,7 +9,7 @@ import {BuildError, ScanError, PushError} from './error'
 export default class Docker {
   private registry: string
   private imageName: string
-  private builtImage?: DockerImage
+  private _builtImage?: DockerImage
 
   constructor(registry: string, imageName: string) {
     if (!registry) {
@@ -22,6 +22,10 @@ export default class Docker {
     // remove the last '/'
     this.registry = sanitizedDomain(registry)
     this.imageName = imageName
+  }
+
+  get builtImage(): DockerImage | undefined {
+    return this._builtImage
   }
 
   async build(target: string): Promise<DockerImage> {
@@ -44,7 +48,7 @@ export default class Docker {
 
   async scan(severityLevel: string): Promise<number> {
     try {
-      if (!this.builtImage) {
+      if (!this._builtImage) {
         throw new Error('No built image to scan')
       }
 
@@ -59,7 +63,7 @@ export default class Docker {
         '1',
         '--severity',
         severityLevel,
-        `${this.builtImage.imageName}:${this.builtImage.tags[0]}`
+        `${this._builtImage.imageName}:${this._builtImage.tags[0]}`
       ])
       return result
     } catch (e) {
@@ -117,13 +121,13 @@ export default class Docker {
 
   async push(): Promise<number> {
     try {
-      if (!this.builtImage) {
+      if (!this._builtImage) {
         throw new Error('No built image to push')
       }
       await this.login()
-      for (const tag of this.builtImage.tags) {
+      for (const tag of this._builtImage.tags) {
         imageTag(
-          `${this.builtImage.imageName}:${tag}`,
+          `${this._builtImage.imageName}:${tag}`,
           `${this.upstreamRepository()}:${tag}`
         )
       }
@@ -141,17 +145,17 @@ export default class Docker {
   }
 
   upstreamRepository(): string {
-    if (this.builtImage) {
-      return `${this.registry}/${this.builtImage.imageName}`
+    if (this._builtImage) {
+      return `${this.registry}/${this._builtImage.imageName}`
     } else {
       throw new Error('No image built')
     }
   }
 
   private async update(): Promise<DockerImage> {
-    this.builtImage = await latestBuiltImage(this.imageName)
-    core.debug(this.builtImage.toString())
-    return this.builtImage
+    this._builtImage = await latestBuiltImage(this.imageName)
+    core.debug(this._builtImage.toString())
+    return this._builtImage
   }
 }
 
