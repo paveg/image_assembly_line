@@ -1,6 +1,7 @@
 import * as core from '@actions/core'
 import Docker from './docker'
 import {BuildError, ScanError, PushError} from './error'
+import {setDelivery} from './deliver'
 
 async function run(): Promise<void> {
   try {
@@ -37,6 +38,13 @@ async function run(): Promise<void> {
       core.info('no_push: true')
     } else {
       await docker.push()
+    }
+
+    if (docker.builtImage && process.env.GITHUB_RUN_ID) {
+      await setDelivery({
+        dockerImage: docker.builtImage,
+        gitHubRunID: process.env.GITHUB_RUN_ID
+      })
     }
   } catch (e) {
     if (e instanceof BuildError) {
