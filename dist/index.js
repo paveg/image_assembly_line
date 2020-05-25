@@ -1025,12 +1025,14 @@ function run() {
             core.debug(`image_name: ${imageName}`);
             const severityLevel = core.getInput('severity_level');
             core.debug(`severity_level: ${severityLevel.toString()}`);
+            const scanExitCode = core.getInput('scan_exit_code');
+            core.debug(`scan_exit_code: ${scanExitCode.toString()}`);
             const noPush = core.getInput('no_push');
             core.debug(`no_push: ${noPush.toString()}`);
             const docker = new docker_1.default(registry, imageName);
             core.debug(`docker: ${docker.toString()}`);
             yield docker.build(target);
-            yield docker.scan(severityLevel);
+            yield docker.scan(severityLevel, scanExitCode);
             if (noPush.toString() === 'true') {
                 core.info('no_push: true');
             }
@@ -1127,7 +1129,7 @@ class Docker {
             }
         });
     }
-    scan(severityLevel) {
+    scan(severityLevel, scanExitCode) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 if (!this._builtImage) {
@@ -1140,7 +1142,7 @@ class Docker {
                     '--light',
                     '--no-progress',
                     '--exit-code',
-                    '1',
+                    scanExitCode,
                     '--severity',
                     severityLevel,
                     `${this._builtImage.imageName}:${this._builtImage.tags[0]}`
