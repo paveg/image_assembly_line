@@ -46,7 +46,7 @@ export default class Docker {
     }
   }
 
-  async scan(severityLevel: string): Promise<number> {
+  async scan(severityLevel: string, scanExitCode: string): Promise<number> {
     try {
       if (!this._builtImage) {
         throw new Error('No built image to scan')
@@ -60,7 +60,7 @@ export default class Docker {
         '--light',
         '--no-progress',
         '--exit-code',
-        '1',
+        scanExitCode,
         '--severity',
         severityLevel,
         `${this._builtImage.imageName}:${this._builtImage.tags[0]}`
