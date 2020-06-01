@@ -1138,15 +1138,31 @@ class Docker {
                 if (!severityLevel.includes('CRITICAL')) {
                     severityLevel = `CRITICAL,${severityLevel}`;
                 }
-                const result = exec.exec('trivy', [
+                let trivyScanReport = '{}';
+                const options = {
+                    silent: true,
+                    listeners: {
+                        stdout: (data) => {
+                            trivyScanReport = data.toString();
+                        }
+                    }
+                };
+                const result = yield exec.exec('trivy', [
                     '--light',
                     '--no-progress',
+                    '--quiet',
+                    '--format',
+                    'json',
                     '--exit-code',
                     scanExitCode,
                     '--severity',
                     severityLevel,
                     `${this._builtImage.imageName}:${this._builtImage.tags[0]}`
-                ]);
+                ], options);
+                const vulnerabilities = JSON.parse(trivyScanReport);
+                if (vulnerabilities.length > 0) {
+                    core.debug(`Target: ${vulnerabilities[0].Target}`); // ToDo
+                }
                 return result;
             }
             catch (e) {
