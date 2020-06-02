@@ -8,3 +8,16 @@ export interface VulnerabilityIssue {
   name: string
   cve: string
 }
+
+export interface Vulnerability {
+  Target: string
+  Vulnerabilities: CVE[] | null
+}
+
+interface CVE {
+  VulnerabilityID: string
+  PkgName: string
+  InstalledVersion: string
+  FixedVersion: string
+  Severity: string
+}

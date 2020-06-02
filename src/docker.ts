@@ -3,6 +3,7 @@ import * as exec from '@actions/exec'
 import * as im from '@actions/exec/lib/interfaces'
 import {latestBuiltImage, noBuiltImage, imageTag} from './docker-util'
 import {BuildError, ScanError, PushError} from './error'
+import {Vulnerability} from './types'
 
 // import {spawnSync, SpawnSyncReturns} from 'child_process'
 
@@ -56,15 +57,38 @@ export default class Docker {
         severityLevel = `CRITICAL,${severityLevel}`
       }
 
-      const result = exec.exec('trivy', [
-        '--light',
-        '--no-progress',
-        '--exit-code',
-        scanExitCode,
-        '--severity',
-        severityLevel,
-        `${this._builtImage.imageName}:${this._builtImage.tags[0]}`
-      ])
+      let trivyScanReport = '{}'
+      const options: im.ExecOptions = {
+        silent: true,
+        listeners: {
+          stdout: (data: Buffer) => {
+            trivyScanReport = data.toString()
+          }
+        }
+      }
+
+      const result = await exec.exec(
+        'trivy',
+        [
+          '--light',
+          '--no-progress',
+          '--quiet',
+          '--format',
+          'json',
+          '--exit-code',
+          scanExitCode,
+          '--severity',
+          severityLevel,
+          `${this._builtImage.imageName}:${this._builtImage.tags[0]}`
+        ],
+        options
+      )
+
+      const vulnerabilities: Vulnerability[] = JSON.parse(trivyScanReport)
+      if (vulnerabilities.length > 0) {
+        core.debug(`Target: ${vulnerabilities[0].Target}`) // ToDo
+      }
+
       return result
     } catch (e) {
       core.error('scan() error')
