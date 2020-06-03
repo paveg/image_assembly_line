@@ -21,6 +21,9 @@ async function run(): Promise<void> {
     const imageName = core.getInput('image_name')
     core.debug(`image_name: ${imageName}`)
 
+    const commitHash = core.getInput('commit_hash')
+    core.debug(`commit_hash: ${commitHash}`)
+
     const severityLevel = core.getInput('severity_level')
     core.debug(`severity_level: ${severityLevel.toString()}`)
 
@@ -30,7 +33,7 @@ async function run(): Promise<void> {
     const noPush = core.getInput('no_push')
     core.debug(`no_push: ${noPush.toString()}`)
 
-    const docker = new Docker(registry, imageName)
+    const docker = new Docker(registry, imageName, commitHash)
     core.debug(`docker: ${docker.toString()}`)
 
     await docker.build(target)
