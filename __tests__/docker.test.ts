@@ -20,9 +20,13 @@ describe('constructor', () => {
     }).toThrowError()
   })
 
-  test('commitHash is empty', () => {
+  test('commitHash is undefined', () => {
     expect(() => {
-      new Docker('1234567890.dkr.ecr.ap-northeast-1.amazonaws.com', 'imagename/app', '')
+      new Docker(
+        '1234567890.dkr.ecr.ap-northeast-1.amazonaws.com',
+        'imagename/app',
+        undefined
+      )
     }).not.toThrowError()
   })
 })

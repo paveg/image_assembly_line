@@ -1023,13 +1023,15 @@ function run() {
             core.debug(`target: ${target}`);
             const imageName = core.getInput('image_name');
             core.debug(`image_name: ${imageName}`);
+            const commitHash = process.env.GITHUB_SHA;
+            core.debug(`commit_hash: ${commitHash}`);
             const severityLevel = core.getInput('severity_level');
             core.debug(`severity_level: ${severityLevel.toString()}`);
             const scanExitCode = core.getInput('scan_exit_code');
             core.debug(`scan_exit_code: ${scanExitCode.toString()}`);
             const noPush = core.getInput('no_push');
             core.debug(`no_push: ${noPush.toString()}`);
-            const docker = new docker_1.default(registry, imageName);
+            const docker = new docker_1.default(registry, imageName, commitHash);
             core.debug(`docker: ${docker.toString()}`);
             yield docker.build(target);
             yield docker.scan(severityLevel, scanExitCode);
@@ -1096,7 +1098,7 @@ const docker_util_1 = __webpack_require__(708);
 const error_1 = __webpack_require__(25);
 // import {spawnSync, SpawnSyncReturns} from 'child_process'
 class Docker {
-    constructor(registry, imageName) {
+    constructor(registry, imageName, commitHash) {
         if (!registry) {
             throw new Error('registry is empty');
         }
@@ -1106,6 +1108,7 @@ class Docker {
         // remove the last '/'
         this.registry = sanitizedDomain(registry);
         this.imageName = imageName;
+        this.commitHash = commitHash;
     }
     get builtImage() {
         return this._builtImage;
@@ -1249,6 +1252,9 @@ class Docker {
     update() {
         return __awaiter(this, void 0, void 0, function* () {
             this._builtImage = yield docker_util_1.latestBuiltImage(this.imageName);
+            if (this.commitHash) {
+                this._builtImage.tags.push(this.commitHash);
+            }
             core.debug(this._builtImage.toString());
             return this._builtImage;
         });
@@ -1858,12 +1864,7 @@ function noBuiltImage() {
         });
         const imageCount = stdout.split('\n').filter(word => !!word).length;
         core.debug(`built image count: ${imageCount}`);
-        if (imageCount > 0) {
-            return false;
-        }
-        else {
-            return true;
-        }
+        return imageCount <= 0;
     });
 }
 exports.noBuiltImage = noBuiltImage;

@@ -10,10 +10,10 @@ import {Vulnerability} from './types'
 export default class Docker {
   private registry: string
   private imageName: string
-  private commitHash: string
+  private commitHash?: string
   private _builtImage?: DockerImage
 
-  constructor(registry: string, imageName: string, commitHash: string) {
+  constructor(registry: string, imageName: string, commitHash?: string) {
     if (!registry) {
       throw new Error('registry is empty')
     }
@@ -24,7 +24,7 @@ export default class Docker {
     // remove the last '/'
     this.registry = sanitizedDomain(registry)
     this.imageName = imageName
-    this.commitHash = commitHash || ''
+    this.commitHash = commitHash
   }
 
   get builtImage(): DockerImage | undefined {

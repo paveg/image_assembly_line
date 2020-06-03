@@ -21,7 +21,7 @@ async function run(): Promise<void> {
     const imageName = core.getInput('image_name')
     core.debug(`image_name: ${imageName}`)
 
-    const commitHash = core.getInput('commit_hash')
+    const commitHash = process.env.GITHUB_SHA
     core.debug(`commit_hash: ${commitHash}`)
 
     const severityLevel = core.getInput('severity_level')
