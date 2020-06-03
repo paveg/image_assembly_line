@@ -76,11 +76,7 @@ export async function noBuiltImage(): Promise<boolean> {
   const imageCount = stdout.split('\n').filter(word => !!word).length
 
   core.debug(`built image count: ${imageCount}`)
-  if (imageCount > 0) {
-    return false
-  } else {
-    return true
-  }
+  return imageCount <= 0
 }
 
 export async function imageTag(source: string, target: string): Promise<void> {
