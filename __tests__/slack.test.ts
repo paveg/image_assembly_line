@@ -35,3 +35,21 @@ describe('postMessage', () => {
     expect(message.attachments).toHaveLength(1)
   })
 })
+
+describe('postVulnerability()', () => {
+  test('Post message to CSIRT', async () => {
+    const imageName = 'test/app:latest'
+    const target = 'alpine:3.x.x (alpine 3.x.x)'
+    const cve = {
+      VulnerabilityID: 'CVE-2020-0000',
+      PkgName: 'test',
+      InstalledVersion: '1.0.0',
+      FixedVersion: '1.0.1',
+      Severity: 'CRITICAL'
+    }
+
+    process.env.SLACK_TRIVY_ALERT = process.env.SLACK_CICD_NOTIFICATION_TEST
+    const result = await slack.postVulnerability(imageName, target, cve)
+    expect(result.ok).toBe(true)
+  })
+})

@@ -4,8 +4,7 @@ import * as im from '@actions/exec/lib/interfaces'
 import {latestBuiltImage, noBuiltImage, imageTag} from './docker-util'
 import {BuildError, ScanError, PushError} from './error'
 import {Vulnerability} from './types'
-
-// import {spawnSync, SpawnSyncReturns} from 'child_process'
+import {notifyVulnerability} from './notification'
 
 export default class Docker {
   private registry: string
@@ -57,7 +56,7 @@ export default class Docker {
         severityLevel = `CRITICAL,${severityLevel}`
       }
 
-      let trivyScanReport = '{}'
+      let trivyScanReport = '[]'
       const options: im.ExecOptions = {
         silent: true,
         listeners: {
@@ -67,6 +66,7 @@ export default class Docker {
         }
       }
 
+      const imageName = `${this._builtImage.imageName}:${this._builtImage.tags[0]}`
       const result = await exec.exec(
         'trivy',
         [
@@ -79,14 +79,14 @@ export default class Docker {
           scanExitCode,
           '--severity',
           severityLevel,
-          `${this._builtImage.imageName}:${this._builtImage.tags[0]}`
+          imageName
         ],
         options
       )
 
       const vulnerabilities: Vulnerability[] = JSON.parse(trivyScanReport)
       if (vulnerabilities.length > 0) {
-        core.debug(`Target: ${vulnerabilities[0].Target}`) // ToDo
+        notifyVulnerability(imageName, vulnerabilities)
       }
 
       return result

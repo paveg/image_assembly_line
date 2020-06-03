@@ -1,10 +1,20 @@
+import {Vulnerability} from './types'
+import {postVulnerability} from './slack'
 import {NotificationError} from './error'
 
-export function notifyVulnerability(): void {
+export function notifyVulnerability(
+  imageName: string,
+  vulnerabilities: Vulnerability[]
+): void {
   try {
-    // slack.postMessage()
+    for (const result of vulnerabilities) {
+      if (result.Vulnerabilities != null) {
+        for (const vulnerability of result.Vulnerabilities) {
+          postVulnerability(imageName, result.Target, vulnerability)
+        }
+      }
+    }
     return
-    // eslint-disable-next-line no-unreachable
   } catch (e) {
     throw new NotificationError(e)
   }
