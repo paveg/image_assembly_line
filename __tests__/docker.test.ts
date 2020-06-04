@@ -19,16 +19,6 @@ describe('constructor', () => {
       new Docker('', 'imagename/app', commitHash)
     }).toThrowError()
   })
-
-  test('commitHash is undefined', () => {
-    expect(() => {
-      new Docker(
-        '1234567890.dkr.ecr.ap-northeast-1.amazonaws.com',
-        'imagename/app',
-        undefined
-      )
-    }).not.toThrowError()
-  })
 })
 
 describe('Docker#build()', () => {

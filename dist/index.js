@@ -1023,6 +1023,9 @@ function run() {
             core.debug(`target: ${target}`);
             const imageName = core.getInput('image_name');
             core.debug(`image_name: ${imageName}`);
+            if (!process.env.GITHUB_SHA) {
+                throw new Error('GITHUB_SHA not found.');
+            }
             const commitHash = process.env.GITHUB_SHA;
             core.debug(`commit_hash: ${commitHash}`);
             const severityLevel = core.getInput('severity_level');
@@ -1252,9 +1255,7 @@ class Docker {
     update() {
         return __awaiter(this, void 0, void 0, function* () {
             this._builtImage = yield docker_util_1.latestBuiltImage(this.imageName);
-            if (this.commitHash) {
-                this._builtImage.tags.push(this.commitHash);
-            }
+            this._builtImage.tags.push(this.commitHash);
             core.debug(this._builtImage.toString());
             return this._builtImage;
         });

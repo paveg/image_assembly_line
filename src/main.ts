@@ -21,6 +21,9 @@ async function run(): Promise<void> {
     const imageName = core.getInput('image_name')
     core.debug(`image_name: ${imageName}`)
 
+    if (!process.env.GITHUB_SHA) {
+      throw new Error('GITHUB_SHA not found.')
+    }
     const commitHash = process.env.GITHUB_SHA
     core.debug(`commit_hash: ${commitHash}`)
 

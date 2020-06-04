@@ -10,10 +10,10 @@ import {Vulnerability} from './types'
 export default class Docker {
   private registry: string
   private imageName: string
-  private commitHash?: string
+  private commitHash: string
   private _builtImage?: DockerImage
 
-  constructor(registry: string, imageName: string, commitHash?: string) {
+  constructor(registry: string, imageName: string, commitHash: string) {
     if (!registry) {
       throw new Error('registry is empty')
     }
@@ -180,9 +180,7 @@ export default class Docker {
 
   private async update(): Promise<DockerImage> {
     this._builtImage = await latestBuiltImage(this.imageName)
-    if (this.commitHash) {
-      this._builtImage.tags.push(this.commitHash)
-    }
+    this._builtImage.tags.push(this.commitHash)
     core.debug(this._builtImage.toString())
     return this._builtImage
   }
