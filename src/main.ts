@@ -55,7 +55,8 @@ async function run(): Promise<void> {
     if (noPush.toString() === 'true') {
       core.info('no_push: true')
     } else {
-      await docker.push()
+      await docker.push('latest')
+      await docker.push(commitHash)
     }
 
     if (docker.builtImage && process.env.GITHUB_RUN_ID) {

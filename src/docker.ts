@@ -145,25 +145,19 @@ export default class Docker {
     }
   }
 
-  async push(): Promise<number> {
+  async push(tag: string): Promise<number> {
     try {
       if (!this._builtImage) {
         throw new Error('No built image to push')
       }
       await this.login()
-      for (const tag of this._builtImage.tags) {
-        imageTag(
-          `${this._builtImage.imageName}:${tag}`,
-          `${this.upstreamRepository()}:${tag}`
-        )
-      }
+      imageTag(this._builtImage.imageID, `${this.upstreamRepository()}:${tag}`)
 
-      const result = exec.exec('docker', [
+      return exec.exec('docker', [
         'image',
         'push',
-        this.upstreamRepository()
+        `${this.upstreamRepository()}:${tag}`
       ])
-      return result
     } catch (e) {
       core.error('push() error')
       throw new PushError(e)
