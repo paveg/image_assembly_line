@@ -3,15 +3,16 @@ import * as exec from '@actions/exec'
 import * as im from '@actions/exec/lib/interfaces'
 import {latestBuiltImage, noBuiltImage, imageTag} from './docker-util'
 import {BuildError, ScanError, PushError} from './error'
-
-// import {spawnSync, SpawnSyncReturns} from 'child_process'
+import {Vulnerability} from './types'
+import {notifyVulnerability} from './notification'
 
 export default class Docker {
   private registry: string
   private imageName: string
-  private builtImage?: DockerImage
+  private commitHash: string
+  private _builtImage?: DockerImage
 
-  constructor(registry: string, imageName: string) {
+  constructor(registry: string, imageName: string, commitHash: string) {
     if (!registry) {
       throw new Error('registry is empty')
     }
@@ -22,6 +23,11 @@ export default class Docker {
     // remove the last '/'
     this.registry = sanitizedDomain(registry)
     this.imageName = imageName
+    this.commitHash = commitHash
+  }
+
+  get builtImage(): DockerImage | undefined {
+    return this._builtImage
   }
 
   async build(target: string): Promise<DockerImage> {
@@ -42,9 +48,9 @@ export default class Docker {
     }
   }
 
-  async scan(severityLevel: string): Promise<number> {
+  async scan(severityLevel: string, scanExitCode: string): Promise<number> {
     try {
-      if (!this.builtImage) {
+      if (!this._builtImage) {
         throw new Error('No built image to scan')
       }
 
@@ -52,15 +58,39 @@ export default class Docker {
         severityLevel = `CRITICAL,${severityLevel}`
       }
 
-      const result = exec.exec('trivy', [
-        '--light',
-        '--no-progress',
-        '--exit-code',
-        '1',
-        '--severity',
-        severityLevel,
-        `${this.builtImage.imageName}:${this.builtImage.tags[0]}`
-      ])
+      let trivyScanReport = '[]'
+      const options: im.ExecOptions = {
+        silent: true,
+        listeners: {
+          stdout: (data: Buffer) => {
+            trivyScanReport = data.toString()
+          }
+        }
+      }
+
+      const imageName = `${this._builtImage.imageName}:${this._builtImage.tags[0]}`
+      const result = await exec.exec(
+        'trivy',
+        [
+          '--light',
+          '--no-progress',
+          '--quiet',
+          '--format',
+          'json',
+          '--exit-code',
+          scanExitCode,
+          '--severity',
+          severityLevel,
+          imageName
+        ],
+        options
+      )
+
+      const vulnerabilities: Vulnerability[] = JSON.parse(trivyScanReport)
+      if (vulnerabilities.length > 0) {
+        notifyVulnerability(imageName, vulnerabilities)
+      }
+
       return result
     } catch (e) {
       core.error('scan() error')
@@ -117,13 +147,13 @@ export default class Docker {
 
   async push(): Promise<number> {
     try {
-      if (!this.builtImage) {
+      if (!this._builtImage) {
         throw new Error('No built image to push')
       }
       await this.login()
-      for (const tag of this.builtImage.tags) {
+      for (const tag of this._builtImage.tags) {
         imageTag(
-          `${this.builtImage.imageName}:${tag}`,
+          `${this._builtImage.imageName}:${tag}`,
           `${this.upstreamRepository()}:${tag}`
         )
       }
@@ -141,17 +171,18 @@ export default class Docker {
   }
 
   upstreamRepository(): string {
-    if (this.builtImage) {
-      return `${this.registry}/${this.builtImage.imageName}`
+    if (this._builtImage) {
+      return `${this.registry}/${this._builtImage.imageName}`
     } else {
       throw new Error('No image built')
     }
   }
 
   private async update(): Promise<DockerImage> {
-    this.builtImage = await latestBuiltImage(this.imageName)
-    core.debug(this.builtImage.toString())
-    return this.builtImage
+    this._builtImage = await latestBuiltImage(this.imageName)
+    this._builtImage.tags.push(this.commitHash)
+    core.debug(this._builtImage.toString())
+    return this._builtImage
   }
 }
 

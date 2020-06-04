@@ -1,6 +1,7 @@
 import * as core from '@actions/core'
 import Docker from './docker'
 import {BuildError, ScanError, PushError} from './error'
+import {setDelivery} from './deliver'
 
 async function run(): Promise<void> {
   try {
@@ -20,23 +21,39 @@ async function run(): Promise<void> {
     const imageName = core.getInput('image_name')
     core.debug(`image_name: ${imageName}`)
 
+    if (!process.env.GITHUB_SHA) {
+      throw new Error('GITHUB_SHA not found.')
+    }
+    const commitHash = process.env.GITHUB_SHA
+    core.debug(`commit_hash: ${commitHash}`)
+
     const severityLevel = core.getInput('severity_level')
     core.debug(`severity_level: ${severityLevel.toString()}`)
+
+    const scanExitCode = core.getInput('scan_exit_code')
+    core.debug(`scan_exit_code: ${scanExitCode.toString()}`)
 
     const noPush = core.getInput('no_push')
     core.debug(`no_push: ${noPush.toString()}`)
 
-    const docker = new Docker(registry, imageName)
+    const docker = new Docker(registry, imageName, commitHash)
     core.debug(`docker: ${docker.toString()}`)
 
     await docker.build(target)
 
-    await docker.scan(severityLevel)
+    await docker.scan(severityLevel, scanExitCode)
 
     if (noPush.toString() === 'true') {
       core.info('no_push: true')
     } else {
       await docker.push()
+    }
+
+    if (docker.builtImage && process.env.GITHUB_RUN_ID) {
+      await setDelivery({
+        dockerImage: docker.builtImage,
+        gitHubRunID: process.env.GITHUB_RUN_ID
+      })
     }
   } catch (e) {
     if (e instanceof BuildError) {
