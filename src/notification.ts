@@ -1,6 +1,6 @@
-import {Vulnerability} from './types'
-import {postVulnerability} from './slack'
+import {Vulnerability, BuildAction} from './types'
 import {NotificationError} from './error'
+import * as slack from './slack'
 
 export function notifyVulnerability(
   imageName: string,
@@ -10,7 +10,7 @@ export function notifyVulnerability(
     for (const result of vulnerabilities) {
       if (result.Vulnerabilities != null) {
         for (const vulnerability of result.Vulnerabilities) {
-          postVulnerability(imageName, result.Target, vulnerability)
+          slack.postVulnerability(imageName, result.Target, vulnerability)
         }
       }
     }
@@ -18,4 +18,11 @@ export function notifyVulnerability(
   } catch (e) {
     throw new NotificationError(e)
   }
+}
+
+/*
+ *
+ */
+export async function notifyBuildFailed(build: BuildAction): Promise<void> {
+  slack.postBuildFailed(build)
 }
