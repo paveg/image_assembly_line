@@ -1396,15 +1396,31 @@ exports.setDelivery = setDelivery;
 
 "use strict";
 
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const slack_1 = __webpack_require__(570);
 const error_1 = __webpack_require__(25);
+const slack = __importStar(__webpack_require__(570));
 function notifyVulnerability(imageName, vulnerabilities) {
     try {
         for (const result of vulnerabilities) {
             if (result.Vulnerabilities != null) {
                 for (const vulnerability of result.Vulnerabilities) {
-                    slack_1.postVulnerability(imageName, result.Target, vulnerability);
+                    slack.postVulnerability(imageName, result.Target, vulnerability);
                 }
             }
         }
@@ -1415,6 +1431,15 @@ function notifyVulnerability(imageName, vulnerabilities) {
     }
 }
 exports.notifyVulnerability = notifyVulnerability;
+/*
+ *
+ */
+function notifyBuildFailed(build) {
+    return __awaiter(this, void 0, void 0, function* () {
+        slack.postBuildFailed(build);
+    });
+}
+exports.notifyBuildFailed = notifyBuildFailed;
 
 
 /***/ }),
@@ -2349,8 +2374,16 @@ const core = __importStar(__webpack_require__(470));
 const docker_1 = __importDefault(__webpack_require__(231));
 const error_1 = __webpack_require__(25);
 const deliver_1 = __webpack_require__(61);
+const notification = __importStar(__webpack_require__(62));
+const types_1 = __webpack_require__(251);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
+        const thisAction = new types_1.BuildAction({
+            repository: process.env.GITHUB_REPOSITORY,
+            workflow: process.env.GITHUB_WORKFLOW,
+            commitSHA: process.env.GITHUB_SHA,
+            runID: process.env.GITHUB_RUN_ID
+        });
         try {
             // REGISTRY_NAME はユーザー側から渡せない様にする
             const registry = process.env.REGISTRY_NAME;
@@ -2384,7 +2417,8 @@ function run() {
                 core.info('no_push: true');
             }
             else {
-                yield docker.push();
+                yield docker.push('latest');
+                yield docker.push(commitHash);
             }
             if (docker.builtImage && process.env.GITHUB_RUN_ID) {
                 yield deliver_1.setDelivery({
@@ -2396,6 +2430,7 @@ function run() {
         catch (e) {
             if (e instanceof error_1.BuildError) {
                 core.error('image build error');
+                notification.notifyBuildFailed(thisAction);
             }
             else if (e instanceof error_1.ScanError) {
                 core.error('image scan error');
@@ -2759,22 +2794,19 @@ class Docker {
             }
         });
     }
-    push() {
+    push(tag) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 if (!this._builtImage) {
                     throw new Error('No built image to push');
                 }
                 yield this.login();
-                for (const tag of this._builtImage.tags) {
-                    docker_util_1.imageTag(`${this._builtImage.imageName}:${tag}`, `${this.upstreamRepository()}:${tag}`);
-                }
-                const result = exec.exec('docker', [
+                docker_util_1.imageTag(this._builtImage.imageID, `${this.upstreamRepository()}:${tag}`);
+                return exec.exec('docker', [
                     'image',
                     'push',
-                    this.upstreamRepository()
+                    `${this.upstreamRepository()}:${tag}`
                 ]);
-                return result;
             }
             catch (e) {
                 core.error('push() error');
@@ -3144,6 +3176,48 @@ module.exports = {
 	stdout: getSupportLevel(process.stdout),
 	stderr: getSupportLevel(process.stderr)
 };
+
+
+/***/ }),
+
+/***/ 251:
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const url_1 = __webpack_require__(835);
+const core = __importStar(__webpack_require__(470));
+class BuildAction {
+    constructor(build) {
+        this.githubURL = new url_1.URL('https://github.com/');
+        core.debug('constructor');
+        core.debug(this.githubURL.href);
+        this.repository = build.repository;
+        this.workflow = build.workflow;
+        this.commitSHA = build.commitSHA;
+        this.runID = build.runID;
+    }
+    get runURL() {
+        core.debug('get runURL');
+        core.debug(new url_1.URL('https://github.com/').href);
+        core.debug(this.githubURL.href);
+        this.githubURL.pathname = `/${this.repository}/actions/runs/${this.runID}`;
+        return this.githubURL;
+    }
+    get githubRepositoryURL() {
+        this.githubURL.pathname = `/${this.repository}`;
+        return this.githubURL;
+    }
+}
+exports.BuildAction = BuildAction;
 
 
 /***/ }),
@@ -5002,20 +5076,31 @@ const core = __importStar(__webpack_require__(470));
 const client = new api.WebClient(process.env.SLACK_BOT_TOKEN);
 var Color;
 (function (Color) {
-    Color["Danger"] = "danger";
+    Color["Danger"] = "#b22222";
     Color["Good"] = "good";
 })(Color || (Color = {}));
-function postBuildFailed(
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-repository, 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-actionID) {
+function postBuildFailed(build) {
     return __awaiter(this, void 0, void 0, function* () {
-        const attachments = { color: Color.Danger };
-        exports.postMessage('ビルドに失敗しました', attachments);
+        const attachments = [failedAttachment(build)];
+        const channel = process.env.SLACK_CONTAINERS_NOTIFICATION;
+        return exports.postMessage(channel, `<${build.githubRepositoryURL}|${build.repository}> のビルドに失敗しました`, attachments);
     });
 }
 exports.postBuildFailed = postBuildFailed;
+function failedAttachment(build) {
+    const repositoryBlock = {
+        type: 'section',
+        text: {
+            type: 'mrkdwn',
+            text: `*Action:* <${build.runURL}|${build.repository}>\n*Workflow:* ${build.workflow}\n`
+        }
+    };
+    return {
+        color: Color.Danger,
+        blocks: [repositoryBlock]
+    };
+}
+exports.failedAttachment = failedAttachment;
 function postVulnerability(imageName, target, cve) {
     return __awaiter(this, void 0, void 0, function* () {
         if (!process.env.SLACK_TRIVY_ALERT) {
