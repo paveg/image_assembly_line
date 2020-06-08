@@ -88,7 +88,7 @@ export default class Docker {
 
       const vulnerabilities: Vulnerability[] = JSON.parse(trivyScanReport)
       if (vulnerabilities.length > 0) {
-        notifyVulnerability(imageName, vulnerabilities)
+        notifyVulnerability(imageName, vulnerabilities, trivyScanReport)
       }
 
       return result

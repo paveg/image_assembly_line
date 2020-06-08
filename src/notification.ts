@@ -1,12 +1,15 @@
 import {Vulnerability, BuildAction} from './types'
 import {NotificationError} from './error'
 import * as slack from './slack'
+import * as s3 from './s3'
 
 export function notifyVulnerability(
   imageName: string,
-  vulnerabilities: Vulnerability[]
+  vulnerabilities: Vulnerability[],
+  rowJson: string
 ): void {
   try {
+    // Notify Slack
     for (const result of vulnerabilities) {
       if (result.Vulnerabilities != null) {
         for (const vulnerability of result.Vulnerabilities) {
@@ -14,6 +17,9 @@ export function notifyVulnerability(
         }
       }
     }
+
+    // Upload to S3
+    s3.uploadVulnerability(rowJson)
     return
   } catch (e) {
     throw new NotificationError(e)
