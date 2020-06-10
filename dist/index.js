@@ -20358,6 +20358,11 @@ exports.noBuiltImage = noBuiltImage;
 function imageTag(source, target) {
     return __awaiter(this, void 0, void 0, function* () {
         yield exec.exec('docker', ['image', 'tag', source, target]);
+        let result;
+        do {
+            result = yield imageLs(target.split(':')[0]);
+            core.debug(`count: ${result.length.toString()}`);
+        } while (result.length < 0);
     });
 }
 exports.imageTag = imageTag;

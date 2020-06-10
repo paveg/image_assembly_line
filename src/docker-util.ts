@@ -81,4 +81,10 @@ export async function noBuiltImage(): Promise<boolean> {
 
 export async function imageTag(source: string, target: string): Promise<void> {
   await exec.exec('docker', ['image', 'tag', source, target])
+
+  let result: string[]
+  do {
+    result = await imageLs(target.split(':')[0])
+    core.debug(`count: ${result.length.toString()}`)
+  } while (result.length < 0)
 }
