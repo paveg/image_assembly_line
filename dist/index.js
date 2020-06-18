@@ -7178,6 +7178,7 @@ const docker_1 = __importDefault(__webpack_require__(231));
 const error_1 = __webpack_require__(25);
 const deliver_1 = __webpack_require__(61);
 const notification = __importStar(__webpack_require__(62));
+const s3 = __importStar(__webpack_require__(673));
 const types_1 = __webpack_require__(251);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -7197,6 +7198,7 @@ function run() {
             if (process.env.GITHUB_TOKEN) {
                 core.setSecret(process.env.GITHUB_TOKEN);
             }
+            const startTime = new Date(); // UTC
             const target = core.getInput('target');
             core.debug(`target: ${target}`);
             const imageName = core.getInput('image_name');
@@ -7229,6 +7231,8 @@ function run() {
                     gitHubRunID: process.env.GITHUB_RUN_ID
                 });
             }
+            const endTime = new Date(); // UTC
+            s3.uploadBuildTime(startTime, endTime);
         }
         catch (e) {
             if (e instanceof error_1.BuildError) {
@@ -19468,6 +19472,29 @@ function uploadVulnerability(rowJson) {
     });
 }
 exports.uploadVulnerability = uploadVulnerability;
+function uploadBuildTime(
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+startTime, 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+endTime) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!process.env.METRICS_BUCKET_NAME) {
+            throw new Error('No bucket name.');
+        }
+        const bucketName = process.env.METRICS_BUCKET_NAME;
+        const rowJson = '{}'; // ToDo
+        const json = convertToJsonLines(rowJson);
+        core.debug(`JSON data: ${json}`);
+        const param = {
+            Bucket: bucketName,
+            Key: generateObjectKey('build', 'json'),
+            Body: json,
+            ContentType: 'application/json'
+        };
+        s3PutObject(param);
+    });
+}
+exports.uploadBuildTime = uploadBuildTime;
 function s3PutObject(param) {
     return __awaiter(this, void 0, void 0, function* () {
         client.upload(param, (err, data) => {
