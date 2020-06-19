@@ -17,7 +17,7 @@ export async function uploadVulnerability(rowJson: string): Promise<void> {
 
   const param: s3.Types.PutObjectRequest = {
     Bucket: bucketName,
-    Key: generateObjectKey('trivy', 'json'),
+    Key: generateObjectKey('trivy/', 'json'),
     Body: json,
     ContentType: 'application/json',
     ACL: 'bucket-owner-full-control'
@@ -43,7 +43,7 @@ export async function uploadBuildTime(
 
   const param: s3.Types.PutObjectRequest = {
     Bucket: bucketName,
-    Key: generateObjectKey('build', 'json'),
+    Key: generateObjectKey('build/dt=', 'json'),
     Body: json,
     ContentType: 'application/json'
   }
@@ -73,7 +73,7 @@ function generateObjectKey(prefix: string, fileExtension: string): string {
   const second = zeroPadding(now.getSeconds(), 2)
 
   const objectKey = `${year}-${month}-${date}/${hour}-${minute}-${second}-${uuidv4()}`
-  return `${prefix}/${objectKey}.${fileExtension}`
+  return `${prefix}${objectKey}.${fileExtension}`
 }
 
 function zeroPadding(num: number, len: number): string {

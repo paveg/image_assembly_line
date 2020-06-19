@@ -19463,7 +19463,7 @@ function uploadVulnerability(rowJson) {
         core.debug(`JSON data: ${json}`);
         const param = {
             Bucket: bucketName,
-            Key: generateObjectKey('trivy', 'json'),
+            Key: generateObjectKey('trivy/', 'json'),
             Body: json,
             ContentType: 'application/json',
             ACL: 'bucket-owner-full-control'
@@ -19487,7 +19487,7 @@ endTime) {
         core.debug(`JSON data: ${json}`);
         const param = {
             Bucket: bucketName,
-            Key: generateObjectKey('build', 'json'),
+            Key: generateObjectKey('build/dt=', 'json'),
             Body: json,
             ContentType: 'application/json'
         };
@@ -19517,7 +19517,7 @@ function generateObjectKey(prefix, fileExtension) {
     const minute = zeroPadding(now.getMinutes(), 2);
     const second = zeroPadding(now.getSeconds(), 2);
     const objectKey = `${year}-${month}-${date}/${hour}-${minute}-${second}-${uuid_1.v4()}`;
-    return `${prefix}/${objectKey}.${fileExtension}`;
+    return `${prefix}${objectKey}.${fileExtension}`;
 }
 function zeroPadding(num, len) {
     return num.toString().padStart(len, '0');
