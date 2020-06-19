@@ -7,23 +7,53 @@ const client = new s3({
 })
 
 export async function uploadVulnerability(rowJson: string): Promise<void> {
-  if (!process.env.BUCKET_NAME) {
+  if (!process.env.LOGS_BUCKET_NAME) {
     throw new Error('No bucket name.')
   }
-  const bucketName: string = process.env.BUCKET_NAME
+  const bucketName: string = process.env.LOGS_BUCKET_NAME
 
-  // Convert to JSON Lines
-  const json: string = JSON.stringify(JSON.parse(rowJson))
+  const json: string = convertToJsonLines(rowJson)
   core.debug(`JSON data: ${json}`)
 
   const param: s3.Types.PutObjectRequest = {
     Bucket: bucketName,
-    Key: generateObjectKey('trivy', 'json'),
-    Body: `${json}\n`,
+    Key: generateObjectKey('trivy/', 'json'),
+    Body: json,
     ContentType: 'application/json',
     ACL: 'bucket-owner-full-control'
   }
 
+  s3PutObject(param)
+}
+
+export async function uploadBuildTime(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  startTime: Date,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  endTime: Date
+): Promise<void> {
+  if (!process.env.METRICS_BUCKET_NAME) {
+    throw new Error('No bucket name.')
+  }
+  const bucketName: string = process.env.METRICS_BUCKET_NAME
+
+  const rowJson = '{}' // ToDo
+  const json: string = convertToJsonLines(rowJson)
+  core.debug(`JSON data: ${json}`)
+
+  const param: s3.Types.PutObjectRequest = {
+    Bucket: bucketName,
+    Key: generateObjectKey('build/dt=', 'json'),
+    Body: json,
+    ContentType: 'application/json'
+  }
+
+  s3PutObject(param)
+}
+
+export async function s3PutObject(
+  param: s3.Types.PutObjectRequest
+): Promise<void> {
   client.upload(param, (err: Error, data: s3.ManagedUpload.SendData) => {
     if (err) {
       throw new Error('Failed to upload to S3.')
@@ -31,7 +61,6 @@ export async function uploadVulnerability(rowJson: string): Promise<void> {
       core.debug(`Upload to S3: ${data.Bucket}/${data.Key}`)
     }
   })
-  return
 }
 
 function generateObjectKey(prefix: string, fileExtension: string): string {
@@ -44,9 +73,14 @@ function generateObjectKey(prefix: string, fileExtension: string): string {
   const second = zeroPadding(now.getSeconds(), 2)
 
   const objectKey = `${year}-${month}-${date}/${hour}-${minute}-${second}-${uuidv4()}`
-  return `${prefix}/${objectKey}.${fileExtension}`
+  return `${prefix}${objectKey}.${fileExtension}`
 }
 
 function zeroPadding(num: number, len: number): string {
   return num.toString().padStart(len, '0')
+}
+
+function convertToJsonLines(json: string): string {
+  json = JSON.stringify(JSON.parse(json))
+  return `${json}\n`
 }

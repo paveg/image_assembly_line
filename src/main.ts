@@ -3,6 +3,7 @@ import Docker from './docker'
 import {BuildError, ScanError, PushError} from './error'
 import {setDelivery} from './deliver'
 import * as notification from './notification'
+import * as s3 from './s3'
 import {BuildAction} from './types'
 
 async function run(): Promise<void> {
@@ -23,6 +24,8 @@ async function run(): Promise<void> {
     if (process.env.GITHUB_TOKEN) {
       core.setSecret(process.env.GITHUB_TOKEN)
     }
+
+    const startTime = new Date() // UTC
 
     const target = core.getInput('target')
     core.debug(`target: ${target}`)
@@ -65,6 +68,9 @@ async function run(): Promise<void> {
         gitHubRunID: process.env.GITHUB_RUN_ID
       })
     }
+
+    const endTime = new Date() // UTC
+    s3.uploadBuildTime(startTime, endTime)
   } catch (e) {
     if (e instanceof BuildError) {
       core.error('image build error')
