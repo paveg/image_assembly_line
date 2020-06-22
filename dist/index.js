@@ -19472,22 +19472,26 @@ function uploadVulnerability(rowJson) {
     });
 }
 exports.uploadVulnerability = uploadVulnerability;
-function uploadBuildTime(
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-startTime, 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-endTime) {
+function uploadBuildTime(startTime, endTime) {
     return __awaiter(this, void 0, void 0, function* () {
         if (!process.env.METRICS_BUCKET_NAME) {
             throw new Error('No bucket name.');
         }
         const bucketName = process.env.METRICS_BUCKET_NAME;
-        const rowJson = '{}'; // ToDo
-        const json = convertToJsonLines(rowJson);
+        /* eslint-disable @typescript-eslint/camelcase */
+        const buildData = {
+            start_at: convertDateTimeFormat(startTime),
+            end_at: convertDateTimeFormat(endTime),
+            repository: process.env.GITHUB_REPOSITORY,
+            branch: process.env.GITHUB_REF,
+            run_id: process.env.GITHUB_RUN_ID
+        };
+        /* eslint-enable */
+        const json = `${JSON.stringify(buildData)}\n`;
         core.debug(`JSON data: ${json}`);
         const param = {
             Bucket: bucketName,
-            Key: generateObjectKey('build/dt=', 'json'),
+            Key: generateObjectKey('buildtime/dt=', 'json'),
             Body: json,
             ContentType: 'application/json'
         };
@@ -19525,6 +19529,12 @@ function zeroPadding(num, len) {
 function convertToJsonLines(json) {
     json = JSON.stringify(JSON.parse(json));
     return `${json}\n`;
+}
+function convertDateTimeFormat(date) {
+    return date
+        .toISOString()
+        .replace('T', ' ')
+        .replace('Z', '');
 }
 
 

@@ -27,9 +27,7 @@ export async function uploadVulnerability(rowJson: string): Promise<void> {
 }
 
 export async function uploadBuildTime(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   startTime: Date,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   endTime: Date
 ): Promise<void> {
   if (!process.env.METRICS_BUCKET_NAME) {
@@ -37,13 +35,22 @@ export async function uploadBuildTime(
   }
   const bucketName: string = process.env.METRICS_BUCKET_NAME
 
-  const rowJson = '{}' // ToDo
-  const json: string = convertToJsonLines(rowJson)
+  /* eslint-disable @typescript-eslint/camelcase */
+  const buildData = {
+    start_at: convertDateTimeFormat(startTime),
+    end_at: convertDateTimeFormat(endTime),
+    repository: process.env.GITHUB_REPOSITORY,
+    branch: process.env.GITHUB_REF,
+    run_id: process.env.GITHUB_RUN_ID
+  }
+  /* eslint-enable */
+
+  const json = `${JSON.stringify(buildData)}\n`
   core.debug(`JSON data: ${json}`)
 
   const param: s3.Types.PutObjectRequest = {
     Bucket: bucketName,
-    Key: generateObjectKey('build/dt=', 'json'),
+    Key: generateObjectKey('buildtime/dt=', 'json'),
     Body: json,
     ContentType: 'application/json'
   }
@@ -83,4 +90,11 @@ function zeroPadding(num: number, len: number): string {
 function convertToJsonLines(json: string): string {
   json = JSON.stringify(JSON.parse(json))
   return `${json}\n`
+}
+
+function convertDateTimeFormat(date: Date): string {
+  return date
+    .toISOString()
+    .replace('T', ' ')
+    .replace('Z', '')
 }
