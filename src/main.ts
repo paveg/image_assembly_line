@@ -52,14 +52,14 @@ async function run(): Promise<void> {
 
     await docker.scan(severityLevel, scanExitCode)
 
-    if (noPush.toString() === 'true') {
-      core.info('no_push: true')
-    } else {
-      await docker.push('latest')
-      await docker.push(commitHash)
-    }
-
     if (docker.builtImage && process.env.GITHUB_RUN_ID) {
+      if (noPush.toString() === 'true') {
+        core.info('no_push: true')
+      } else {
+        for (const tag of docker.builtImage.tags) {
+          await docker.push(tag)
+        }
+      }
       await setDelivery({
         dockerImage: docker.builtImage,
         gitHubRunID: process.env.GITHUB_RUN_ID

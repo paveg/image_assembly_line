@@ -7216,14 +7216,15 @@ function run() {
             core.debug(`docker: ${docker.toString()}`);
             yield docker.build(target);
             yield docker.scan(severityLevel, scanExitCode);
-            if (noPush.toString() === 'true') {
-                core.info('no_push: true');
-            }
-            else {
-                yield docker.push('latest');
-                yield docker.push(commitHash);
-            }
             if (docker.builtImage && process.env.GITHUB_RUN_ID) {
+                if (noPush.toString() === 'true') {
+                    core.info('no_push: true');
+                }
+                else {
+                    for (const tag of docker.builtImage.tags) {
+                        yield docker.push(tag);
+                    }
+                }
                 yield deliver_1.setDelivery({
                     dockerImage: docker.builtImage,
                     gitHubRunID: process.env.GITHUB_RUN_ID
@@ -20346,6 +20347,7 @@ function dockerImageLs(imageName) {
             params: { filter: imageName },
             socketPath: '/var/run/docker.sock'
         });
+        // Make sure that images are sorted by "Created" desc.
         return res.data.sort((im1, im2) => {
             return im2.Created - im1.Created;
         });
