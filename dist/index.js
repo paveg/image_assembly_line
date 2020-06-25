@@ -7247,6 +7247,7 @@ function run() {
                 core.error('ecr push error');
             }
             else {
+                core.error(e.message);
                 core.error('unknown error');
             }
             core.setFailed(e);
