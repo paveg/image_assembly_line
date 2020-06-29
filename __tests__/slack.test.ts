@@ -87,3 +87,32 @@ describe('postVulnerability()', () => {
     expect(result.ok).toBe(true)
   })
 })
+
+describe('postReadyToDeploy()', () => {
+  test('post message with attachment', async () => {
+    const build = new BuildAction({
+      repository: 'C-FO/image_assembly_line',
+      workflow: 'workflow1',
+      commitSHA: '123acf98',
+      runID: '987654321'
+    })
+    const message = `<${build.githubRepositoryURL}|${build.repository}> のビルドに成功しました`
+    const postMessage = jest.spyOn(slack, 'postMessage').mockResolvedValueOnce({
+      ok: true,
+      message: {
+        text: message
+      }
+    })
+
+    const result = await slack.postReadyToDeploy(build, "image/name", "5min 10sec", "latest, commithash")
+    expect(postMessage).toHaveBeenCalledWith(
+      channel,
+      message,
+      [slack.buildMessageForDeploy("image/name", "5min 10sec", "latest, commithash", build.repository)]
+    )
+    expect(result.ok).toBe(true)
+
+    const resultMessage = result.message as any
+    expect(resultMessage.text).toBe(message)
+  })
+})

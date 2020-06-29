@@ -71,6 +71,10 @@ async function run(): Promise<void> {
 
     const endTime = new Date() // UTC
     s3.uploadBuildTime(startTime, endTime)
+
+    const elapsedSec = (endTime.getTime() - startTime.getTime()) / 1000
+    const buildTime = `${Math.floor(elapsedSec/60)}min ${elapsedSec%60}sec`
+    notification.notifyReadyToDeploy(thisAction, imageName, buildTime, docker.builtImage?.tags.join(", "))
   } catch (e) {
     if (e instanceof BuildError) {
       core.error('image build error')
