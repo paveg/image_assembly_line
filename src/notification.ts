@@ -37,7 +37,7 @@ export async function notifyReadyToDeploy(
   build: BuildAction,
   imageName: string,
   buildTime: string,
-  tags: string | undefined,
+  tags: string | undefined
 ): Promise<void> {
   slack.postReadyToDeploy(build, imageName, buildTime, tags)
 }

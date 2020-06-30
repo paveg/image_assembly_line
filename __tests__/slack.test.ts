@@ -104,12 +104,20 @@ describe('postReadyToDeploy()', () => {
       }
     })
 
-    const result = await slack.postReadyToDeploy(build, "image/name", "5min 10sec", "latest, commithash")
-    expect(postMessage).toHaveBeenCalledWith(
-      channel,
-      message,
-      [slack.buildMessageForDeploy("image/name", "5min 10sec", "latest, commithash", build.repository)]
+    const result = await slack.postReadyToDeploy(
+      build,
+      'image/name',
+      '5min 10sec',
+      'latest, commithash'
     )
+    expect(postMessage).toHaveBeenCalledWith(channel, message, [
+      slack.buildMessageForDeploy(
+        'image/name',
+        '5min 10sec',
+        'latest, commithash',
+        build.repository
+      )
+    ])
     expect(result.ok).toBe(true)
 
     const resultMessage = result.message as any

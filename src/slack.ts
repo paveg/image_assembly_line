@@ -25,9 +25,11 @@ export async function postReadyToDeploy(
   build: BuildAction,
   imageName: string,
   buildTime: string,
-  tags: string | undefined,
+  tags: string | undefined
 ): Promise<api.WebAPICallResult> {
-  const attachments = [buildMessageForDeploy(imageName, buildTime, tags, build.repository)]
+  const attachments = [
+    buildMessageForDeploy(imageName, buildTime, tags, build.repository)
+  ]
   const channel = process.env.SLACK_CICD_NOTIFICATION_TEST
 
   return exports.postMessage(
@@ -41,37 +43,39 @@ export function buildMessageForDeploy(
   imageName: string,
   buildTime: string,
   tags: string | undefined,
-  repo: string | undefined,
-): types.MessageAttachment  {
+  repo: string | undefined
+): types.MessageAttachment {
   const repositoryBlock = {
-    "blocks": [
+    blocks: [
       {
-        "type": "section",
-        "text": {
-          "type": "plain_text",
-          "text": `image-name: ${imageName} build-time: ${buildTime}\ntag: [${tags}] repo: ${repo}`,
-          "emoji": true
+        type: 'section',
+        text: {
+          type: 'plain_text',
+          text: `image-name: ${imageName} build-time: ${buildTime}\ntag: [${tags}] repo: ${repo}`,
+          emoji: true
         }
       },
       {
-        "type": "section",
-        "text": {
-          "type": "plain_text",
-          "text": "デプロイしますか？",
-          "emoji": true
+        type: 'section',
+        text: {
+          type: 'plain_text',
+          text: 'デプロイしますか？',
+          emoji: true
         }
       },
       {
-        "type": "actions",
-        "elements": [
+        type: 'actions',
+        elements: [
           {
-            "type": "button",
-            "text": {
-              "type": "plain_text",
-              "text": "デプロイへ",
-              "emoji": true
+            type: 'button',
+            text: {
+              type: 'plain_text',
+              text: 'デプロイへ',
+              emoji: true
             },
-            "value": "click_me_123"
+            value: `${repo}::${imageName}::${tags}`,
+            // eslint-disable-next-line @typescript-eslint/camelcase
+            action_id: 'ready_to_deploy'
           }
         ]
       }
