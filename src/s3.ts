@@ -1,6 +1,7 @@
 import * as core from '@actions/core'
 import s3 from 'aws-sdk/clients/s3'
 import {v4 as uuidv4} from 'uuid'
+import * as ecr from './ecr'
 
 const client = new s3({
   region: process.env.AWS_REGION
@@ -28,12 +29,21 @@ export async function uploadVulnerability(rowJson: string): Promise<void> {
 
 export async function uploadBuildTime(
   startTime: Date,
-  endTime: Date
+  endTime: Date,
+  repositoryName: string,
+  buildResult: string,
+  buildReason: string
 ): Promise<void> {
   if (!process.env.METRICS_BUCKET_NAME) {
     throw new Error('No bucket name.')
   }
   const bucketName: string = process.env.METRICS_BUCKET_NAME
+
+  const latestImage = await ecr.getLatestImage(repositoryName)
+  if (!latestImage[0].imagePushedAt) {
+    throw new Error('No push date.')
+  }
+  const imagePushedAt = latestImage[0].imagePushedAt
 
   /* eslint-disable @typescript-eslint/camelcase */
   const buildData = {
@@ -41,7 +51,10 @@ export async function uploadBuildTime(
     end_at: convertDateTimeFormat(endTime),
     repository: process.env.GITHUB_REPOSITORY,
     branch: process.env.GITHUB_REF,
-    run_id: process.env.GITHUB_RUN_ID
+    run_id: process.env.GITHUB_RUN_ID,
+    pushed_at: convertDateTimeFormat(imagePushedAt),
+    result: buildResult,
+    reason: buildReason
   }
   /* eslint-enable */
 
