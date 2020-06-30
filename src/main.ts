@@ -3,6 +3,7 @@ import Docker from './docker'
 import {BuildError, ScanError, PushError} from './error'
 import {setDelivery} from './deliver'
 import * as notification from './notification'
+import * as s3 from './s3'
 import {BuildAction} from './types'
 
 async function run(): Promise<void> {
@@ -12,6 +13,8 @@ async function run(): Promise<void> {
     commitSHA: process.env.GITHUB_SHA,
     runID: process.env.GITHUB_RUN_ID
   })
+
+  const startTime = new Date() // UTC
 
   try {
     // REGISTRY_NAME はユーザー側から渡せない様にする
@@ -52,30 +55,53 @@ async function run(): Promise<void> {
 
     await docker.scan(severityLevel, scanExitCode)
 
-    if (noPush.toString() === 'true') {
-      core.info('no_push: true')
-    } else {
-      await docker.push('latest')
-      await docker.push(commitHash)
-    }
-
     if (docker.builtImage && process.env.GITHUB_RUN_ID) {
+      if (noPush.toString() === 'true') {
+        core.info('no_push: true')
+      } else {
+        for (const tag of docker.builtImage.tags) {
+          await docker.push(tag)
+        }
+      }
       await setDelivery({
         dockerImage: docker.builtImage,
         gitHubRunID: process.env.GITHUB_RUN_ID
       })
     }
+
+    const endTime = new Date() // UTC
+    s3.uploadBuildTime(startTime, endTime, imageName, 'success', 'NoError')
+
+    const elapsedSec = (endTime.getTime() - startTime.getTime()) / 1000
+    const buildTime = `${Math.floor(elapsedSec / 60)}min ${elapsedSec % 60}sec`
+    notification.notifyReadyToDeploy(
+      thisAction,
+      imageName,
+      buildTime,
+      docker.builtImage?.tags.join(', ')
+    )
   } catch (e) {
+    let buildReason: string
     if (e instanceof BuildError) {
+      buildReason = 'BuildError'
       core.error('image build error')
       notification.notifyBuildFailed(thisAction)
     } else if (e instanceof ScanError) {
+      buildReason = 'ScanError'
       core.error('image scan error')
     } else if (e instanceof PushError) {
+      buildReason = 'PushError'
       core.error('ecr push error')
     } else {
+      buildReason = 'UnknownError'
+      core.error(e.message)
       core.error('unknown error')
     }
+
+    const endTime = new Date() // UTC
+    const imageName = core.getInput('image_name')
+    s3.uploadBuildTime(startTime, endTime, imageName, 'fail', buildReason)
+
     core.setFailed(e)
   }
 }

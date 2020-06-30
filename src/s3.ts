@@ -1,29 +1,79 @@
 import * as core from '@actions/core'
 import s3 from 'aws-sdk/clients/s3'
 import {v4 as uuidv4} from 'uuid'
+import * as ecr from './ecr'
 
 const client = new s3({
   region: process.env.AWS_REGION
 })
 
 export async function uploadVulnerability(rowJson: string): Promise<void> {
-  if (!process.env.BUCKET_NAME) {
+  if (!process.env.LOGS_BUCKET_NAME) {
     throw new Error('No bucket name.')
   }
-  const bucketName: string = process.env.BUCKET_NAME
+  const bucketName: string = process.env.LOGS_BUCKET_NAME
 
-  // Convert to JSON Lines
-  const json: string = JSON.stringify(JSON.parse(rowJson))
+  const json: string = convertToJsonLines(rowJson)
   core.debug(`JSON data: ${json}`)
 
   const param: s3.Types.PutObjectRequest = {
     Bucket: bucketName,
-    Key: generateObjectKey('trivy', 'json'),
-    Body: `${json}\n`,
+    Key: generateObjectKey('trivy/', 'json'),
+    Body: json,
     ContentType: 'application/json',
     ACL: 'bucket-owner-full-control'
   }
 
+  s3PutObject(param)
+}
+
+export async function uploadBuildTime(
+  startTime: Date,
+  endTime: Date,
+  repositoryName: string,
+  buildResult: string,
+  buildReason: string
+): Promise<void> {
+  if (!process.env.METRICS_BUCKET_NAME) {
+    throw new Error('No bucket name.')
+  }
+  const bucketName: string = process.env.METRICS_BUCKET_NAME
+
+  const latestImage = await ecr.getLatestImage(repositoryName)
+  if (!latestImage[0].imagePushedAt) {
+    throw new Error('No push date.')
+  }
+  const imagePushedAt = latestImage[0].imagePushedAt
+
+  /* eslint-disable @typescript-eslint/camelcase */
+  const buildData = {
+    start_at: convertDateTimeFormat(startTime),
+    end_at: convertDateTimeFormat(endTime),
+    repository: process.env.GITHUB_REPOSITORY,
+    branch: process.env.GITHUB_REF,
+    run_id: process.env.GITHUB_RUN_ID,
+    pushed_at: convertDateTimeFormat(imagePushedAt),
+    result: buildResult,
+    reason: buildReason
+  }
+  /* eslint-enable */
+
+  const json = `${JSON.stringify(buildData)}\n`
+  core.debug(`JSON data: ${json}`)
+
+  const param: s3.Types.PutObjectRequest = {
+    Bucket: bucketName,
+    Key: generateObjectKey('buildtime/dt=', 'json'),
+    Body: json,
+    ContentType: 'application/json'
+  }
+
+  s3PutObject(param)
+}
+
+export async function s3PutObject(
+  param: s3.Types.PutObjectRequest
+): Promise<void> {
   client.upload(param, (err: Error, data: s3.ManagedUpload.SendData) => {
     if (err) {
       throw new Error('Failed to upload to S3.')
@@ -31,7 +81,6 @@ export async function uploadVulnerability(rowJson: string): Promise<void> {
       core.debug(`Upload to S3: ${data.Bucket}/${data.Key}`)
     }
   })
-  return
 }
 
 function generateObjectKey(prefix: string, fileExtension: string): string {
@@ -44,9 +93,21 @@ function generateObjectKey(prefix: string, fileExtension: string): string {
   const second = zeroPadding(now.getSeconds(), 2)
 
   const objectKey = `${year}-${month}-${date}/${hour}-${minute}-${second}-${uuidv4()}`
-  return `${prefix}/${objectKey}.${fileExtension}`
+  return `${prefix}${objectKey}.${fileExtension}`
 }
 
 function zeroPadding(num: number, len: number): string {
   return num.toString().padStart(len, '0')
+}
+
+function convertToJsonLines(json: string): string {
+  json = JSON.stringify(JSON.parse(json))
+  return `${json}\n`
+}
+
+function convertDateTimeFormat(date: Date): string {
+  return date
+    .toISOString()
+    .replace('T', ' ')
+    .replace('Z', '')
 }

@@ -32,3 +32,12 @@ export function notifyVulnerability(
 export async function notifyBuildFailed(build: BuildAction): Promise<void> {
   slack.postBuildFailed(build)
 }
+
+export async function notifyReadyToDeploy(
+  build: BuildAction,
+  imageName: string,
+  buildTime: string,
+  tags: string | undefined
+): Promise<void> {
+  slack.postReadyToDeploy(build, imageName, buildTime, tags)
+}
