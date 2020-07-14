@@ -20519,10 +20519,12 @@ function dockerImageTag(imageID, repositoryName, tag) {
             const res = yield axios_1.default.post(`http:/v1.39/images/${imageID}/tag`, {
                 params: { tag, repo: repositoryName }
             });
-            core.debug(res.data);
+            if (res.status !== 201) {
+                core.debug(res.data);
+            }
         }
         catch (error) {
-            core.debug(error);
+            new Error(error);
         }
         let result;
         do {
