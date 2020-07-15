@@ -151,13 +151,10 @@ export default class Docker {
         throw new Error('No built image to push')
       }
       await this.login()
-      dockerImageTag(this._builtImage.imageID, this.upstreamRepository(), tag)
+      const registry = this.upstreamRepository()
+      dockerImageTag(this._builtImage.imageID, registry, tag)
 
-      return exec.exec('docker', [
-        'image',
-        'push',
-        `${this.upstreamRepository()}:${tag}`
-      ])
+      return exec.exec('docker', ['image', 'push', `${registry}:${tag}`])
     } catch (e) {
       core.error('push() error')
       throw new PushError(e)

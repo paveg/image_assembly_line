@@ -47,25 +47,26 @@ export async function noBuiltImage(): Promise<boolean> {
 }
 
 export async function dockerImageTag(
-  imageID: string,
-  repositoryName: string,
-  tag: string
+  imageId: string,
+  repository: string,
+  newTag: string
 ): Promise<void> {
   try {
-    const res = await axios.post(`http:/v1.39/images/${imageID}/tag`, {
-      params: {tag, repo: repositoryName}
+    const res = await axios.post(`http:/v1.39/images/${imageId}/tag`, {
+      params: {tag: newTag, repo: repository},
+      socketPath: '/var/run/docker.sock'
     })
 
     if (res.status !== 201) {
-      core.debug(res.data)
+      core.debug(`error response data: ${res.data}`)
     }
   } catch (error) {
-    new Error(error)
+    core.error(`dockerImageTag: ${error}`)
   }
 
   let result: DockerEngineImageResponse[]
   do {
-    result = await dockerImageLs(`${repositoryName}:${tag}`)
+    result = await dockerImageLs(`${repository}:${newTag}`)
     core.debug(`count: ${result.length.toString()}`)
   } while (result.length < 0)
 }
