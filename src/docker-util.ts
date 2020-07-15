@@ -2,6 +2,7 @@ import {DockerImage} from './docker'
 import * as exec from '@actions/exec'
 import * as core from '@actions/core'
 import axios from 'axios'
+import qs from 'qs'
 
 // Document for docker engine API.
 // https://docs.docker.com/engine/api/v1.39/
@@ -61,9 +62,7 @@ export async function dockerImageTag(
   try {
     const res = await axiosInstance.post(
       `http:/${apiVersion}/images/${imageId}/tag`,
-      {
-        params: {tag: newTag, repo: repository}
-      }
+      qs.stringify({tag: newTag, repo: repository})
     )
 
     if (res.status !== 201) {
