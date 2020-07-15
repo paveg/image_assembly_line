@@ -8,6 +8,7 @@ import qs from 'qs'
 // https://docs.docker.com/engine/api/v1.39/
 const apiVersion = 'v1.39'
 export const axiosInstance = axios.create({
+  baseURL: `http:/${apiVersion}/`,
   socketPath: '/var/run/docker.sock'
 })
 
@@ -61,7 +62,7 @@ export async function dockerImageTag(
 ): Promise<void> {
   try {
     const res = await axiosInstance.post(
-      `http:/${apiVersion}/images/${imageId}/tag`,
+      `images/${imageId}/tag`,
       qs.stringify({tag: newTag, repo: repository})
     )
 
@@ -82,7 +83,7 @@ export async function dockerImageTag(
 export async function dockerImageLs(
   imageName: string
 ): Promise<DockerEngineImageResponse[]> {
-  const res = await axiosInstance.get(`http:/${apiVersion}/images/json`, {
+  const res = await axiosInstance.get('images/json', {
     params: {filter: imageName}
   })
 
