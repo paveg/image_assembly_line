@@ -20471,6 +20471,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const exec = __importStar(__webpack_require__(986));
 const core = __importStar(__webpack_require__(470));
 const axios_1 = __importDefault(__webpack_require__(53));
+// Document for docker engine API.
+// https://docs.docker.com/engine/api/v1.39/
+const apiVersion = 'v1.39';
+exports.axiosInstance = axios_1.default.create({
+    baseURL: `http:/${apiVersion}/`,
+    timeout: 1000,
+    socketPath: '/var/run/docker.sock'
+});
 function latestBuiltImage(imageName) {
     return __awaiter(this, void 0, void 0, function* () {
         core.debug('latestBuiltImage()');
@@ -20513,9 +20521,8 @@ exports.noBuiltImage = noBuiltImage;
 function dockerImageTag(imageId, repository, newTag) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const res = yield axios_1.default.post(`http:/v1.39/images/${imageId}/tag`, {
-                params: { tag: newTag, repo: repository },
-                socketPath: '/var/run/docker.sock'
+            const res = yield exports.axiosInstance.post(`images/${imageId}/tag`, {
+                params: { tag: newTag, repo: repository }
             });
             if (res.status !== 201) {
                 core.debug(`error response data: ${res.data}`);
@@ -20534,11 +20541,8 @@ function dockerImageTag(imageId, repository, newTag) {
 exports.dockerImageTag = dockerImageTag;
 function dockerImageLs(imageName) {
     return __awaiter(this, void 0, void 0, function* () {
-        // Document for docker engine API.
-        // https://docs.docker.com/engine/api/v1.39/
-        const res = yield axios_1.default.get('http:/v1.39/images/json', {
-            params: { filter: imageName },
-            socketPath: '/var/run/docker.sock'
+        const res = yield exports.axiosInstance.get('images/json', {
+            params: { filter: imageName }
         });
         // Make sure that images are sorted by "Created" desc.
         return res.data.sort((im1, im2) => {

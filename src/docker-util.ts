@@ -3,6 +3,15 @@ import * as exec from '@actions/exec'
 import * as core from '@actions/core'
 import axios from 'axios'
 
+// Document for docker engine API.
+// https://docs.docker.com/engine/api/v1.39/
+const apiVersion = 'v1.39'
+export const axiosInstance = axios.create({
+  baseURL: `http:/${apiVersion}/`,
+  timeout: 1000,
+  socketPath: '/var/run/docker.sock'
+})
+
 export async function latestBuiltImage(
   imageName: string
 ): Promise<DockerImage> {
@@ -52,9 +61,8 @@ export async function dockerImageTag(
   newTag: string
 ): Promise<void> {
   try {
-    const res = await axios.post(`http:/v1.39/images/${imageId}/tag`, {
-      params: {tag: newTag, repo: repository},
-      socketPath: '/var/run/docker.sock'
+    const res = await axiosInstance.post(`images/${imageId}/tag`, {
+      params: {tag: newTag, repo: repository}
     })
 
     if (res.status !== 201) {
@@ -74,11 +82,8 @@ export async function dockerImageTag(
 export async function dockerImageLs(
   imageName: string
 ): Promise<DockerEngineImageResponse[]> {
-  // Document for docker engine API.
-  // https://docs.docker.com/engine/api/v1.39/
-  const res = await axios.get('http:/v1.39/images/json', {
-    params: {filter: imageName},
-    socketPath: '/var/run/docker.sock'
+  const res = await axiosInstance.get('images/json', {
+    params: {filter: imageName}
   })
 
   // Make sure that images are sorted by "Created" desc.

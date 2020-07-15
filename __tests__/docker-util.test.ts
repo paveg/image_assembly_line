@@ -1,6 +1,6 @@
 import * as dockerUtil from '../src/docker-util'
+import {axiosInstance} from '../src/docker-util'
 import * as exec from '@actions/exec'
-import axios from 'axios'
 
 describe('latestBuiltImage()', () => {
   afterEach(() => {
@@ -8,7 +8,9 @@ describe('latestBuiltImage()', () => {
   })
 
   test('returns latest built image', async () => {
-    const mock = jest.spyOn(axios, 'get').mockResolvedValueOnce(DOCKRE_RESPONSE)
+    const mock = jest
+      .spyOn(axiosInstance, 'get')
+      .mockResolvedValueOnce(DOCKRE_RESPONSE)
 
     const builtImage = await dockerUtil.latestBuiltImage(BUILT_IMAGE_NAME)
     expect(builtImage.imageID).toEqual(BUILT_IMAGE_ID)
@@ -33,12 +35,13 @@ describe('imageList()', () => {
   })
 
   test('when there is some specified images', async () => {
-    const mock = jest.spyOn(axios, 'get').mockResolvedValueOnce(DOCKRE_RESPONSE)
+    const mock = jest
+      .spyOn(axiosInstance, 'get')
+      .mockResolvedValueOnce(DOCKRE_RESPONSE)
     const imageList = await dockerUtil.dockerImageLs(BUILT_IMAGE_NAME)
 
-    expect(mock).toHaveBeenCalledWith('http:/v1.39/images/json', {
-      params: {filter: BUILT_IMAGE_NAME},
-      socketPath: '/var/run/docker.sock'
+    expect(mock).toHaveBeenCalledWith('images/json', {
+      params: {filter: BUILT_IMAGE_NAME}
     })
 
     // sorted
@@ -54,7 +57,9 @@ describe('imageList()', () => {
   })
 
   test('when there is NO any specified images', async () => {
-    const mock = jest.spyOn(axios, 'get').mockResolvedValueOnce({data: []})
+    const mock = jest
+      .spyOn(axiosInstance, 'get')
+      .mockResolvedValueOnce({data: []})
 
     const imageList = await dockerUtil.dockerImageLs('noimages/app')
     expect(imageList.length).toBe(0)
