@@ -20475,8 +20475,6 @@ const axios_1 = __importDefault(__webpack_require__(53));
 // https://docs.docker.com/engine/api/v1.39/
 const apiVersion = 'v1.39';
 exports.axiosInstance = axios_1.default.create({
-    baseURL: `http:/${apiVersion}/`,
-    timeout: 1000,
     socketPath: '/var/run/docker.sock'
 });
 function latestBuiltImage(imageName) {
@@ -20521,7 +20519,7 @@ exports.noBuiltImage = noBuiltImage;
 function dockerImageTag(imageId, repository, newTag) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const res = yield exports.axiosInstance.post(`images/${imageId}/tag`, {
+            const res = yield exports.axiosInstance.post(`http:/${apiVersion}/images/${imageId}/tag`, {
                 params: { tag: newTag, repo: repository }
             });
             if (res.status !== 201) {
@@ -20541,7 +20539,7 @@ function dockerImageTag(imageId, repository, newTag) {
 exports.dockerImageTag = dockerImageTag;
 function dockerImageLs(imageName) {
     return __awaiter(this, void 0, void 0, function* () {
-        const res = yield exports.axiosInstance.get('images/json', {
+        const res = yield exports.axiosInstance.get(`http:/${apiVersion}/images/json`, {
             params: { filter: imageName }
         });
         // Make sure that images are sorted by "Created" desc.

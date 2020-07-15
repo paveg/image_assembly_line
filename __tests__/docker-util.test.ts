@@ -40,7 +40,7 @@ describe('imageList()', () => {
       .mockResolvedValueOnce(DOCKRE_RESPONSE)
     const imageList = await dockerUtil.dockerImageLs(BUILT_IMAGE_NAME)
 
-    expect(mock).toHaveBeenCalledWith('images/json', {
+    expect(mock).toHaveBeenCalledWith('http:/v1.39/images/json', {
       params: {filter: BUILT_IMAGE_NAME}
     })
 

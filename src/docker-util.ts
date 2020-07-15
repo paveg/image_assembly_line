@@ -7,8 +7,6 @@ import axios from 'axios'
 // https://docs.docker.com/engine/api/v1.39/
 const apiVersion = 'v1.39'
 export const axiosInstance = axios.create({
-  baseURL: `http:/${apiVersion}/`,
-  timeout: 1000,
   socketPath: '/var/run/docker.sock'
 })
 
@@ -61,9 +59,12 @@ export async function dockerImageTag(
   newTag: string
 ): Promise<void> {
   try {
-    const res = await axiosInstance.post(`images/${imageId}/tag`, {
-      params: {tag: newTag, repo: repository}
-    })
+    const res = await axiosInstance.post(
+      `http:/${apiVersion}/images/${imageId}/tag`,
+      {
+        params: {tag: newTag, repo: repository}
+      }
+    )
 
     if (res.status !== 201) {
       core.debug(`error response data: ${res.data}`)
@@ -82,7 +83,7 @@ export async function dockerImageTag(
 export async function dockerImageLs(
   imageName: string
 ): Promise<DockerEngineImageResponse[]> {
-  const res = await axiosInstance.get('images/json', {
+  const res = await axiosInstance.get(`http:/${apiVersion}/images/json`, {
     params: {filter: imageName}
   })
 
