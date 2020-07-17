@@ -77,6 +77,9 @@ describe('dockerImageTag()', () => {
       status: 201,
       data: {}
     }
+    jest
+      .spyOn(axiosInstance, 'get')
+      .mockResolvedValueOnce(DOCKER_RESPONSE)
     const mock = jest
       .spyOn(axiosInstance, 'post')
       .mockResolvedValueOnce(dockerResponse)
