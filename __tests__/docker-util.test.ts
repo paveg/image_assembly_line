@@ -1,6 +1,7 @@
 import * as dockerUtil from '../src/docker-util'
 import {axiosInstance} from '../src/docker-util'
 import * as exec from '@actions/exec'
+import qs from 'qs'
 
 describe('latestBuiltImage()', () => {
   afterEach(() => {
@@ -63,6 +64,39 @@ describe('imageList()', () => {
 
     const imageList = await dockerUtil.dockerImageLs('noimages/app')
     expect(imageList.length).toBe(0)
+  })
+})
+
+describe('dockerImageTag()', () => {
+  afterEach(() => {
+    jest.restoreAllMocks()
+  })
+
+  test('when returns successfully status code', async () => {
+    const dockerResponse = {
+      status: 201,
+      data: {}
+    }
+    const mock = jest
+      .spyOn(axiosInstance, 'post')
+      .mockResolvedValueOnce(dockerResponse)
+    await dockerUtil.dockerImageTag('testId', 'yyy', 'xxx')
+    expect(mock).toHaveBeenCalledWith(
+      'images/testId/tag',
+      qs.stringify({tag: 'xxx', repo: 'yyy'})
+    )
+  })
+
+  test('when returns error code', async () => {
+    const dockerResponse = {
+      status: 404,
+      data: {
+        message: 'error message'
+      }
+    }
+    jest.spyOn(axiosInstance, 'post').mockResolvedValueOnce(dockerResponse)
+    const imageTag = dockerUtil.dockerImageTag('testId', 'yyy', 'xxx')
+    await expect(imageTag).rejects.toThrow()
   })
 })
 

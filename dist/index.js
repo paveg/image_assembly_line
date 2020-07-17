@@ -20846,14 +20846,9 @@ function noBuiltImage() {
 exports.noBuiltImage = noBuiltImage;
 function dockerImageTag(imageId, repository, newTag) {
     return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const res = yield exports.axiosInstance.post(`images/${imageId}/tag`, qs_1.default.stringify({ tag: newTag, repo: repository }));
-            if (res.status !== 201) {
-                core.debug(`error response data: ${res.data}`);
-            }
-        }
-        catch (error) {
-            core.error(`dockerImageTag: ${error}`);
+        const res = yield exports.axiosInstance.post(`images/${imageId}/tag`, qs_1.default.stringify({ tag: newTag, repo: repository }));
+        if (res.status !== 201 && res.status !== 200) {
+            throw new Error(`POST images/{name}/tag returns status code: ${res.status}`);
         }
         let result;
         do {
