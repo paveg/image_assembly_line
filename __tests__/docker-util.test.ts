@@ -9,9 +9,9 @@ describe('latestBuiltImage()', () => {
   })
 
   test('returns latest built image', async () => {
-    const mock = jest
+    jest
       .spyOn(axiosInstance, 'get')
-      .mockResolvedValueOnce(DOCKRE_RESPONSE)
+      .mockResolvedValueOnce(DOCKER_RESPONSE)
 
     const builtImage = await dockerUtil.latestBuiltImage(BUILT_IMAGE_NAME)
     expect(builtImage.imageID).toEqual(BUILT_IMAGE_ID)
@@ -21,7 +21,7 @@ describe('latestBuiltImage()', () => {
 
   test('throw error if there is no built image', async () => {
     const imageName = 'noimages/app'
-    const imageLs = jest
+    jest
       .spyOn(dockerUtil, 'dockerImageLs')
       .mockImplementation(() => Promise.resolve([]))
 
@@ -38,7 +38,7 @@ describe('imageList()', () => {
   test('when there is some specified images', async () => {
     const mock = jest
       .spyOn(axiosInstance, 'get')
-      .mockResolvedValueOnce(DOCKRE_RESPONSE)
+      .mockResolvedValueOnce(DOCKER_RESPONSE)
     const imageList = await dockerUtil.dockerImageLs(BUILT_IMAGE_NAME)
 
     expect(mock).toHaveBeenCalledWith('images/json', {
@@ -58,7 +58,7 @@ describe('imageList()', () => {
   })
 
   test('when there is NO any specified images', async () => {
-    const mock = jest
+    jest
       .spyOn(axiosInstance, 'get')
       .mockResolvedValueOnce({data: []})
 
@@ -104,7 +104,7 @@ const BUILT_IMAGE_NAME = 'image_assembly_line/debug'
 const BUILT_IMAGE_ID =
   'sha256:446592c964a64e32631e6c8a6a6cfdf7f5efa26127171a72dc82f14736ba0530'
 
-const DOCKRE_RESPONSE = {
+const DOCKER_RESPONSE = {
   status: 200,
   data: [
     {
