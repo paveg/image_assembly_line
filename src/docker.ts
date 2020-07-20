@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 import * as im from '@actions/exec/lib/interfaces'
-import {latestBuiltImage, noBuiltImage, imageTag} from './docker-util'
+import {latestBuiltImage, noBuiltImage, dockerImageTag} from './docker-util'
 import {BuildError, ScanError, PushError} from './error'
 import {Vulnerability} from './types'
 import {notifyVulnerability} from './notification'
@@ -151,13 +151,10 @@ export default class Docker {
         throw new Error('No built image to push')
       }
       await this.login()
-      imageTag(this._builtImage.imageID, `${this.upstreamRepository()}:${tag}`)
+      const registry = this.upstreamRepository()
+      await dockerImageTag(this._builtImage.imageID, registry, tag)
 
-      return exec.exec('docker', [
-        'image',
-        'push',
-        `${this.upstreamRepository()}:${tag}`
-      ])
+      return exec.exec('docker', ['image', 'push', `${registry}:${tag}`])
     } catch (e) {
       core.error('push() error')
       throw new PushError(e)
