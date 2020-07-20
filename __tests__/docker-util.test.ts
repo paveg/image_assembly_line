@@ -1,6 +1,5 @@
 import * as dockerUtil from '../src/docker-util'
 import {axiosInstance} from '../src/docker-util'
-import * as exec from '@actions/exec'
 import qs from 'qs'
 
 describe('latestBuiltImage()', () => {
@@ -9,9 +8,7 @@ describe('latestBuiltImage()', () => {
   })
 
   test('returns latest built image', async () => {
-    jest
-      .spyOn(axiosInstance, 'get')
-      .mockResolvedValueOnce(DOCKER_RESPONSE)
+    jest.spyOn(axiosInstance, 'get').mockResolvedValueOnce(DOCKER_RESPONSE)
 
     const builtImage = await dockerUtil.latestBuiltImage(BUILT_IMAGE_NAME)
     expect(builtImage.imageID).toEqual(BUILT_IMAGE_ID)
@@ -58,9 +55,7 @@ describe('imageList()', () => {
   })
 
   test('when there is NO any specified images', async () => {
-    jest
-      .spyOn(axiosInstance, 'get')
-      .mockResolvedValueOnce({data: []})
+    jest.spyOn(axiosInstance, 'get').mockResolvedValueOnce({data: []})
 
     const imageList = await dockerUtil.dockerImageLs('noimages/app')
     expect(imageList.length).toBe(0)
@@ -77,9 +72,6 @@ describe('dockerImageTag()', () => {
       status: 201,
       data: {}
     }
-    jest
-      .spyOn(axiosInstance, 'get')
-      .mockResolvedValueOnce(DOCKER_RESPONSE)
     const mock = jest
       .spyOn(axiosInstance, 'post')
       .mockResolvedValueOnce(dockerResponse)

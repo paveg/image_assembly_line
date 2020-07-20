@@ -20844,17 +20844,18 @@ function noBuiltImage() {
     });
 }
 exports.noBuiltImage = noBuiltImage;
+/**
+ * dockerTagImage creates a tag for a docker image
+ * @param {string} imageId The ID of a docker image
+ * @param {string} repository The upstream docker repository
+ * @param {string} newTag New tag name to be set
+ */
 function dockerImageTag(imageId, repository, newTag) {
     return __awaiter(this, void 0, void 0, function* () {
         const res = yield exports.axiosInstance.post(`images/${imageId}/tag`, qs_1.default.stringify({ tag: newTag, repo: repository }));
         if (res.status !== 201 && res.status !== 200) {
-            throw new Error(`POST images/{name}/tag returns status code: ${res.status}`);
+            throw new Error(`POST images/{name}/tag returns error, status code: ${res.status}`);
         }
-        let result;
-        do {
-            result = yield dockerImageLs(`${repository}:${newTag}`);
-            core.debug(`count: ${result.length.toString()}`);
-        } while (result.length < 0);
     });
 }
 exports.dockerImageTag = dockerImageTag;

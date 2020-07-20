@@ -55,6 +55,12 @@ export async function noBuiltImage(): Promise<boolean> {
   return imageCount <= 0
 }
 
+/**
+ * dockerTagImage creates a tag for a docker image
+ * @param {string} imageId The ID of a docker image
+ * @param {string} repository The upstream docker repository
+ * @param {string} newTag New tag name to be set
+ */
 export async function dockerImageTag(
   imageId: string,
   repository: string,
@@ -66,14 +72,10 @@ export async function dockerImageTag(
   )
 
   if (res.status !== 201 && res.status !== 200) {
-    throw new Error(`POST images/{name}/tag returns status code: ${res.status}`)
+    throw new Error(
+      `POST images/{name}/tag returns error, status code: ${res.status}`
+    )
   }
-
-  let result: DockerEngineImageResponse[]
-  do {
-    result = await dockerImageLs(`${repository}:${newTag}`)
-    core.debug(`count: ${result.length.toString()}`)
-  } while (result.length < 0)
 }
 
 export async function dockerImageLs(
