@@ -1,10 +1,16 @@
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 import * as im from '@actions/exec/lib/interfaces'
-import {latestBuiltImage, noBuiltImage, dockerImageTag} from './docker-util'
+import {
+  latestBuiltImage,
+  noBuiltImage,
+  dockerImageTag,
+  dockerPushImage
+} from './docker-util'
 import {BuildError, ScanError, PushError} from './error'
 import {Vulnerability} from './types'
 import {notifyVulnerability} from './notification'
+import {Buffer} from 'buffer'
 
 export default class Docker {
   private registry: string
@@ -145,6 +151,32 @@ export default class Docker {
     }
   }
 
+  private async xRegistryAuth(): Promise<string> {
+    let ecrLoginPass = ''
+    let ecrLoginError = ''
+    const options: im.ExecOptions = {
+      silent: true,
+      listeners: {
+        stdout: (data: Buffer) => {
+          ecrLoginPass += data.toString()
+        },
+        stderr: (data: Buffer) => {
+          ecrLoginError += data.toString()
+        }
+      }
+    }
+
+    try {
+      await exec.exec('aws', ['ecr', 'get-login-password'], options)
+      return Buffer.from(
+        `'{"username":"AWS","password":"${ecrLoginPass}","email":"none","serveraddress":"${this.registry}"}'`
+      ).toString('base64')
+    } catch (e) {
+      core.error(ecrLoginError.trim())
+      throw e
+    }
+  }
+
   async push(tag: string): Promise<number> {
     try {
       if (!this._builtImage) {
@@ -154,7 +186,9 @@ export default class Docker {
       const registry = this.upstreamRepository()
       await dockerImageTag(this._builtImage.imageID, registry, tag)
 
-      return exec.exec('docker', ['image', 'push', `${registry}:${tag}`])
+      const registryAuth = await this.xRegistryAuth()
+      await dockerPushImage(this._builtImage.imageID, tag, registryAuth)
+      return 0
     } catch (e) {
       core.error('push() error')
       throw new PushError(e)

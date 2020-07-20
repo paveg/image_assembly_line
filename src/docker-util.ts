@@ -91,6 +91,22 @@ export async function dockerImageLs(
   })
 }
 
+export async function dockerPushImage(
+  imageId: string,
+  newTag: string,
+  registryAuth: string
+): Promise<void> {
+  axiosInstance.defaults.headers['X-Registry-Auth'] = registryAuth
+  const res = await axiosInstance.post(`images/${imageId}/push`, {
+    params: {tag: newTag}
+  })
+  if (res.status !== 201 && res.status !== 200) {
+    throw new Error(
+      `POST images/{name}/tag returns error, status code: ${res.status}`
+    )
+  }
+}
+
 interface DockerEngineImageResponse {
   Id: string
   RepoTags: string[]

@@ -7855,6 +7855,7 @@ const exec = __importStar(__webpack_require__(986));
 const docker_util_1 = __webpack_require__(708);
 const error_1 = __webpack_require__(25);
 const notification_1 = __webpack_require__(62);
+const buffer_1 = __webpack_require__(293);
 class Docker {
     constructor(registry, imageName, commitHash) {
         if (!registry) {
@@ -7977,6 +7978,31 @@ class Docker {
             }
         });
     }
+    xRegistryAuth() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let ecrLoginPass = '';
+            let ecrLoginError = '';
+            const options = {
+                silent: true,
+                listeners: {
+                    stdout: (data) => {
+                        ecrLoginPass += data.toString();
+                    },
+                    stderr: (data) => {
+                        ecrLoginError += data.toString();
+                    }
+                }
+            };
+            try {
+                yield exec.exec('aws', ['ecr', 'get-login-password'], options);
+                return buffer_1.Buffer.from(`'{"username":"AWS","password":"${ecrLoginPass}","email":"none","serveraddress":"${this.registry}"}'`).toString('base64');
+            }
+            catch (e) {
+                core.error(ecrLoginError.trim());
+                throw e;
+            }
+        });
+    }
     push(tag) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -7986,7 +8012,9 @@ class Docker {
                 yield this.login();
                 const registry = this.upstreamRepository();
                 yield docker_util_1.dockerImageTag(this._builtImage.imageID, registry, tag);
-                return exec.exec('docker', ['image', 'push', `${registry}:${tag}`]);
+                const registryAuth = yield this.xRegistryAuth();
+                yield docker_util_1.dockerPushImage(this._builtImage.imageID, tag, registryAuth);
+                return 0;
             }
             catch (e) {
                 core.error('push() error');
@@ -20871,6 +20899,18 @@ function dockerImageLs(imageName) {
     });
 }
 exports.dockerImageLs = dockerImageLs;
+function dockerPushImage(imageId, newTag, registryAuth) {
+    return __awaiter(this, void 0, void 0, function* () {
+        exports.axiosInstance.defaults.headers['X-Registry-Auth'] = registryAuth;
+        const res = yield exports.axiosInstance.post(`images/${imageId}/push`, {
+            params: { tag: newTag }
+        });
+        if (res.status !== 201 && res.status !== 200) {
+            throw new Error(`POST images/{name}/tag returns error, status code: ${res.status}`);
+        }
+    });
+}
+exports.dockerPushImage = dockerPushImage;
 
 
 /***/ }),
