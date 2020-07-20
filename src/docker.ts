@@ -152,7 +152,7 @@ export default class Docker {
       }
       await this.login()
       const registry = this.upstreamRepository()
-      dockerImageTag(this._builtImage.imageID, registry, tag)
+      await dockerImageTag(this._builtImage.imageID, registry, tag)
 
       return exec.exec('docker', ['image', 'push', `${registry}:${tag}`])
     } catch (e) {

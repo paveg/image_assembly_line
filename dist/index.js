@@ -7985,7 +7985,7 @@ class Docker {
                 }
                 yield this.login();
                 const registry = this.upstreamRepository();
-                docker_util_1.dockerImageTag(this._builtImage.imageID, registry, tag);
+                yield docker_util_1.dockerImageTag(this._builtImage.imageID, registry, tag);
                 return exec.exec('docker', ['image', 'push', `${registry}:${tag}`]);
             }
             catch (e) {
