@@ -11,6 +11,7 @@ import {BuildError, ScanError, PushError} from './error'
 import {Vulnerability} from './types'
 import {notifyVulnerability} from './notification'
 import {Buffer} from 'buffer'
+import {base64} from './base64'
 
 export default class Docker {
   private registry: string
@@ -168,16 +169,6 @@ export default class Docker {
 
 function sanitizedDomain(str: string): string {
   return str.endsWith('/') ? str.substr(0, str.length - 1) : str
-}
-
-const base64 = {
-  encode: (str: string) => {
-    return Buffer.from(str).toString('base64')
-  },
-  // for debug function
-  decode: (str: string) => {
-    return Buffer.from(str, 'base64').toString()
-  }
 }
 
 export interface DockerImage {

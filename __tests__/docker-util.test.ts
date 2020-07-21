@@ -1,6 +1,7 @@
 import * as dockerUtil from '../src/docker-util'
 import {axiosInstance} from '../src/docker-util'
 import qs from 'qs'
+import {base64} from '../src/base64'
 
 afterEach(() => {
   jest.restoreAllMocks()
@@ -88,7 +89,7 @@ describe('dockerImageTag()', () => {
 })
 
 describe('pushDockerImage()', () => {
-  const textEncoded = Buffer.from('test').toString('base64')
+  const textEncoded = base64.encode('test')
   test('when returns successfully status code', async () => {
     const dockerResponse = {
       status: 200,

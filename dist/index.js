@@ -7406,7 +7406,25 @@ module.exports = {
 /* 203 */,
 /* 204 */,
 /* 205 */,
-/* 206 */,
+/* 206 */
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const buffer_1 = __webpack_require__(293);
+exports.base64 = {
+    encode: (str) => {
+        return buffer_1.Buffer.from(str).toString('base64');
+    },
+    // for debug function
+    decode: (str) => {
+        return buffer_1.Buffer.from(str, 'base64').toString();
+    }
+};
+
+
+/***/ }),
 /* 207 */,
 /* 208 */,
 /* 209 */
@@ -7855,7 +7873,7 @@ const exec = __importStar(__webpack_require__(986));
 const docker_util_1 = __webpack_require__(708);
 const error_1 = __webpack_require__(25);
 const notification_1 = __webpack_require__(62);
-const buffer_1 = __webpack_require__(293);
+const base64_1 = __webpack_require__(206);
 class Docker {
     constructor(registry, imageName, commitHash) {
         if (!registry) {
@@ -7957,7 +7975,7 @@ class Docker {
                     email: 'none',
                     serveraddress: this.registry
                 });
-                return base64.encode(auth);
+                return base64_1.base64.encode(auth);
             }
             catch (e) {
                 core.error(ecrLoginError.trim());
@@ -8003,15 +8021,6 @@ exports.default = Docker;
 function sanitizedDomain(str) {
     return str.endsWith('/') ? str.substr(0, str.length - 1) : str;
 }
-const base64 = {
-    encode: (str) => {
-        return buffer_1.Buffer.from(str).toString('base64');
-    },
-    // for debug function
-    decode: (str) => {
-        return buffer_1.Buffer.from(str, 'base64').toString();
-    }
-};
 
 
 /***/ }),
