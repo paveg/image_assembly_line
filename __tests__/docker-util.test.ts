@@ -2,11 +2,11 @@ import * as dockerUtil from '../src/docker-util'
 import {axiosInstance} from '../src/docker-util'
 import qs from 'qs'
 
-describe('latestBuiltImage()', () => {
-  afterEach(() => {
-    jest.restoreAllMocks()
-  })
+afterEach(() => {
+  jest.restoreAllMocks()
+})
 
+describe('latestBuiltImage()', () => {
   test('returns latest built image', async () => {
     jest.spyOn(axiosInstance, 'get').mockResolvedValueOnce(DOCKER_RESPONSE)
 
@@ -28,10 +28,6 @@ describe('latestBuiltImage()', () => {
 })
 
 describe('imageList()', () => {
-  afterEach(() => {
-    jest.restoreAllMocks()
-  })
-
   test('when there is some specified images', async () => {
     const mock = jest
       .spyOn(axiosInstance, 'get')
@@ -63,10 +59,6 @@ describe('imageList()', () => {
 })
 
 describe('dockerImageTag()', () => {
-  afterEach(() => {
-    jest.restoreAllMocks()
-  })
-
   test('when returns successfully status code', async () => {
     const dockerResponse = {
       status: 201,
@@ -92,6 +84,37 @@ describe('dockerImageTag()', () => {
     jest.spyOn(axiosInstance, 'post').mockResolvedValueOnce(dockerResponse)
     const imageTag = dockerUtil.dockerImageTag('testId', 'yyy', 'xxx')
     await expect(imageTag).rejects.toThrow()
+  })
+})
+
+describe('pushDockerImage()', () => {
+  const textEncoded = Buffer.from('test').toString('base64')
+  test('when returns successfully status code', async () => {
+    const dockerResponse = {
+      status: 200,
+      data: {}
+    }
+    const mock = jest
+      .spyOn(axiosInstance, 'post')
+      .mockResolvedValueOnce(dockerResponse)
+    await dockerUtil.pushDockerImage('testId', 'yyy', textEncoded)
+    expect(mock).toHaveBeenCalledWith(
+      'images/testId/push',
+      qs.stringify({tag: 'yyy'}),
+      {headers: {'X-Registry-Auth': textEncoded}}
+    )
+  })
+
+  test('when returns error code', async () => {
+    const dockerResponse = {
+      status: 404,
+      data: {
+        message: 'no such image'
+      }
+    }
+    jest.spyOn(axiosInstance, 'post').mockResolvedValueOnce(dockerResponse)
+    const pushImage = dockerUtil.pushDockerImage('testId', 'yyy', textEncoded)
+    await expect(pushImage).rejects.toThrow()
   })
 })
 

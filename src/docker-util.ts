@@ -102,7 +102,7 @@ export async function pushDockerImage(
     {headers: {'X-Registry-Auth': registryAuth}}
   )
   core.info(res.data)
-  if (res.status !== 201 && res.status !== 200) {
+  if (res.status !== 200) {
     throw new Error(
       `POST images/{name}/push returns error, status code: ${res.status}`
     )

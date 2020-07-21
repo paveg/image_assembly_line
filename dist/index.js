@@ -20872,7 +20872,7 @@ function pushDockerImage(imageId, newTag, registryAuth) {
     return __awaiter(this, void 0, void 0, function* () {
         const res = yield exports.axiosInstance.post(`images/${imageId}/push`, qs_1.default.stringify({ tag: newTag }), { headers: { 'X-Registry-Auth': registryAuth } });
         core.info(res.data);
-        if (res.status !== 201 && res.status !== 200) {
+        if (res.status !== 200) {
             throw new Error(`POST images/{name}/push returns error, status code: ${res.status}`);
         }
     });
