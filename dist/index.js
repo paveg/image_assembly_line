@@ -7957,6 +7957,7 @@ class Docker {
             let ecrLoginPass = '';
             let ecrLoginError = '';
             const options = {
+                // set silent, not to log the password
                 silent: true,
                 listeners: {
                     stdout: (data) => {

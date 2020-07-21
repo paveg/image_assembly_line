@@ -109,6 +109,7 @@ export default class Docker {
     let ecrLoginPass = ''
     let ecrLoginError = ''
     const options: im.ExecOptions = {
+      // set silent, not to log the password
       silent: true,
       listeners: {
         stdout: (data: Buffer) => {
