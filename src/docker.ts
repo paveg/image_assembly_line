@@ -1,10 +1,17 @@
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 import * as im from '@actions/exec/lib/interfaces'
-import {latestBuiltImage, noBuiltImage, dockerImageTag} from './docker-util'
+import {
+  latestBuiltImage,
+  noBuiltImage,
+  dockerImageTag,
+  pushDockerImage
+} from './docker-util'
 import {BuildError, ScanError, PushError} from './error'
 import {Vulnerability} from './types'
 import {notifyVulnerability} from './notification'
+import {Buffer} from 'buffer'
+import {base64} from './base64'
 
 export default class Docker {
   private registry: string
@@ -98,10 +105,7 @@ export default class Docker {
     }
   }
 
-  private async login(): Promise<void> {
-    core.debug('login()')
-
-    // aws ecr get-login-password
+  private async xRegistryAuth(): Promise<string> {
     let ecrLoginPass = ''
     let ecrLoginError = ''
     const options: im.ExecOptions = {
@@ -116,45 +120,32 @@ export default class Docker {
         }
       }
     }
+
     try {
       await exec.exec('aws', ['ecr', 'get-login-password'], options)
+      const auth = JSON.stringify({
+        username: 'AWS',
+        password: ecrLoginPass,
+        email: 'none',
+        serveraddress: this.registry
+      })
+      return base64.encode(auth)
     } catch (e) {
       core.error(ecrLoginError.trim())
       throw e
     }
-
-    // docker login
-    let stderr = ''
-    try {
-      options.ignoreReturnCode = true
-      options.listeners = {
-        stderr: (data: Buffer) => {
-          stderr += data.toString()
-        }
-      }
-      await exec.exec(
-        'docker login',
-        ['--username', 'AWS', '-p', ecrLoginPass, this.registry],
-        options
-      )
-      core.debug('logged in')
-    } catch (e) {
-      core.error('login() failed')
-      core.error(stderr)
-      throw e
-    }
   }
 
-  async push(tag: string): Promise<number> {
+  async push(tag: string): Promise<void> {
     try {
       if (!this._builtImage) {
         throw new Error('No built image to push')
       }
-      await this.login()
       const registry = this.upstreamRepository()
       await dockerImageTag(this._builtImage.imageID, registry, tag)
 
-      return exec.exec('docker', ['image', 'push', `${registry}:${tag}`])
+      const registryAuth = await this.xRegistryAuth()
+      await pushDockerImage(registry, tag, registryAuth)
     } catch (e) {
       core.error('push() error')
       throw new PushError(e)

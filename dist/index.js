@@ -7406,7 +7406,25 @@ module.exports = {
 /* 203 */,
 /* 204 */,
 /* 205 */,
-/* 206 */,
+/* 206 */
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const buffer_1 = __webpack_require__(293);
+exports.base64 = {
+    encode: (str) => {
+        return buffer_1.Buffer.from(str).toString('base64');
+    },
+    // for debug function
+    decode: (str) => {
+        return buffer_1.Buffer.from(str, 'base64').toString();
+    }
+};
+
+
+/***/ }),
 /* 207 */,
 /* 208 */,
 /* 209 */
@@ -7855,6 +7873,7 @@ const exec = __importStar(__webpack_require__(986));
 const docker_util_1 = __webpack_require__(708);
 const error_1 = __webpack_require__(25);
 const notification_1 = __webpack_require__(62);
+const base64_1 = __webpack_require__(206);
 class Docker {
     constructor(registry, imageName, commitHash) {
         if (!registry) {
@@ -7933,10 +7952,8 @@ class Docker {
             }
         });
     }
-    login() {
+    xRegistryAuth() {
         return __awaiter(this, void 0, void 0, function* () {
-            core.debug('login()');
-            // aws ecr get-login-password
             let ecrLoginPass = '';
             let ecrLoginError = '';
             const options = {
@@ -7953,26 +7970,16 @@ class Docker {
             };
             try {
                 yield exec.exec('aws', ['ecr', 'get-login-password'], options);
+                const auth = JSON.stringify({
+                    username: 'AWS',
+                    password: ecrLoginPass,
+                    email: 'none',
+                    serveraddress: this.registry
+                });
+                return base64_1.base64.encode(auth);
             }
             catch (e) {
                 core.error(ecrLoginError.trim());
-                throw e;
-            }
-            // docker login
-            let stderr = '';
-            try {
-                options.ignoreReturnCode = true;
-                options.listeners = {
-                    stderr: (data) => {
-                        stderr += data.toString();
-                    }
-                };
-                yield exec.exec('docker login', ['--username', 'AWS', '-p', ecrLoginPass, this.registry], options);
-                core.debug('logged in');
-            }
-            catch (e) {
-                core.error('login() failed');
-                core.error(stderr);
                 throw e;
             }
         });
@@ -7983,10 +7990,10 @@ class Docker {
                 if (!this._builtImage) {
                     throw new Error('No built image to push');
                 }
-                yield this.login();
                 const registry = this.upstreamRepository();
                 yield docker_util_1.dockerImageTag(this._builtImage.imageID, registry, tag);
-                return exec.exec('docker', ['image', 'push', `${registry}:${tag}`]);
+                const registryAuth = yield this.xRegistryAuth();
+                yield docker_util_1.pushDockerImage(registry, tag, registryAuth);
             }
             catch (e) {
                 core.error('push() error');
@@ -20871,6 +20878,16 @@ function dockerImageLs(imageName) {
     });
 }
 exports.dockerImageLs = dockerImageLs;
+function pushDockerImage(imageId, newTag, registryAuth) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const res = yield exports.axiosInstance.post(`images/${imageId}/push`, qs_1.default.stringify({ tag: newTag }), { headers: { 'X-Registry-Auth': registryAuth } });
+        core.info(res.data);
+        if (res.status !== 200) {
+            throw new Error(`POST images/{name}/push returns error, status code: ${res.status}`);
+        }
+    });
+}
+exports.pushDockerImage = pushDockerImage;
 
 
 /***/ }),
