@@ -5,6 +5,7 @@ import {setDelivery} from './deliver'
 import * as notification from './notification'
 import * as s3 from './s3'
 import {BuildAction} from './types'
+import Bugsnag from '@bugsnag/js'
 
 async function run(): Promise<void> {
   const thisAction = new BuildAction({
@@ -15,6 +16,10 @@ async function run(): Promise<void> {
   })
 
   const startTime = new Date() // UTC
+  const bugsnagApiKey: string | undefined = process.env.BUGSNAG_API_KEY
+  if (bugsnagApiKey) {
+    Bugsnag.start(bugsnagApiKey)
+  }
 
   try {
     // REGISTRY_NAME はユーザー側から渡せない様にする
@@ -82,6 +87,7 @@ async function run(): Promise<void> {
     )
   } catch (e) {
     let buildReason: string
+    Bugsnag.notify(e)
     if (e instanceof BuildError) {
       buildReason = 'BuildError'
       core.error('image build error')
