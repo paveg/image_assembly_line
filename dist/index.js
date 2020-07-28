@@ -7572,35 +7572,50 @@ const js_1 = __importDefault(__webpack_require__(112));
 function run() {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
+        const env = process.env;
+        const gitHubRepo = env.GITHUB_REPOSITORY;
+        const gitHubWorkflow = env.GITHUB_WORKFLOW;
+        const commitHash = env.GITHUB_SHA;
+        const gitHubRunID = env.GITHUB_RUN_ID;
         const thisAction = new types_1.BuildAction({
-            repository: process.env.GITHUB_REPOSITORY,
-            workflow: process.env.GITHUB_WORKFLOW,
-            commitSHA: process.env.GITHUB_SHA,
-            runID: process.env.GITHUB_RUN_ID
+            repository: gitHubRepo,
+            workflow: gitHubWorkflow,
+            commitSHA: commitHash,
+            runID: gitHubRunID
+        });
+        const bugsnagApiKey = env.BUGSNAG_API_KEY;
+        if (!bugsnagApiKey) {
+            throw new Error('BUGSNAG_API_KEY not found.');
+        }
+        js_1.default.start({
+            apiKey: bugsnagApiKey,
+            metadata: {
+                actionInformation: {
+                    repository: gitHubRepo,
+                    workflow: gitHubWorkflow,
+                    commitSHA: commitHash,
+                    runID: gitHubRunID
+                }
+            }
         });
         const startTime = new Date(); // UTC
-        const bugsnagApiKey = process.env.BUGSNAG_API_KEY;
-        if (bugsnagApiKey) {
-            js_1.default.start(bugsnagApiKey);
-        }
         try {
             // REGISTRY_NAME はユーザー側から渡せない様にする
-            const registry = process.env.REGISTRY_NAME;
+            const registry = env.REGISTRY_NAME;
             if (!registry) {
                 throw new Error('REGISTRY_NAME is not set.');
             }
             core.debug(registry);
-            if (process.env.GITHUB_TOKEN) {
-                core.setSecret(process.env.GITHUB_TOKEN);
+            if (env.GITHUB_TOKEN) {
+                core.setSecret(env.GITHUB_TOKEN);
             }
             const target = core.getInput('target');
             core.debug(`target: ${target}`);
             const imageName = core.getInput('image_name');
             core.debug(`image_name: ${imageName}`);
-            if (!process.env.GITHUB_SHA) {
+            if (!commitHash) {
                 throw new Error('GITHUB_SHA not found.');
             }
-            const commitHash = process.env.GITHUB_SHA;
             core.debug(`commit_hash: ${commitHash}`);
             const severityLevel = core.getInput('severity_level');
             core.debug(`severity_level: ${severityLevel.toString()}`);
@@ -7612,7 +7627,7 @@ function run() {
             core.debug(`docker: ${docker.toString()}`);
             yield docker.build(target);
             yield docker.scan(severityLevel, scanExitCode);
-            if (docker.builtImage && process.env.GITHUB_RUN_ID) {
+            if (docker.builtImage && gitHubRunID) {
                 if (noPush.toString() === 'true') {
                     core.info('no_push: true');
                 }
@@ -7623,7 +7638,7 @@ function run() {
                 }
                 yield deliver_1.setDelivery({
                     dockerImage: docker.builtImage,
-                    gitHubRunID: process.env.GITHUB_RUN_ID
+                    gitHubRunID
                 });
             }
             const endTime = new Date(); // UTC

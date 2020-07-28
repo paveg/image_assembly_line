@@ -8,28 +8,45 @@ import {BuildAction} from './types'
 import Bugsnag from '@bugsnag/js'
 
 async function run(): Promise<void> {
+  const env = process.env
+  const gitHubRepo = env.GITHUB_REPOSITORY
+  const gitHubWorkflow = env.GITHUB_WORKFLOW
+  const commitHash = env.GITHUB_SHA
+  const gitHubRunID = env.GITHUB_RUN_ID
+
   const thisAction = new BuildAction({
-    repository: process.env.GITHUB_REPOSITORY,
-    workflow: process.env.GITHUB_WORKFLOW,
-    commitSHA: process.env.GITHUB_SHA,
-    runID: process.env.GITHUB_RUN_ID
+    repository: gitHubRepo,
+    workflow: gitHubWorkflow,
+    commitSHA: commitHash,
+    runID: gitHubRunID
   })
 
-  const startTime = new Date() // UTC
-  const bugsnagApiKey: string | undefined = process.env.BUGSNAG_API_KEY
-  if (bugsnagApiKey) {
-    Bugsnag.start(bugsnagApiKey)
+  const bugsnagApiKey: string | undefined = env.BUGSNAG_API_KEY
+  if (!bugsnagApiKey) {
+    throw new Error('BUGSNAG_API_KEY not found.')
   }
+  Bugsnag.start({
+    apiKey: bugsnagApiKey,
+    metadata: {
+      actionInformation: {
+        repository: gitHubRepo,
+        workflow: gitHubWorkflow,
+        commitSHA: commitHash,
+        runID: gitHubRunID
+      }
+    }
+  })
+  const startTime = new Date() // UTC
 
   try {
     // REGISTRY_NAME はユーザー側から渡せない様にする
-    const registry: string | undefined = process.env.REGISTRY_NAME
+    const registry: string | undefined = env.REGISTRY_NAME
     if (!registry) {
       throw new Error('REGISTRY_NAME is not set.')
     }
     core.debug(registry)
-    if (process.env.GITHUB_TOKEN) {
-      core.setSecret(process.env.GITHUB_TOKEN)
+    if (env.GITHUB_TOKEN) {
+      core.setSecret(env.GITHUB_TOKEN)
     }
 
     const target = core.getInput('target')
@@ -38,10 +55,9 @@ async function run(): Promise<void> {
     const imageName = core.getInput('image_name')
     core.debug(`image_name: ${imageName}`)
 
-    if (!process.env.GITHUB_SHA) {
+    if (!commitHash) {
       throw new Error('GITHUB_SHA not found.')
     }
-    const commitHash = process.env.GITHUB_SHA
     core.debug(`commit_hash: ${commitHash}`)
 
     const severityLevel = core.getInput('severity_level')
@@ -60,7 +76,7 @@ async function run(): Promise<void> {
 
     await docker.scan(severityLevel, scanExitCode)
 
-    if (docker.builtImage && process.env.GITHUB_RUN_ID) {
+    if (docker.builtImage && gitHubRunID) {
       if (noPush.toString() === 'true') {
         core.info('no_push: true')
       } else {
@@ -70,7 +86,7 @@ async function run(): Promise<void> {
       }
       await setDelivery({
         dockerImage: docker.builtImage,
-        gitHubRunID: process.env.GITHUB_RUN_ID
+        gitHubRunID
       })
     }
 
