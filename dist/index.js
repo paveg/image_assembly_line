@@ -7589,6 +7589,8 @@ function run() {
         }
         js_1.default.start({
             apiKey: bugsnagApiKey,
+            enabledReleaseStages: ['production'],
+            appType: 'image_assembly_line',
             metadata: {
                 actionInformation: {
                     repository: gitHubRepo,

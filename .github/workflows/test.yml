@@ -24,6 +24,7 @@ jobs:
     runs-on: self-hosted
     env:
       REGISTRY_NAME: '1234567890.dkr.ecr.ap-northeast-1.amazonaws.com'
+      NODE_ENV: 'test'
     steps:
     - uses: actions/checkout@v1
     - uses: ./
