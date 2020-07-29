@@ -27,6 +27,8 @@ async function run(): Promise<void> {
   }
   Bugsnag.start({
     apiKey: bugsnagApiKey,
+    enabledReleaseStages: ['production'],
+    appType: 'image_assembly_line',
     metadata: {
       actionInformation: {
         repository: gitHubRepo,
