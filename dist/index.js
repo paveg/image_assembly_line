@@ -7577,6 +7577,7 @@ function run() {
         const gitHubWorkflow = env.GITHUB_WORKFLOW;
         const commitHash = env.GITHUB_SHA;
         const gitHubRunID = env.GITHUB_RUN_ID;
+        const containerkojoEnv = env.CONTAINERKOJO_ENV;
         const thisAction = new types_1.BuildAction({
             repository: gitHubRepo,
             workflow: gitHubWorkflow,
@@ -7591,6 +7592,7 @@ function run() {
             apiKey: bugsnagApiKey,
             enabledReleaseStages: ['production'],
             appType: 'image_assembly_line',
+            releaseStage: containerkojoEnv,
             metadata: {
                 actionInformation: {
                     repository: gitHubRepo,
