@@ -13,6 +13,7 @@ async function run(): Promise<void> {
   const gitHubWorkflow = env.GITHUB_WORKFLOW
   const commitHash = env.GITHUB_SHA
   const gitHubRunID = env.GITHUB_RUN_ID
+  const containerkojoEnv = env.CONTAINERKOJO_ENV
 
   const thisAction = new BuildAction({
     repository: gitHubRepo,
@@ -29,6 +30,7 @@ async function run(): Promise<void> {
     apiKey: bugsnagApiKey,
     enabledReleaseStages: ['production'],
     appType: 'image_assembly_line',
+    releaseStage: containerkojoEnv,
     metadata: {
       actionInformation: {
         repository: gitHubRepo,
