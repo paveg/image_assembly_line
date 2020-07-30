@@ -1,14 +1,15 @@
 import * as dockerUtil from '../src/docker-util'
-import * as exec from '@actions/exec'
-import axios from 'axios'
+import {axiosInstance} from '../src/docker-util'
+import qs from 'qs'
+import {base64} from '../src/base64'
+
+afterEach(() => {
+  jest.restoreAllMocks()
+})
 
 describe('latestBuiltImage()', () => {
-  afterEach(() => {
-    jest.restoreAllMocks()
-  })
-
   test('returns latest built image', async () => {
-    const mock = jest.spyOn(axios, 'get').mockResolvedValueOnce(DOCKRE_RESPONSE)
+    jest.spyOn(axiosInstance, 'get').mockResolvedValueOnce(DOCKER_RESPONSE)
 
     const builtImage = await dockerUtil.latestBuiltImage(BUILT_IMAGE_NAME)
     expect(builtImage.imageID).toEqual(BUILT_IMAGE_ID)
@@ -18,7 +19,7 @@ describe('latestBuiltImage()', () => {
 
   test('throw error if there is no built image', async () => {
     const imageName = 'noimages/app'
-    const imageLs = jest
+    jest
       .spyOn(dockerUtil, 'dockerImageLs')
       .mockImplementation(() => Promise.resolve([]))
 
@@ -28,17 +29,14 @@ describe('latestBuiltImage()', () => {
 })
 
 describe('imageList()', () => {
-  afterEach(() => {
-    jest.restoreAllMocks()
-  })
-
   test('when there is some specified images', async () => {
-    const mock = jest.spyOn(axios, 'get').mockResolvedValueOnce(DOCKRE_RESPONSE)
+    const mock = jest
+      .spyOn(axiosInstance, 'get')
+      .mockResolvedValueOnce(DOCKER_RESPONSE)
     const imageList = await dockerUtil.dockerImageLs(BUILT_IMAGE_NAME)
 
-    expect(mock).toHaveBeenCalledWith('http:/v1.39/images/json', {
-      params: {filter: BUILT_IMAGE_NAME},
-      socketPath: '/var/run/docker.sock'
+    expect(mock).toHaveBeenCalledWith('images/json', {
+      params: {filter: BUILT_IMAGE_NAME}
     })
 
     // sorted
@@ -54,10 +52,70 @@ describe('imageList()', () => {
   })
 
   test('when there is NO any specified images', async () => {
-    const mock = jest.spyOn(axios, 'get').mockResolvedValueOnce({data: []})
+    jest.spyOn(axiosInstance, 'get').mockResolvedValueOnce({data: []})
 
     const imageList = await dockerUtil.dockerImageLs('noimages/app')
     expect(imageList.length).toBe(0)
+  })
+})
+
+describe('dockerImageTag()', () => {
+  test('when returns successfully status code', async () => {
+    const dockerResponse = {
+      status: 201,
+      data: {}
+    }
+    const mock = jest
+      .spyOn(axiosInstance, 'post')
+      .mockResolvedValueOnce(dockerResponse)
+    await dockerUtil.dockerImageTag('testId', 'yyy', 'xxx')
+    expect(mock).toHaveBeenCalledWith(
+      'images/testId/tag',
+      qs.stringify({tag: 'xxx', repo: 'yyy'})
+    )
+  })
+
+  test('when returns error code', async () => {
+    const dockerResponse = {
+      status: 404,
+      data: {
+        message: 'error message'
+      }
+    }
+    jest.spyOn(axiosInstance, 'post').mockResolvedValueOnce(dockerResponse)
+    const imageTag = dockerUtil.dockerImageTag('testId', 'yyy', 'xxx')
+    await expect(imageTag).rejects.toThrow()
+  })
+})
+
+describe('pushDockerImage()', () => {
+  const textEncoded = base64.encode('test')
+  test('when returns successfully status code', async () => {
+    const dockerResponse = {
+      status: 200,
+      data: {}
+    }
+    const mock = jest
+      .spyOn(axiosInstance, 'post')
+      .mockResolvedValueOnce(dockerResponse)
+    await dockerUtil.pushDockerImage('testId', 'yyy', textEncoded)
+    expect(mock).toHaveBeenCalledWith(
+      'images/testId/push',
+      qs.stringify({tag: 'yyy'}),
+      {headers: {'X-Registry-Auth': textEncoded}}
+    )
+  })
+
+  test('when returns error code', async () => {
+    const dockerResponse = {
+      status: 404,
+      data: {
+        message: 'no such image'
+      }
+    }
+    jest.spyOn(axiosInstance, 'post').mockResolvedValueOnce(dockerResponse)
+    const pushImage = dockerUtil.pushDockerImage('testId', 'yyy', textEncoded)
+    await expect(pushImage).rejects.toThrow()
   })
 })
 
@@ -65,7 +123,7 @@ const BUILT_IMAGE_NAME = 'image_assembly_line/debug'
 const BUILT_IMAGE_ID =
   'sha256:446592c964a64e32631e6c8a6a6cfdf7f5efa26127171a72dc82f14736ba0530'
 
-const DOCKRE_RESPONSE = {
+const DOCKER_RESPONSE = {
   status: 200,
   data: [
     {

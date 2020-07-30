@@ -2,6 +2,15 @@ import {DockerImage} from './docker'
 import * as exec from '@actions/exec'
 import * as core from '@actions/core'
 import axios from 'axios'
+import qs from 'qs'
+
+// Document for docker engine API.
+// https://docs.docker.com/engine/api/v1.39/
+const apiVersion = 'v1.39'
+export const axiosInstance = axios.create({
+  baseURL: `http:/${apiVersion}/`,
+  socketPath: '/var/run/docker.sock'
+})
 
 export async function latestBuiltImage(
   imageName: string
@@ -46,30 +55,58 @@ export async function noBuiltImage(): Promise<boolean> {
   return imageCount <= 0
 }
 
-export async function imageTag(source: string, target: string): Promise<void> {
-  await exec.exec('docker', ['image', 'tag', source, target])
+/**
+ * dockerTagImage creates a tag for a docker image
+ * @param {string} imageId The ID of a docker image
+ * @param {string} repository The upstream docker repository
+ * @param {string} newTag New tag name to be set
+ */
+export async function dockerImageTag(
+  imageId: string,
+  repository: string,
+  newTag: string
+): Promise<void> {
+  const res = await axiosInstance.post(
+    `images/${imageId}/tag`,
+    qs.stringify({tag: newTag, repo: repository})
+  )
 
-  let result: DockerEngineImageResponse[]
-  do {
-    result = await dockerImageLs(target)
-    core.debug(`count: ${result.length.toString()}`)
-  } while (result.length < 0)
+  if (res.status !== 201 && res.status !== 200) {
+    throw new Error(
+      `POST images/{name}/tag returns error, status code: ${res.status}`
+    )
+  }
 }
 
 export async function dockerImageLs(
   imageName: string
 ): Promise<DockerEngineImageResponse[]> {
-  // Document for docker engine API.
-  // https://docs.docker.com/engine/api/v1.39/
-  const res = await axios.get('http:/v1.39/images/json', {
-    params: {filter: imageName},
-    socketPath: '/var/run/docker.sock'
+  const res = await axiosInstance.get('images/json', {
+    params: {filter: imageName}
   })
 
   // Make sure that images are sorted by "Created" desc.
   return (res.data as DockerEngineImageResponse[]).sort((im1, im2) => {
     return im2.Created - im1.Created
   })
+}
+
+export async function pushDockerImage(
+  imageId: string,
+  newTag: string,
+  registryAuth: string
+): Promise<void> {
+  const res = await axiosInstance.post(
+    `images/${imageId}/push`,
+    qs.stringify({tag: newTag}),
+    {headers: {'X-Registry-Auth': registryAuth}}
+  )
+  core.info(res.data)
+  if (res.status !== 200) {
+    throw new Error(
+      `POST images/{name}/push returns error, status code: ${res.status}`
+    )
+  }
 }
 
 interface DockerEngineImageResponse {
