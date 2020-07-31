@@ -7637,6 +7637,7 @@ function run() {
                 }
                 else {
                     for (const tag of docker.builtImage.tags) {
+                        core.debug(`[docker.builtImage.tags]: ${tag}`);
                         yield docker.push(tag);
                     }
                 }

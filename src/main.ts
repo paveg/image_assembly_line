@@ -85,6 +85,7 @@ async function run(): Promise<void> {
         core.info('no_push: true')
       } else {
         for (const tag of docker.builtImage.tags) {
+          core.debug(`[docker.builtImage.tags]: ${tag}`)
           await docker.push(tag)
         }
       }
