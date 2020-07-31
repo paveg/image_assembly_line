@@ -24325,6 +24325,10 @@ function dockerImageTag(imageId, repository, newTag) {
     });
 }
 exports.dockerImageTag = dockerImageTag;
+/**
+ * dockerImageLs lists docker images
+ * @param {string} imageName The name of a docker image
+ */
 function dockerImageLs(imageName) {
     return __awaiter(this, void 0, void 0, function* () {
         const res = yield exports.axiosInstance.get('images/json', {
@@ -24337,6 +24341,12 @@ function dockerImageLs(imageName) {
     });
 }
 exports.dockerImageLs = dockerImageLs;
+/**
+ * pushDockerImage pushes a docker image to registry
+ * @param {string} imageId The ID of a docker image
+ * @param {string} newTag New tag name to be set
+ * @param {string} registryAuth Base64 encoded registration auth
+ */
 function pushDockerImage(imageId, newTag, registryAuth) {
     return __awaiter(this, void 0, void 0, function* () {
         const res = yield exports.axiosInstance.post(`images/${imageId}/push`, qs_1.default.stringify({ tag: newTag }), { headers: { 'X-Registry-Auth': registryAuth } });

@@ -78,6 +78,10 @@ export async function dockerImageTag(
   }
 }
 
+/**
+ * dockerImageLs lists docker images
+ * @param {string} imageName The name of a docker image
+ */
 export async function dockerImageLs(
   imageName: string
 ): Promise<DockerEngineImageResponse[]> {
@@ -91,6 +95,12 @@ export async function dockerImageLs(
   })
 }
 
+/**
+ * pushDockerImage pushes a docker image to registry
+ * @param {string} imageId The ID of a docker image
+ * @param {string} newTag New tag name to be set
+ * @param {string} registryAuth Base64 encoded registration auth
+ */
 export async function pushDockerImage(
   imageId: string,
   newTag: string,
