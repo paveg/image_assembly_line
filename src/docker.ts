@@ -137,19 +137,20 @@ export default class Docker {
   }
 
   async push(tag: string): Promise<void> {
-    try {
-      if (!this._builtImage) {
-        throw new Error('No built image to push')
-      }
-      const registry = this.upstreamRepository()
-      await dockerImageTag(this._builtImage.imageID, registry, tag)
-
-      const registryAuth = await this.xRegistryAuth()
-      await pushDockerImage(registry, tag, registryAuth)
-    } catch (e) {
-      core.error('push() error')
-      throw new PushError(e)
+    if (!this._builtImage) {
+      throw new Error('No built image to push')
     }
+    const registry = this.upstreamRepository()
+    await dockerImageTag(this._builtImage.imageID, registry, tag).catch(e => {
+      core.error('push() error on dockerImageTag')
+      throw new PushError(e)
+    })
+
+    const registryAuth = await this.xRegistryAuth()
+    await pushDockerImage(registry, tag, registryAuth).catch(e => {
+      core.error('push() error on pushDockerImage')
+      throw new PushError(e)
+    })
   }
 
   upstreamRepository(): string {

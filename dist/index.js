@@ -7637,7 +7637,6 @@ function run() {
                 }
                 else {
                     for (const tag of docker.builtImage.tags) {
-                        core.debug(`[docker.builtImage.tags]: ${tag}`);
                         yield docker.push(tag);
                     }
                 }
@@ -8338,19 +8337,19 @@ class Docker {
     }
     push(tag) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                if (!this._builtImage) {
-                    throw new Error('No built image to push');
-                }
-                const registry = this.upstreamRepository();
-                yield docker_util_1.dockerImageTag(this._builtImage.imageID, registry, tag);
-                const registryAuth = yield this.xRegistryAuth();
-                yield docker_util_1.pushDockerImage(registry, tag, registryAuth);
+            if (!this._builtImage) {
+                throw new Error('No built image to push');
             }
-            catch (e) {
-                core.error('push() error');
+            const registry = this.upstreamRepository();
+            yield docker_util_1.dockerImageTag(this._builtImage.imageID, registry, tag).catch(e => {
+                core.error('push() error on dockerImageTag');
                 throw new error_1.PushError(e);
-            }
+            });
+            const registryAuth = yield this.xRegistryAuth();
+            yield docker_util_1.pushDockerImage(registry, tag, registryAuth).catch(e => {
+                core.error('push() error on pushDockerImage');
+                throw new error_1.PushError(e);
+            });
         });
     }
     upstreamRepository() {
