@@ -7575,12 +7575,12 @@ const js_1 = __importDefault(__webpack_require__(112));
 function run() {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
+        const startTime = new Date(); // UTC
         const env = process.env;
         const gitHubRepo = env.GITHUB_REPOSITORY;
         const gitHubWorkflow = env.GITHUB_WORKFLOW;
         const commitHash = env.GITHUB_SHA;
         const gitHubRunID = env.GITHUB_RUN_ID;
-        const containerkojoEnv = env.CONTAINERKOJO_ENV;
         const thisAction = new types_1.BuildAction({
             repository: gitHubRepo,
             workflow: gitHubWorkflow,
@@ -7595,7 +7595,7 @@ function run() {
             apiKey: bugsnagApiKey,
             enabledReleaseStages: ['production'],
             appType: 'image_assembly_line',
-            releaseStage: containerkojoEnv,
+            releaseStage: env.CONTAINERKOJO_ENV,
             metadata: {
                 actionInformation: {
                     repository: gitHubRepo,
@@ -7605,33 +7605,26 @@ function run() {
                 }
             }
         });
-        const startTime = new Date(); // UTC
+        // REGISTRY_NAME はユーザー側から渡せない様にする
+        const registry = env.REGISTRY_NAME;
+        if (!registry) {
+            throw new Error('REGISTRY_NAME is not set.');
+        }
+        if (!commitHash) {
+            throw new Error('GITHUB_SHA not found.');
+        }
         try {
-            // REGISTRY_NAME はユーザー側から渡せない様にする
-            const registry = env.REGISTRY_NAME;
-            if (!registry) {
-                throw new Error('REGISTRY_NAME is not set.');
-            }
-            core.debug(registry);
             if (env.GITHUB_TOKEN) {
                 core.setSecret(env.GITHUB_TOKEN);
             }
             const target = core.getInput('target');
-            core.debug(`target: ${target}`);
             const imageName = core.getInput('image_name');
-            core.debug(`image_name: ${imageName}`);
-            if (!commitHash) {
-                throw new Error('GITHUB_SHA not found.');
-            }
-            core.debug(`commit_hash: ${commitHash}`);
             const severityLevel = core.getInput('severity_level');
-            core.debug(`severity_level: ${severityLevel.toString()}`);
             const scanExitCode = core.getInput('scan_exit_code');
-            core.debug(`scan_exit_code: ${scanExitCode.toString()}`);
             const noPush = core.getInput('no_push');
-            core.debug(`no_push: ${noPush.toString()}`);
             const docker = new docker_1.default(registry, imageName, commitHash);
-            core.debug(`docker: ${docker.toString()}`);
+            core.info(`registry: ${registry}, target: ${target}, image_name ${imageName}, commit_hash: ${commitHash}, severity_level: ${severityLevel.toString()}, scan_exit_code: ${scanExitCode.toString()}, no_push: ${noPush.toString()}`);
+            core.info(`docker: ${docker.toString()}`);
             yield docker.build(target);
             yield docker.scan(severityLevel, scanExitCode);
             if (docker.builtImage && gitHubRunID) {
