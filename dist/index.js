@@ -7588,32 +7588,32 @@ function run() {
             runID: gitHubRunID
         });
         const bugsnagApiKey = env.BUGSNAG_API_KEY;
-        if (!bugsnagApiKey) {
-            throw new Error('BUGSNAG_API_KEY not found.');
-        }
-        js_1.default.start({
-            apiKey: bugsnagApiKey,
-            enabledReleaseStages: ['production'],
-            appType: 'image_assembly_line',
-            releaseStage: env.CONTAINERKOJO_ENV,
-            metadata: {
-                actionInformation: {
-                    repository: gitHubRepo,
-                    workflow: gitHubWorkflow,
-                    commitSHA: commitHash,
-                    runID: gitHubRunID
-                }
-            }
-        });
         // REGISTRY_NAME はユーザー側から渡せない様にする
         const registry = env.REGISTRY_NAME;
-        if (!registry) {
-            throw new Error('REGISTRY_NAME is not set.');
-        }
-        if (!commitHash) {
-            throw new Error('GITHUB_SHA not found.');
-        }
         try {
+            if (!registry) {
+                throw new Error('REGISTRY_NAME is not set.');
+            }
+            if (!commitHash) {
+                throw new Error('GITHUB_SHA not found.');
+            }
+            if (!bugsnagApiKey) {
+                throw new Error('BUGSNAG_API_KEY not found.');
+            }
+            js_1.default.start({
+                apiKey: bugsnagApiKey,
+                enabledReleaseStages: ['production'],
+                appType: 'image_assembly_line',
+                releaseStage: env.CONTAINERKOJO_ENV,
+                metadata: {
+                    actionInformation: {
+                        repository: gitHubRepo,
+                        workflow: gitHubWorkflow,
+                        commitSHA: commitHash,
+                        runID: gitHubRunID
+                    }
+                }
+            });
             if (env.GITHUB_TOKEN) {
                 core.setSecret(env.GITHUB_TOKEN);
             }
@@ -7623,8 +7623,15 @@ function run() {
             const scanExitCode = core.getInput('scan_exit_code');
             const noPush = core.getInput('no_push');
             const docker = new docker_1.default(registry, imageName, commitHash);
-            core.info(`registry: ${registry}, target: ${target}, image_name ${imageName}, commit_hash: ${commitHash}, severity_level: ${severityLevel.toString()}, scan_exit_code: ${scanExitCode.toString()}, no_push: ${noPush.toString()}`);
-            core.info(`docker: ${docker.toString()}`);
+            core.debug(`[INFORMATION]
+      registry: ${registry}
+      target: ${target}
+      image_name: ${imageName}
+      commit_hash: ${commitHash}
+      severity_level: ${severityLevel.toString()}
+      scan_exit_code: ${scanExitCode.toString()}
+      no_push: ${noPush.toString()}
+      docker: ${docker.toString()}`);
             yield docker.build(target);
             yield docker.scan(severityLevel, scanExitCode);
             if (docker.builtImage && gitHubRunID) {

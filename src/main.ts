@@ -23,33 +23,32 @@ async function run(): Promise<void> {
   })
 
   const bugsnagApiKey: string | undefined = env.BUGSNAG_API_KEY
-  if (!bugsnagApiKey) {
-    throw new Error('BUGSNAG_API_KEY not found.')
-  }
-  Bugsnag.start({
-    apiKey: bugsnagApiKey,
-    enabledReleaseStages: ['production'],
-    appType: 'image_assembly_line',
-    releaseStage: env.CONTAINERKOJO_ENV,
-    metadata: {
-      actionInformation: {
-        repository: gitHubRepo,
-        workflow: gitHubWorkflow,
-        commitSHA: commitHash,
-        runID: gitHubRunID
-      }
-    }
-  })
   // REGISTRY_NAME はユーザー側から渡せない様にする
   const registry: string | undefined = env.REGISTRY_NAME
-  if (!registry) {
-    throw new Error('REGISTRY_NAME is not set.')
-  }
-  if (!commitHash) {
-    throw new Error('GITHUB_SHA not found.')
-  }
-
   try {
+    if (!registry) {
+      throw new Error('REGISTRY_NAME is not set.')
+    }
+    if (!commitHash) {
+      throw new Error('GITHUB_SHA not found.')
+    }
+    if (!bugsnagApiKey) {
+      throw new Error('BUGSNAG_API_KEY not found.')
+    }
+    Bugsnag.start({
+      apiKey: bugsnagApiKey,
+      enabledReleaseStages: ['production'],
+      appType: 'image_assembly_line',
+      releaseStage: env.CONTAINERKOJO_ENV,
+      metadata: {
+        actionInformation: {
+          repository: gitHubRepo,
+          workflow: gitHubWorkflow,
+          commitSHA: commitHash,
+          runID: gitHubRunID
+        }
+      }
+    })
     if (env.GITHUB_TOKEN) {
       core.setSecret(env.GITHUB_TOKEN)
     }
@@ -61,10 +60,15 @@ async function run(): Promise<void> {
     const noPush = core.getInput('no_push')
 
     const docker = new Docker(registry, imageName, commitHash)
-    core.info(
-      `registry: ${registry}, target: ${target}, image_name ${imageName}, commit_hash: ${commitHash}, severity_level: ${severityLevel.toString()}, scan_exit_code: ${scanExitCode.toString()}, no_push: ${noPush.toString()}`
-    )
-    core.info(`docker: ${docker.toString()}`)
+    core.debug(`[INFORMATION]
+      registry: ${registry}
+      target: ${target}
+      image_name: ${imageName}
+      commit_hash: ${commitHash}
+      severity_level: ${severityLevel.toString()}
+      scan_exit_code: ${scanExitCode.toString()}
+      no_push: ${noPush.toString()}
+      docker: ${docker.toString()}`)
     await docker.build(target)
 
     await docker.scan(severityLevel, scanExitCode)
