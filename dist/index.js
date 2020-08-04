@@ -34,8 +34,10 @@ module.exports =
 /******/ 	// the startup function
 /******/ 	function startup() {
 /******/ 		// Load entry module and return exports
-/******/ 		return __webpack_require__(198);
+/******/ 		return __webpack_require__(235);
 /******/ 	};
+/******/ 	// initialize runtime
+/******/ 	runtime(__webpack_require__);
 /******/
 /******/ 	// run startup
 /******/ 	return startup();
@@ -2847,38 +2849,7 @@ AWS.SharedIniFileCredentials = AWS.util.inherit(AWS.Credentials, {
 /***/ }),
 /* 23 */,
 /* 24 */,
-/* 25 */
-/***/ (function(__unusedmodule, exports) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-class BaseError extends Error {
-    constructor(e) {
-        super(e);
-        this.name = new.target.name;
-        Object.setPrototypeOf(this, new.target.prototype);
-    }
-}
-exports.BaseError = BaseError;
-class BuildError extends BaseError {
-}
-exports.BuildError = BuildError;
-class ScanError extends BaseError {
-}
-exports.ScanError = ScanError;
-class PushError extends BaseError {
-}
-exports.PushError = PushError;
-class TaggingError extends BaseError {
-}
-exports.TaggingError = TaggingError;
-class NotificationError extends BaseError {
-}
-exports.NotificationError = NotificationError;
-
-
-/***/ }),
+/* 25 */,
 /* 26 */
 /***/ (function(module, __unusedexports, __webpack_require__) {
 
@@ -2911,61 +2882,7 @@ module.exports = function createError(message, config, code, request, response) 
 /* 31 */,
 /* 32 */,
 /* 33 */,
-/* 34 */
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const core = __importStar(__webpack_require__(470));
-const ecr_1 = __importDefault(__webpack_require__(787));
-const client = new ecr_1.default({
-    region: process.env.AWS_REGION
-});
-function getLatestImage(repositoryName) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const params = {
-            // eslint-disable-next-line object-shorthand
-            repositoryName: repositoryName,
-            imageIds: [
-                {
-                    imageTag: 'latest'
-                }
-            ]
-        };
-        const images = yield client.describeImages(params).promise();
-        if (images.imageDetails) {
-            core.debug(`repository name: ${images.imageDetails[0].repositoryName}`);
-            return images.imageDetails;
-        }
-        else {
-            throw new Error('Image not found');
-        }
-    });
-}
-exports.getLatestImage = getLatestImage;
-
-
-/***/ }),
+/* 34 */,
 /* 35 */
 /***/ (function(module, __unusedexports, __webpack_require__) {
 
@@ -3538,100 +3455,50 @@ module.exports = {"name":"@slack/web-api","version":"5.9.0","description":"Offic
 
 /***/ }),
 /* 60 */,
-/* 61 */
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const core = __importStar(__webpack_require__(470));
-function setDelivery(delivery) {
-    return __awaiter(this, void 0, void 0, function* () {
-        core.setOutput('built_image_name', delivery.dockerImage.imageName);
-        core.setOutput('built_image_id', delivery.dockerImage.imageID);
-        core.setOutput('git_hub_run_id', delivery.gitHubRunID);
-    });
-}
-exports.setDelivery = setDelivery;
-
-
-/***/ }),
+/* 61 */,
 /* 62 */
 /***/ (function(__unusedmodule, exports, __webpack_require__) {
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const error_1 = __webpack_require__(25);
-const slack = __importStar(__webpack_require__(570));
-const s3 = __importStar(__webpack_require__(673));
-function notifyVulnerability(imageName, vulnerabilities, rowJson) {
-    try {
-        // Notify Slack
-        for (const result of vulnerabilities) {
-            if (result.Vulnerabilities != null) {
-                for (const vulnerability of result.Vulnerabilities) {
-                    slack.postVulnerability(imageName, result.Target, vulnerability);
-                }
-            }
-        }
-        // Upload to S3
-        s3.uploadVulnerability(rowJson);
-        return;
-    }
-    catch (e) {
-        throw new error_1.NotificationError(e);
-    }
-}
-exports.notifyVulnerability = notifyVulnerability;
-/*
- *
- */
-function notifyBuildFailed(build) {
-    return __awaiter(this, void 0, void 0, function* () {
-        slack.postBuildFailed(build);
-    });
-}
-exports.notifyBuildFailed = notifyBuildFailed;
-function notifyReadyToDeploy(build, imageName, buildTime, tags) {
-    return __awaiter(this, void 0, void 0, function* () {
-        slack.postReadyToDeploy(build, imageName, buildTime, tags);
-    });
-}
-exports.notifyReadyToDeploy = notifyReadyToDeploy;
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "v1", {
+  enumerable: true,
+  get: function () {
+    return _v.default;
+  }
+});
+Object.defineProperty(exports, "v3", {
+  enumerable: true,
+  get: function () {
+    return _v2.default;
+  }
+});
+Object.defineProperty(exports, "v4", {
+  enumerable: true,
+  get: function () {
+    return _v3.default;
+  }
+});
+Object.defineProperty(exports, "v5", {
+  enumerable: true,
+  get: function () {
+    return _v4.default;
+  }
+});
+
+var _v = _interopRequireDefault(__webpack_require__(893));
+
+var _v2 = _interopRequireDefault(__webpack_require__(209));
+
+var _v3 = _interopRequireDefault(__webpack_require__(430));
+
+var _v4 = _interopRequireDefault(__webpack_require__(384));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /***/ }),
 /* 63 */,
@@ -3675,7 +3542,7 @@ AWS.Signers.RequestSigner.getVersion = function getVersion(version) {
 
 __webpack_require__(220);
 __webpack_require__(791);
-__webpack_require__(421);
+__webpack_require__(673);
 __webpack_require__(754);
 __webpack_require__(447);
 __webpack_require__(951);
@@ -3696,7 +3563,7 @@ __webpack_require__(951);
  */
 
 if (typeof process === 'undefined' || process.type === 'renderer') {
-  module.exports = __webpack_require__(235);
+  module.exports = __webpack_require__(850);
 } else {
   module.exports = __webpack_require__(317);
 }
@@ -7539,168 +7406,7 @@ module.exports = require("querystring");
 
 
 /***/ }),
-/* 198 */
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const core = __importStar(__webpack_require__(470));
-const docker_1 = __importDefault(__webpack_require__(231));
-const error_1 = __webpack_require__(25);
-const deliver_1 = __webpack_require__(61);
-const notification = __importStar(__webpack_require__(62));
-const s3 = __importStar(__webpack_require__(673));
-const types_1 = __webpack_require__(251);
-const js_1 = __importDefault(__webpack_require__(112));
-function run() {
-    var _a;
-    return __awaiter(this, void 0, void 0, function* () {
-        const startTime = new Date(); // UTC
-        const env = process.env;
-        const gitHubRepo = env.GITHUB_REPOSITORY;
-        const gitHubWorkflow = env.GITHUB_WORKFLOW;
-        const commitHash = env.GITHUB_SHA;
-        const gitHubRunID = env.GITHUB_RUN_ID;
-        const thisAction = new types_1.BuildAction({
-            repository: gitHubRepo,
-            workflow: gitHubWorkflow,
-            commitSHA: commitHash,
-            runID: gitHubRunID
-        });
-        const bugsnagApiKey = env.BUGSNAG_API_KEY;
-        // REGISTRY_NAME はユーザー側から渡せない様にする
-        const registry = env.REGISTRY_NAME;
-        try {
-            if (!registry) {
-                throw new Error('REGISTRY_NAME is not set.');
-            }
-            if (!commitHash) {
-                throw new Error('GITHUB_SHA not found.');
-            }
-            if (!bugsnagApiKey) {
-                throw new Error('BUGSNAG_API_KEY not found.');
-            }
-            js_1.default.start({
-                apiKey: bugsnagApiKey,
-                enabledReleaseStages: ['production'],
-                appType: 'image_assembly_line',
-                releaseStage: env.CONTAINERKOJO_ENV,
-                metadata: {
-                    actionInformation: {
-                        repository: gitHubRepo,
-                        workflow: gitHubWorkflow,
-                        commitSHA: commitHash,
-                        runID: gitHubRunID
-                    }
-                }
-            });
-            if (env.GITHUB_TOKEN) {
-                core.setSecret(env.GITHUB_TOKEN);
-            }
-            const target = core.getInput('target');
-            const imageName = core.getInput('image_name');
-            const severityLevel = core.getInput('severity_level');
-            const scanExitCode = core.getInput('scan_exit_code');
-            const noPush = core.getInput('no_push');
-            const docker = new docker_1.default(registry, imageName, commitHash);
-            js_1.default.addMetadata('buildDetails', {
-                builtImage: docker.builtImage,
-                noPush
-            });
-            core.debug(`[INFORMATION]
-      registry: ${registry}
-      target: ${target}
-      image_name: ${imageName}
-      commit_hash: ${commitHash}
-      severity_level: ${severityLevel.toString()}
-      scan_exit_code: ${scanExitCode.toString()}
-      no_push: ${noPush.toString()}
-      docker: ${docker.toString()}`);
-            yield docker.build(target);
-            yield docker.scan(severityLevel, scanExitCode);
-            if (docker.builtImage && gitHubRunID) {
-                if (noPush.toString() === 'true') {
-                    core.info('no_push: true');
-                }
-                else {
-                    const upstreamRepo = docker.upstreamRepository();
-                    for (const tag of docker.builtImage.tags) {
-                        js_1.default.addMetadata('buildDetails', {
-                            tag,
-                            upstreamRegistry: upstreamRepo
-                        });
-                        yield docker.tag(tag, upstreamRepo);
-                        yield docker.push(tag, upstreamRepo);
-                    }
-                }
-                yield deliver_1.setDelivery({
-                    dockerImage: docker.builtImage,
-                    gitHubRunID
-                });
-            }
-            const endTime = new Date(); // UTC
-            s3.uploadBuildTime(startTime, endTime, imageName, 'success', 'NoError');
-            const elapsedSec = (endTime.getTime() - startTime.getTime()) / 1000;
-            const buildTime = `${Math.floor(elapsedSec / 60)}min ${elapsedSec % 60}sec`;
-            notification.notifyReadyToDeploy(thisAction, imageName, buildTime, (_a = docker.builtImage) === null || _a === void 0 ? void 0 : _a.tags.join(', '));
-        }
-        catch (e) {
-            let errorReason;
-            if (e instanceof error_1.BuildError) {
-                errorReason = 'BuildError';
-                core.error('image build error');
-                notification.notifyBuildFailed(thisAction);
-            }
-            else if (e instanceof error_1.ScanError) {
-                errorReason = 'ScanError';
-                core.error('image scan error');
-            }
-            else if (e instanceof error_1.TaggingError) {
-                errorReason = 'TaggingError';
-                core.error('image tagging error');
-            }
-            else if (e instanceof error_1.PushError) {
-                errorReason = 'PushError';
-                core.error('ecr push error');
-            }
-            else {
-                errorReason = 'UnknownError';
-                core.error(e.message);
-                core.error('unknown error');
-            }
-            js_1.default.addMetadata('errorDetails', { reason: errorReason });
-            js_1.default.notify(e);
-            const endTime = new Date(); // UTC
-            const imageName = core.getInput('image_name');
-            s3.uploadBuildTime(startTime, endTime, imageName, 'fail', errorReason);
-            core.setFailed(e);
-        }
-    });
-}
-run();
-
-
-/***/ }),
+/* 198 */,
 /* 199 */,
 /* 200 */
 /***/ (function(module) {
@@ -7748,25 +7454,7 @@ module.exports = {
 /* 203 */,
 /* 204 */,
 /* 205 */,
-/* 206 */
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-const buffer_1 = __webpack_require__(293);
-exports.base64 = {
-    encode: (str) => {
-        return buffer_1.Buffer.from(str).toString('base64');
-    },
-    // for debug function
-    decode: (str) => {
-        return buffer_1.Buffer.from(str, 'base64').toString();
-    }
-};
-
-
-/***/ }),
+/* 206 */,
 /* 207 */,
 /* 208 */,
 /* 209 */
@@ -8215,199 +7903,7 @@ module.exports = require("domain");
 
 /***/ }),
 /* 230 */,
-/* 231 */
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const core = __importStar(__webpack_require__(470));
-const exec = __importStar(__webpack_require__(986));
-const docker_util_1 = __webpack_require__(708);
-const error_1 = __webpack_require__(25);
-const notification_1 = __webpack_require__(62);
-const base64_1 = __webpack_require__(206);
-class Docker {
-    constructor(registry, imageName, commitHash) {
-        if (!registry) {
-            throw new Error('registry is empty');
-        }
-        if (!imageName) {
-            throw new Error('imageName is empty');
-        }
-        // remove the last '/'
-        this.registry = sanitizedDomain(registry);
-        this.imageName = imageName;
-        this.commitHash = commitHash;
-    }
-    get builtImage() {
-        return this._builtImage;
-    }
-    build(target) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                if (!(yield docker_util_1.noBuiltImage())) {
-                    throw new Error('Built image exists');
-                }
-                yield exec.exec('make', [
-                    `REGISTRY_NAME=${this.registry}`,
-                    `IMAGE_NAME=${this.imageName}`,
-                    target
-                ]);
-                return this.update();
-            }
-            catch (e) {
-                core.debug('build() error');
-                throw new error_1.BuildError(e);
-            }
-        });
-    }
-    scan(severityLevel, scanExitCode) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                if (!this._builtImage) {
-                    throw new Error('No built image to scan');
-                }
-                if (!severityLevel.includes('CRITICAL')) {
-                    severityLevel = `CRITICAL,${severityLevel}`;
-                }
-                let trivyScanReport = '[]';
-                const options = {
-                    silent: true,
-                    listeners: {
-                        stdout: (data) => {
-                            trivyScanReport = data.toString();
-                        }
-                    }
-                };
-                const imageName = `${this._builtImage.imageName}:${this._builtImage.tags[0]}`;
-                const result = yield exec.exec('trivy', [
-                    '--light',
-                    '--no-progress',
-                    '--quiet',
-                    '--format',
-                    'json',
-                    '--exit-code',
-                    scanExitCode,
-                    '--severity',
-                    severityLevel,
-                    imageName
-                ], options);
-                const vulnerabilities = JSON.parse(trivyScanReport);
-                if (vulnerabilities.length > 0) {
-                    notification_1.notifyVulnerability(imageName, vulnerabilities, trivyScanReport);
-                }
-                return result;
-            }
-            catch (e) {
-                core.error('scan() error');
-                throw new error_1.ScanError(e);
-            }
-        });
-    }
-    xRegistryAuth() {
-        return __awaiter(this, void 0, void 0, function* () {
-            let ecrLoginPass = '';
-            let ecrLoginError = '';
-            const options = {
-                // set silent, not to log the password
-                silent: true,
-                listeners: {
-                    stdout: (data) => {
-                        ecrLoginPass += data.toString();
-                    },
-                    stderr: (data) => {
-                        ecrLoginError += data.toString();
-                    }
-                }
-            };
-            try {
-                yield exec.exec('aws', ['ecr', 'get-login-password'], options);
-                const auth = JSON.stringify({
-                    username: 'AWS',
-                    password: ecrLoginPass,
-                    email: 'none',
-                    serveraddress: this.registry
-                });
-                return base64_1.base64.encode(auth);
-            }
-            catch (e) {
-                core.error(ecrLoginError.trim());
-                throw e;
-            }
-        });
-    }
-    tag(tag, upstreamRegistry) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!this._builtImage) {
-                throw new Error('No built image to tag');
-            }
-            yield docker_util_1.dockerImageTag(this._builtImage.imageID, upstreamRegistry, tag).catch(e => {
-                core.error('tag() error on dockerImageTag');
-                throw new error_1.TaggingError(e);
-            });
-        });
-    }
-    push(tag, upstreamRegistry) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!this._builtImage) {
-                throw new Error('No built image to push');
-            }
-            const registryAuth = yield this.xRegistryAuth();
-            yield docker_util_1.pushDockerImage(upstreamRegistry, tag, registryAuth).catch(e => {
-                core.error('push() error on pushDockerImage');
-                throw new error_1.PushError(e);
-            });
-        });
-    }
-    upstreamRepository() {
-        if (this._builtImage) {
-            return `${this.registry}/${this._builtImage.imageName}`;
-        }
-        else {
-            throw new Error('No image built');
-        }
-    }
-    update() {
-        return __awaiter(this, void 0, void 0, function* () {
-            this._builtImage = yield docker_util_1.latestBuiltImage(this.imageName);
-            this._builtImage.tags.push(this.commitHash);
-            core.debug(this._builtImage.toString());
-            return this._builtImage;
-        });
-    }
-    // function for test
-    testUpdate() {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (process.env.NODE_ENV === 'test') {
-                return this.update();
-            }
-        });
-    }
-}
-exports.default = Docker;
-function sanitizedDomain(str) {
-    return str.endsWith('/') ? str.substr(0, str.length - 1) : str;
-}
-
-
-/***/ }),
+/* 231 */,
 /* 232 */
 /***/ (function(module, __unusedexports, __webpack_require__) {
 
@@ -8599,204 +8095,1303 @@ AWS.config = new AWS.Config();
 
 /***/ }),
 /* 235 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(__unusedmodule, __webpack_exports__, __webpack_require__) {
 
-/**
- * This is the web browser implementation of `debug()`.
- *
- * Expose `debug()` as the module.
- */
+"use strict";
+__webpack_require__.r(__webpack_exports__);
 
-exports = module.exports = __webpack_require__(138);
-exports.log = log;
-exports.formatArgs = formatArgs;
-exports.save = save;
-exports.load = load;
-exports.useColors = useColors;
-exports.storage = 'undefined' != typeof chrome
-               && 'undefined' != typeof chrome.storage
-                  ? chrome.storage.local
-                  : localstorage();
+// EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
+var core = __webpack_require__(470);
 
-/**
- * Colors.
- */
+// EXTERNAL MODULE: ./node_modules/@actions/exec/lib/exec.js
+var exec = __webpack_require__(986);
 
-exports.colors = [
-  '#0000CC', '#0000FF', '#0033CC', '#0033FF', '#0066CC', '#0066FF', '#0099CC',
-  '#0099FF', '#00CC00', '#00CC33', '#00CC66', '#00CC99', '#00CCCC', '#00CCFF',
-  '#3300CC', '#3300FF', '#3333CC', '#3333FF', '#3366CC', '#3366FF', '#3399CC',
-  '#3399FF', '#33CC00', '#33CC33', '#33CC66', '#33CC99', '#33CCCC', '#33CCFF',
-  '#6600CC', '#6600FF', '#6633CC', '#6633FF', '#66CC00', '#66CC33', '#9900CC',
-  '#9900FF', '#9933CC', '#9933FF', '#99CC00', '#99CC33', '#CC0000', '#CC0033',
-  '#CC0066', '#CC0099', '#CC00CC', '#CC00FF', '#CC3300', '#CC3333', '#CC3366',
-  '#CC3399', '#CC33CC', '#CC33FF', '#CC6600', '#CC6633', '#CC9900', '#CC9933',
-  '#CCCC00', '#CCCC33', '#FF0000', '#FF0033', '#FF0066', '#FF0099', '#FF00CC',
-  '#FF00FF', '#FF3300', '#FF3333', '#FF3366', '#FF3399', '#FF33CC', '#FF33FF',
-  '#FF6600', '#FF6633', '#FF9900', '#FF9933', '#FFCC00', '#FFCC33'
-];
+// EXTERNAL MODULE: ./node_modules/axios/index.js
+var axios = __webpack_require__(53);
+var axios_default = /*#__PURE__*/__webpack_require__.n(axios);
 
-/**
- * Currently only WebKit-based Web Inspectors, Firefox >= v31,
- * and the Firebug extension (any Firefox version) are known
- * to support "%c" CSS customizations.
- *
- * TODO: add a `localStorage` variable to explicitly enable/disable colors
- */
+// EXTERNAL MODULE: ./node_modules/qs/lib/index.js
+var lib = __webpack_require__(386);
+var lib_default = /*#__PURE__*/__webpack_require__.n(lib);
 
-function useColors() {
-  // NB: In an Electron preload script, document will be defined but not fully
-  // initialized. Since we know we're in Chrome, we'll just detect this case
-  // explicitly
-  if (typeof window !== 'undefined' && window.process && window.process.type === 'renderer') {
-    return true;
-  }
-
-  // Internet Explorer and Edge do not support colors.
-  if (typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/(edge|trident)\/(\d+)/)) {
-    return false;
-  }
-
-  // is webkit? http://stackoverflow.com/a/16459606/376773
-  // document is undefined in react-native: https://github.com/facebook/react-native/pull/1632
-  return (typeof document !== 'undefined' && document.documentElement && document.documentElement.style && document.documentElement.style.WebkitAppearance) ||
-    // is firebug? http://stackoverflow.com/a/398120/376773
-    (typeof window !== 'undefined' && window.console && (window.console.firebug || (window.console.exception && window.console.table))) ||
-    // is firefox >= v31?
-    // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
-    (typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31) ||
-    // double check webkit in userAgent just in case we are in a worker
-    (typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/applewebkit\/(\d+)/));
-}
-
-/**
- * Map %j to `JSON.stringify()`, since no Web Inspectors do that by default.
- */
-
-exports.formatters.j = function(v) {
-  try {
-    return JSON.stringify(v);
-  } catch (err) {
-    return '[UnexpectedJSONParseError]: ' + err.message;
-  }
+// CONCATENATED MODULE: ./lib/docker-util.js
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
 };
 
 
-/**
- * Colorize log arguments if enabled.
- *
- * @api public
- */
 
-function formatArgs(args) {
-  var useColors = this.useColors;
 
-  args[0] = (useColors ? '%c' : '')
-    + this.namespace
-    + (useColors ? ' %c' : ' ')
-    + args[0]
-    + (useColors ? '%c ' : ' ')
-    + '+' + exports.humanize(this.diff);
-
-  if (!useColors) return;
-
-  var c = 'color: ' + this.color;
-  args.splice(1, 0, c, 'color: inherit')
-
-  // the final "%c" is somewhat tricky, because there could be other
-  // arguments passed either before or after the %c, so we need to
-  // figure out the correct index to insert the CSS into
-  var index = 0;
-  var lastC = 0;
-  args[0].replace(/%[a-zA-Z%]/g, function(match) {
-    if ('%%' === match) return;
-    index++;
-    if ('%c' === match) {
-      // we only are interested in the *last* %c
-      // (the user may have provided their own)
-      lastC = index;
+var apiVersion = 'v1.39';
+var axiosInstance = axios_default().create({
+    baseURL: "http:/" + apiVersion + "/",
+    socketPath: '/var/run/docker.sock'
+});
+function latestBuiltImage(imageName) {
+    return __awaiter(this, void 0, void 0, function () {
+        var images, latestImage, builtImageName, builtImageID, tags, _i, _a, repoTag;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    Object(core.debug)('latestBuiltImage()');
+                    return [4, exports.dockerImageLs(imageName)];
+                case 1:
+                    images = _b.sent();
+                    if (images.length < 1) {
+                        throw new Error('No images built');
+                    }
+                    latestImage = images[0];
+                    builtImageName = latestImage.RepoTags[0].split(':')[0];
+                    builtImageID = latestImage.Id;
+                    tags = [];
+                    for (_i = 0, _a = latestImage.RepoTags; _i < _a.length; _i++) {
+                        repoTag = _a[_i];
+                        tags.push(repoTag.split(':').pop());
+                    }
+                    return [2, {
+                            imageName: builtImageName,
+                            imageID: builtImageID,
+                            tags: tags
+                        }];
+            }
+        });
+    });
+}
+function noBuiltImage() {
+    return __awaiter(this, void 0, void 0, function () {
+        var stdout, imageCount;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    stdout = '';
+                    return [4, Object(exec.exec)('docker', ['image', 'ls', '-q'], {
+                            listeners: {
+                                stdout: function (data) {
+                                    stdout += data.toString();
+                                }
+                            }
+                        })];
+                case 1:
+                    _a.sent();
+                    imageCount = stdout.split('\n').filter(function (word) { return !!word; }).length;
+                    Object(core.debug)("built image count: " + imageCount);
+                    return [2, imageCount <= 0];
+            }
+        });
+    });
+}
+function dockerImageTag(imageId, repository, newTag) {
+    return __awaiter(this, void 0, void 0, function () {
+        var res;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4, axiosInstance.post("images/" + imageId + "/tag", lib_default().stringify({ tag: newTag, repo: repository }))];
+                case 1:
+                    res = _a.sent();
+                    if (res.status !== 201 && res.status !== 200) {
+                        throw new Error("POST images/{name}/tag returns error, status code: " + res.status);
+                    }
+                    return [2];
+            }
+        });
+    });
+}
+function dockerImageLs(imageName) {
+    return __awaiter(this, void 0, void 0, function () {
+        var res;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4, axiosInstance.get('images/json', {
+                        params: { filter: imageName }
+                    })];
+                case 1:
+                    res = _a.sent();
+                    return [2, res.data.sort(function (im1, im2) {
+                            return im2.Created - im1.Created;
+                        })];
+            }
+        });
+    });
+}
+function pushDockerImage(imageId, newTag, registryAuth) {
+    return __awaiter(this, void 0, void 0, function () {
+        var res;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4, axiosInstance.post("images/" + imageId + "/push", lib_default().stringify({ tag: newTag }), { headers: { 'X-Registry-Auth': registryAuth } })];
+                case 1:
+                    res = _a.sent();
+                    Object(core.info)(res.data);
+                    if (res.status !== 200) {
+                        throw new Error("POST images/{name}/push returns error, status code: " + res.status);
+                    }
+                    return [2];
+            }
+        });
+    });
+}
+//# sourceMappingURL=docker-util.js.map
+// CONCATENATED MODULE: ./lib/error.js
+var __extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var BaseError = (function (_super) {
+    __extends(BaseError, _super);
+    function BaseError(e) {
+        var _newTarget = this.constructor;
+        var _this = _super.call(this, e) || this;
+        _this.name = _newTarget.name;
+        Object.setPrototypeOf(_this, _newTarget.prototype);
+        return _this;
     }
-  });
+    return BaseError;
+}(Error));
 
-  args.splice(lastC, 0, c);
-}
-
-/**
- * Invokes `console.log()` when available.
- * No-op when `console.log` is not a "function".
- *
- * @api public
- */
-
-function log() {
-  // this hackery is required for IE8/9, where
-  // the `console.log` function doesn't have 'apply'
-  return 'object' === typeof console
-    && console.log
-    && Function.prototype.apply.call(console.log, console, arguments);
-}
-
-/**
- * Save `namespaces`.
- *
- * @param {String} namespaces
- * @api private
- */
-
-function save(namespaces) {
-  try {
-    if (null == namespaces) {
-      exports.storage.removeItem('debug');
-    } else {
-      exports.storage.debug = namespaces;
+var BuildError = (function (_super) {
+    __extends(BuildError, _super);
+    function BuildError() {
+        return _super !== null && _super.apply(this, arguments) || this;
     }
-  } catch(e) {}
+    return BuildError;
+}(BaseError));
+
+var ScanError = (function (_super) {
+    __extends(ScanError, _super);
+    function ScanError() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    return ScanError;
+}(BaseError));
+
+var PushError = (function (_super) {
+    __extends(PushError, _super);
+    function PushError() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    return PushError;
+}(BaseError));
+
+var TaggingError = (function (_super) {
+    __extends(TaggingError, _super);
+    function TaggingError() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    return TaggingError;
+}(BaseError));
+
+var NotificationError = (function (_super) {
+    __extends(NotificationError, _super);
+    function NotificationError() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    return NotificationError;
+}(BaseError));
+
+//# sourceMappingURL=error.js.map
+// EXTERNAL MODULE: ./node_modules/@slack/web-api/dist/index.js
+var dist = __webpack_require__(114);
+
+// CONCATENATED MODULE: ./lib/slack.js
+var slack_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var slack_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+var client = new dist.WebClient(process.env.SLACK_BOT_TOKEN);
+var Color;
+(function (Color) {
+    Color["Danger"] = "#b22222";
+    Color["Good"] = "good";
+})(Color || (Color = {}));
+function postBuildFailed(build) {
+    return slack_awaiter(this, void 0, void 0, function () {
+        var attachments, channel;
+        return slack_generator(this, function (_a) {
+            attachments = [failedAttachment(build)];
+            channel = process.env.SLACK_CONTAINERS_NOTIFICATION;
+            return [2, exports.postMessage(channel, "<" + build.githubRepositoryURL + "|" + build.repository + "> \u306E\u30D3\u30EB\u30C9\u306B\u5931\u6557\u3057\u307E\u3057\u305F", attachments)];
+        });
+    });
 }
-
-/**
- * Load `namespaces`.
- *
- * @return {String} returns the previously persisted debug modes
- * @api private
- */
-
-function load() {
-  var r;
-  try {
-    r = exports.storage.debug;
-  } catch(e) {}
-
-  // If debug isn't set in LS, and we're in Electron, try to load $DEBUG
-  if (!r && typeof process !== 'undefined' && 'env' in process) {
-    r = process.env.DEBUG;
-  }
-
-  return r;
+function postReadyToDeploy(build, imageName, buildTime, tags) {
+    return slack_awaiter(this, void 0, void 0, function () {
+        var attachments, channel;
+        return slack_generator(this, function (_a) {
+            attachments = [
+                buildMessageForDeploy(imageName, buildTime, tags, build.repository)
+            ];
+            channel = process.env.SLACK_CICD_NOTIFICATION_TEST;
+            return [2, exports.postMessage(channel, "<" + build.githubRepositoryURL + "|" + build.repository + "> \u306E\u30D3\u30EB\u30C9\u306B\u6210\u529F\u3057\u307E\u3057\u305F", attachments)];
+        });
+    });
 }
-
-/**
- * Enable namespaces listed in `localStorage.debug` initially.
- */
-
-exports.enable(load());
-
-/**
- * Localstorage attempts to return the localstorage.
- *
- * This is necessary because safari throws
- * when a user disables cookies/localstorage
- * and you attempt to access it.
- *
- * @return {LocalStorage}
- * @api private
- */
-
-function localstorage() {
-  try {
-    return window.localStorage;
-  } catch (e) {}
+function buildMessageForDeploy(imageName, buildTime, tags, repo) {
+    var repositoryBlock = {
+        blocks: [
+            {
+                type: 'section',
+                text: {
+                    type: 'plain_text',
+                    text: "image-name: " + imageName + " build-time: " + buildTime + "\ntag: [" + tags + "] repo: " + repo,
+                    emoji: true
+                }
+            },
+            {
+                type: 'section',
+                text: {
+                    type: 'plain_text',
+                    text: 'デプロイしますか？',
+                    emoji: true
+                }
+            },
+            {
+                type: 'actions',
+                elements: [
+                    {
+                        type: 'button',
+                        text: {
+                            type: 'plain_text',
+                            text: 'デプロイへ',
+                            emoji: true
+                        },
+                        value: repo + "::" + imageName + "::" + tags,
+                        action_id: 'ready_to_deploy'
+                    }
+                ]
+            }
+        ]
+    };
+    return {
+        color: Color.Good,
+        blocks: repositoryBlock.blocks
+    };
 }
+function failedAttachment(build) {
+    var repositoryBlock = {
+        type: 'section',
+        text: {
+            type: 'mrkdwn',
+            text: "*Action:* <" + build.runURL + "|" + build.repository + ">\n*Workflow:* " + build.workflow + "\n"
+        }
+    };
+    return {
+        color: Color.Danger,
+        blocks: [repositoryBlock]
+    };
+}
+function postVulnerability(imageName, target, cve) {
+    return slack_awaiter(this, void 0, void 0, function () {
+        var channel, attachment, message;
+        return slack_generator(this, function (_a) {
+            if (!process.env.SLACK_TRIVY_ALERT) {
+                throw new Error('No channel to post.');
+            }
+            channel = process.env.SLACK_TRIVY_ALERT;
+            Object(core.debug)("Channel: " + channel);
+            attachment = {
+                color: Color.Danger,
+                fields: [
+                    {
+                        title: 'Image Name',
+                        value: imageName,
+                        short: true
+                    },
+                    {
+                        title: 'Target',
+                        value: target,
+                        short: true
+                    },
+                    {
+                        title: 'Package Name',
+                        value: cve.PkgName,
+                        short: true
+                    },
+                    {
+                        title: 'CVE',
+                        value: cve.VulnerabilityID,
+                        short: true
+                    },
+                    {
+                        title: 'Severity',
+                        value: cve.Severity,
+                        short: true
+                    },
+                    {
+                        title: 'Installed Version',
+                        value: "\"" + cve.InstalledVersion + "\"",
+                        short: true
+                    },
+                    {
+                        title: 'Fixed Version',
+                        value: "\"" + cve.FixedVersion + "\"",
+                        short: true
+                    }
+                ]
+            };
+            message = 'ビルドされた Docker イメージに脆弱性が見つかりました。';
+            return [2, postMessage(channel, message, [attachment])];
+        });
+    });
+}
+function postMessage(channel, message, attachments) {
+    return slack_awaiter(this, void 0, void 0, function () {
+        var args;
+        return slack_generator(this, function (_a) {
+            args = {
+                channel: channel,
+                text: message,
+                mrkdwn: true,
+                attachments: attachments
+            };
+            return [2, client.chat.postMessage(args)];
+        });
+    });
+}
+//# sourceMappingURL=slack.js.map
+// EXTERNAL MODULE: ./node_modules/aws-sdk/clients/s3.js
+var s3 = __webpack_require__(777);
+var s3_default = /*#__PURE__*/__webpack_require__.n(s3);
 
+// EXTERNAL MODULE: ./node_modules/uuid/dist/index.js
+var uuid_dist = __webpack_require__(62);
+
+// EXTERNAL MODULE: ./node_modules/aws-sdk/clients/ecr.js
+var ecr = __webpack_require__(787);
+var ecr_default = /*#__PURE__*/__webpack_require__.n(ecr);
+
+// CONCATENATED MODULE: ./lib/ecr.js
+var ecr_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var ecr_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+var ecr_client = new ecr_default.a({
+    region: process.env.AWS_REGION
+});
+function getLatestImage(repositoryName) {
+    return ecr_awaiter(this, void 0, void 0, function () {
+        var params, images;
+        return ecr_generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    params = {
+                        repositoryName: repositoryName,
+                        imageIds: [
+                            {
+                                imageTag: 'latest'
+                            }
+                        ]
+                    };
+                    return [4, ecr_client.describeImages(params).promise()];
+                case 1:
+                    images = _a.sent();
+                    if (images.imageDetails) {
+                        Object(core.debug)("repository name: " + images.imageDetails[0].repositoryName);
+                        return [2, images.imageDetails];
+                    }
+                    else {
+                        throw new Error('Image not found');
+                    }
+                    return [2];
+            }
+        });
+    });
+}
+//# sourceMappingURL=ecr.js.map
+// CONCATENATED MODULE: ./lib/s3.js
+var s3_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var s3_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+var s3_client = new s3_default.a({
+    region: process.env.AWS_REGION
+});
+function uploadVulnerability(rowJson) {
+    return s3_awaiter(this, void 0, void 0, function () {
+        var bucketName, json, param;
+        return s3_generator(this, function (_a) {
+            if (!process.env.LOGS_BUCKET_NAME) {
+                throw new Error('No bucket name.');
+            }
+            bucketName = process.env.LOGS_BUCKET_NAME;
+            json = convertToJsonLines(rowJson);
+            Object(core.debug)("JSON data: " + json);
+            param = {
+                Bucket: bucketName,
+                Key: generateObjectKey('trivy/', 'json'),
+                Body: json,
+                ContentType: 'application/json',
+                ACL: 'bucket-owner-full-control'
+            };
+            s3PutObject(param);
+            return [2];
+        });
+    });
+}
+function uploadBuildTime(startTime, endTime, repositoryName, buildResult, buildReason) {
+    return s3_awaiter(this, void 0, void 0, function () {
+        var bucketName, latestImage, imagePushedAt, buildData, json, param;
+        return s3_generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    if (!process.env.METRICS_BUCKET_NAME) {
+                        throw new Error('No bucket name.');
+                    }
+                    bucketName = process.env.METRICS_BUCKET_NAME;
+                    return [4, getLatestImage(repositoryName)];
+                case 1:
+                    latestImage = _a.sent();
+                    if (!latestImage[0].imagePushedAt) {
+                        throw new Error('No push date.');
+                    }
+                    imagePushedAt = latestImage[0].imagePushedAt;
+                    buildData = {
+                        start_at: convertDateTimeFormat(startTime),
+                        end_at: convertDateTimeFormat(endTime),
+                        repository: process.env.GITHUB_REPOSITORY,
+                        branch: process.env.GITHUB_REF,
+                        run_id: process.env.GITHUB_RUN_ID,
+                        pushed_at: convertDateTimeFormat(imagePushedAt),
+                        result: buildResult,
+                        reason: buildReason
+                    };
+                    json = JSON.stringify(buildData) + "\n";
+                    Object(core.debug)("JSON data: " + json);
+                    param = {
+                        Bucket: bucketName,
+                        Key: generateObjectKey('buildtime/dt=', 'json'),
+                        Body: json,
+                        ContentType: 'application/json'
+                    };
+                    s3PutObject(param);
+                    return [2];
+            }
+        });
+    });
+}
+function s3PutObject(param) {
+    return s3_awaiter(this, void 0, void 0, function () {
+        return s3_generator(this, function (_a) {
+            s3_client.upload(param, function (err, data) {
+                if (err) {
+                    throw new Error('Failed to upload to S3.');
+                }
+                else {
+                    Object(core.debug)("Upload to S3: " + data.Bucket + "/" + data.Key);
+                }
+            });
+            return [2];
+        });
+    });
+}
+function generateObjectKey(prefix, fileExtension) {
+    var now = new Date();
+    var year = now.getFullYear();
+    var month = zeroPadding(now.getMonth() + 1, 2);
+    var date = zeroPadding(now.getDate(), 2);
+    var hour = zeroPadding(now.getHours(), 2);
+    var minute = zeroPadding(now.getMinutes(), 2);
+    var second = zeroPadding(now.getSeconds(), 2);
+    var objectKey = year + "-" + month + "-" + date + "/" + hour + "-" + minute + "-" + second + "-" + Object(uuid_dist.v4)();
+    return "" + prefix + objectKey + "." + fileExtension;
+}
+function zeroPadding(num, len) {
+    return num.toString().padStart(len, '0');
+}
+function convertToJsonLines(json) {
+    json = JSON.stringify(JSON.parse(json));
+    return json + "\n";
+}
+function convertDateTimeFormat(date) {
+    return date
+        .toISOString()
+        .replace('T', ' ')
+        .replace('Z', '');
+}
+//# sourceMappingURL=s3.js.map
+// CONCATENATED MODULE: ./lib/notification.js
+var notification_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var notification_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+function notifyVulnerability(imageName, vulnerabilities, rowJson) {
+    try {
+        for (var _i = 0, vulnerabilities_1 = vulnerabilities; _i < vulnerabilities_1.length; _i++) {
+            var result = vulnerabilities_1[_i];
+            if (result.Vulnerabilities != null) {
+                for (var _a = 0, _b = result.Vulnerabilities; _a < _b.length; _a++) {
+                    var vulnerability = _b[_a];
+                    postVulnerability(imageName, result.Target, vulnerability);
+                }
+            }
+        }
+        uploadVulnerability(rowJson);
+        return;
+    }
+    catch (e) {
+        throw new NotificationError(e);
+    }
+}
+function notifyBuildFailed(build) {
+    return notification_awaiter(this, void 0, void 0, function () {
+        return notification_generator(this, function (_a) {
+            postBuildFailed(build);
+            return [2];
+        });
+    });
+}
+function notifyReadyToDeploy(build, imageName, buildTime, tags) {
+    return notification_awaiter(this, void 0, void 0, function () {
+        return notification_generator(this, function (_a) {
+            postReadyToDeploy(build, imageName, buildTime, tags);
+            return [2];
+        });
+    });
+}
+//# sourceMappingURL=notification.js.map
+// EXTERNAL MODULE: external "buffer"
+var external_buffer_ = __webpack_require__(293);
+
+// CONCATENATED MODULE: ./lib/base64.js
+
+var base64 = {
+    encode: function (str) {
+        return Object(external_buffer_.Buffer.from)(str).toString('base64');
+    },
+    decode: function (str) {
+        return Object(external_buffer_.Buffer.from)(str, 'base64').toString();
+    }
+};
+//# sourceMappingURL=base64.js.map
+// CONCATENATED MODULE: ./lib/docker.js
+var docker_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var docker_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+
+
+var docker_Docker = (function () {
+    function Docker(registry, imageName, commitHash) {
+        if (!registry) {
+            throw new Error('registry is empty');
+        }
+        if (!imageName) {
+            throw new Error('imageName is empty');
+        }
+        this.registry = sanitizedDomain(registry);
+        this.imageName = imageName;
+        this.commitHash = commitHash;
+    }
+    Object.defineProperty(Docker.prototype, "builtImage", {
+        get: function () {
+            return this._builtImage;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Docker.prototype.build = function (target) {
+        return docker_awaiter(this, void 0, void 0, function () {
+            var e_1;
+            return docker_generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 3, , 4]);
+                        return [4, noBuiltImage()];
+                    case 1:
+                        if (!(_a.sent())) {
+                            throw new Error('Built image exists');
+                        }
+                        return [4, Object(exec.exec)('make', [
+                                "REGISTRY_NAME=" + this.registry,
+                                "IMAGE_NAME=" + this.imageName,
+                                target
+                            ])];
+                    case 2:
+                        _a.sent();
+                        return [2, this.update()];
+                    case 3:
+                        e_1 = _a.sent();
+                        Object(core.debug)('build() error');
+                        throw new BuildError(e_1);
+                    case 4: return [2];
+                }
+            });
+        });
+    };
+    Docker.prototype.scan = function (severityLevel, scanExitCode) {
+        return docker_awaiter(this, void 0, void 0, function () {
+            var trivyScanReport_1, options, imageName, result, vulnerabilities, e_2;
+            return docker_generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        if (!this._builtImage) {
+                            throw new Error('No built image to scan');
+                        }
+                        if (!severityLevel.includes('CRITICAL')) {
+                            severityLevel = "CRITICAL," + severityLevel;
+                        }
+                        trivyScanReport_1 = '[]';
+                        options = {
+                            silent: true,
+                            listeners: {
+                                stdout: function (data) {
+                                    trivyScanReport_1 = data.toString();
+                                }
+                            }
+                        };
+                        imageName = this._builtImage.imageName + ":" + this._builtImage.tags[0];
+                        return [4, Object(exec.exec)('trivy', [
+                                '--light',
+                                '--no-progress',
+                                '--quiet',
+                                '--format',
+                                'json',
+                                '--exit-code',
+                                scanExitCode,
+                                '--severity',
+                                severityLevel,
+                                imageName
+                            ], options)];
+                    case 1:
+                        result = _a.sent();
+                        vulnerabilities = JSON.parse(trivyScanReport_1);
+                        if (vulnerabilities.length > 0) {
+                            notifyVulnerability(imageName, vulnerabilities, trivyScanReport_1);
+                        }
+                        return [2, result];
+                    case 2:
+                        e_2 = _a.sent();
+                        Object(core.error)('scan() error');
+                        throw new ScanError(e_2);
+                    case 3: return [2];
+                }
+            });
+        });
+    };
+    Docker.prototype.xRegistryAuth = function () {
+        return docker_awaiter(this, void 0, void 0, function () {
+            var ecrLoginPass, ecrLoginError, options, auth, e_3;
+            return docker_generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        ecrLoginPass = '';
+                        ecrLoginError = '';
+                        options = {
+                            silent: true,
+                            listeners: {
+                                stdout: function (data) {
+                                    ecrLoginPass += data.toString();
+                                },
+                                stderr: function (data) {
+                                    ecrLoginError += data.toString();
+                                }
+                            }
+                        };
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4, Object(exec.exec)('aws', ['ecr', 'get-login-password'], options)];
+                    case 2:
+                        _a.sent();
+                        auth = JSON.stringify({
+                            username: 'AWS',
+                            password: ecrLoginPass,
+                            email: 'none',
+                            serveraddress: this.registry
+                        });
+                        return [2, base64.encode(auth)];
+                    case 3:
+                        e_3 = _a.sent();
+                        Object(core.error)(ecrLoginError.trim());
+                        throw e_3;
+                    case 4: return [2];
+                }
+            });
+        });
+    };
+    Docker.prototype.tag = function (tag, upstreamRegistry) {
+        return docker_awaiter(this, void 0, void 0, function () {
+            return docker_generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (!this._builtImage) {
+                            throw new Error('No built image to tag');
+                        }
+                        return [4, dockerImageTag(this._builtImage.imageID, upstreamRegistry, tag).catch(function (e) {
+                                Object(core.error)('tag() error on dockerImageTag');
+                                throw new TaggingError(e);
+                            })];
+                    case 1:
+                        _a.sent();
+                        return [2];
+                }
+            });
+        });
+    };
+    Docker.prototype.push = function (tag, upstreamRegistry) {
+        return docker_awaiter(this, void 0, void 0, function () {
+            var registryAuth;
+            return docker_generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (!this._builtImage) {
+                            throw new Error('No built image to push');
+                        }
+                        return [4, this.xRegistryAuth()];
+                    case 1:
+                        registryAuth = _a.sent();
+                        return [4, pushDockerImage(upstreamRegistry, tag, registryAuth).catch(function (e) {
+                                Object(core.error)('push() error on pushDockerImage');
+                                throw new PushError(e);
+                            })];
+                    case 2:
+                        _a.sent();
+                        return [2];
+                }
+            });
+        });
+    };
+    Docker.prototype.upstreamRepository = function () {
+        if (this._builtImage) {
+            return this.registry + "/" + this._builtImage.imageName;
+        }
+        else {
+            throw new Error('No image built');
+        }
+    };
+    Docker.prototype.update = function () {
+        return docker_awaiter(this, void 0, void 0, function () {
+            var _a;
+            return docker_generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _a = this;
+                        return [4, latestBuiltImage(this.imageName)];
+                    case 1:
+                        _a._builtImage = _b.sent();
+                        this._builtImage.tags.push(this.commitHash);
+                        Object(core.debug)(this._builtImage.toString());
+                        return [2, this._builtImage];
+                }
+            });
+        });
+    };
+    Docker.prototype.testUpdate = function () {
+        return docker_awaiter(this, void 0, void 0, function () {
+            return docker_generator(this, function (_a) {
+                if (process.env.NODE_ENV === 'test') {
+                    return [2, this.update()];
+                }
+                return [2];
+            });
+        });
+    };
+    return Docker;
+}());
+/* harmony default export */ var lib_docker = (docker_Docker);
+function sanitizedDomain(str) {
+    return str.endsWith('/') ? str.substr(0, str.length - 1) : str;
+}
+//# sourceMappingURL=docker.js.map
+// CONCATENATED MODULE: ./lib/deliver.js
+var deliver_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var deliver_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+function setDelivery(delivery) {
+    return deliver_awaiter(this, void 0, void 0, function () {
+        return deliver_generator(this, function (_a) {
+            Object(core.setOutput)('built_image_name', delivery.dockerImage.imageName);
+            Object(core.setOutput)('built_image_id', delivery.dockerImage.imageID);
+            Object(core.setOutput)('git_hub_run_id', delivery.gitHubRunID);
+            return [2];
+        });
+    });
+}
+//# sourceMappingURL=deliver.js.map
+// EXTERNAL MODULE: external "url"
+var external_url_ = __webpack_require__(835);
+
+// CONCATENATED MODULE: ./lib/types.js
+
+
+var types_BuildAction = (function () {
+    function BuildAction(build) {
+        this.githubURL = new external_url_.URL('https://github.com/');
+        Object(core.debug)('constructor');
+        Object(core.debug)(this.githubURL.href);
+        this.repository = build.repository;
+        this.workflow = build.workflow;
+        this.commitSHA = build.commitSHA;
+        this.runID = build.runID;
+    }
+    Object.defineProperty(BuildAction.prototype, "runURL", {
+        get: function () {
+            Object(core.debug)('get runURL');
+            Object(core.debug)(new external_url_.URL('https://github.com/').href);
+            Object(core.debug)(this.githubURL.href);
+            this.githubURL.pathname = "/" + this.repository + "/actions/runs/" + this.runID;
+            return this.githubURL;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(BuildAction.prototype, "githubRepositoryURL", {
+        get: function () {
+            this.githubURL.pathname = "/" + this.repository;
+            return this.githubURL;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return BuildAction;
+}());
+
+//# sourceMappingURL=types.js.map
+// EXTERNAL MODULE: ./node_modules/@bugsnag/js/node/notifier.js
+var notifier = __webpack_require__(112);
+var notifier_default = /*#__PURE__*/__webpack_require__.n(notifier);
+
+// CONCATENATED MODULE: ./lib/main.js
+var main_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var main_generator = (undefined && undefined.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+
+
+
+
+
+
+
+
+function run() {
+    var _a;
+    return main_awaiter(this, void 0, void 0, function () {
+        var startTime, env, gitHubRepo, gitHubWorkflow, commitHash, gitHubRunID, thisAction, bugsnagApiKey, registry, target, imageName, severityLevel, scanExitCode, noPush, docker, upstreamRepo, _i, _b, tag, endTime, elapsedSec, buildTime, e_1, errorReason, endTime, imageName;
+        return main_generator(this, function (_c) {
+            switch (_c.label) {
+                case 0:
+                    startTime = new Date();
+                    env = process.env;
+                    gitHubRepo = env.GITHUB_REPOSITORY;
+                    gitHubWorkflow = env.GITHUB_WORKFLOW;
+                    commitHash = env.GITHUB_SHA;
+                    gitHubRunID = env.GITHUB_RUN_ID;
+                    thisAction = new types_BuildAction({
+                        repository: gitHubRepo,
+                        workflow: gitHubWorkflow,
+                        commitSHA: commitHash,
+                        runID: gitHubRunID
+                    });
+                    bugsnagApiKey = env.BUGSNAG_API_KEY;
+                    registry = env.REGISTRY_NAME;
+                    _c.label = 1;
+                case 1:
+                    _c.trys.push([1, 12, , 13]);
+                    if (!registry) {
+                        throw new Error('REGISTRY_NAME is not set.');
+                    }
+                    if (!commitHash) {
+                        throw new Error('GITHUB_SHA not found.');
+                    }
+                    if (!bugsnagApiKey) {
+                        throw new Error('BUGSNAG_API_KEY not found.');
+                    }
+                    notifier_default().start({
+                        apiKey: bugsnagApiKey,
+                        enabledReleaseStages: ['production'],
+                        appType: 'image_assembly_line',
+                        releaseStage: env.CONTAINERKOJO_ENV,
+                        metadata: {
+                            actionInformation: {
+                                repository: gitHubRepo,
+                                workflow: gitHubWorkflow,
+                                commitSHA: commitHash,
+                                runID: gitHubRunID
+                            }
+                        }
+                    });
+                    if (env.GITHUB_TOKEN) {
+                        Object(core.setSecret)(env.GITHUB_TOKEN);
+                    }
+                    target = Object(core.getInput)('target');
+                    imageName = Object(core.getInput)('image_name');
+                    severityLevel = Object(core.getInput)('severity_level');
+                    scanExitCode = Object(core.getInput)('scan_exit_code');
+                    noPush = Object(core.getInput)('no_push');
+                    docker = new lib_docker(registry, imageName, commitHash);
+                    notifier_default().addMetadata('buildDetails', {
+                        builtImage: docker.builtImage,
+                        noPush: noPush
+                    });
+                    Object(core.debug)("[INFORMATION]\n      registry: " + registry + "\n      target: " + target + "\n      image_name: " + imageName + "\n      commit_hash: " + commitHash + "\n      severity_level: " + severityLevel.toString() + "\n      scan_exit_code: " + scanExitCode.toString() + "\n      no_push: " + noPush.toString() + "\n      docker: " + docker.toString());
+                    return [4, docker.build(target)];
+                case 2:
+                    _c.sent();
+                    return [4, docker.scan(severityLevel, scanExitCode)];
+                case 3:
+                    _c.sent();
+                    if (!(docker.builtImage && gitHubRunID)) return [3, 11];
+                    if (!(noPush.toString() === 'true')) return [3, 4];
+                    Object(core.info)('no_push: true');
+                    return [3, 9];
+                case 4:
+                    upstreamRepo = docker.upstreamRepository();
+                    _i = 0, _b = docker.builtImage.tags;
+                    _c.label = 5;
+                case 5:
+                    if (!(_i < _b.length)) return [3, 9];
+                    tag = _b[_i];
+                    notifier_default().addMetadata('buildDetails', {
+                        tag: tag,
+                        upstreamRegistry: upstreamRepo
+                    });
+                    return [4, docker.tag(tag, upstreamRepo)];
+                case 6:
+                    _c.sent();
+                    return [4, docker.push(tag, upstreamRepo)];
+                case 7:
+                    _c.sent();
+                    _c.label = 8;
+                case 8:
+                    _i++;
+                    return [3, 5];
+                case 9: return [4, setDelivery({
+                        dockerImage: docker.builtImage,
+                        gitHubRunID: gitHubRunID
+                    })];
+                case 10:
+                    _c.sent();
+                    _c.label = 11;
+                case 11:
+                    endTime = new Date();
+                    uploadBuildTime(startTime, endTime, imageName, 'success', 'NoError');
+                    elapsedSec = (endTime.getTime() - startTime.getTime()) / 1000;
+                    buildTime = Math.floor(elapsedSec / 60) + "min " + elapsedSec % 60 + "sec";
+                    notifyReadyToDeploy(thisAction, imageName, buildTime, (_a = docker.builtImage) === null || _a === void 0 ? void 0 : _a.tags.join(', '));
+                    return [3, 13];
+                case 12:
+                    e_1 = _c.sent();
+                    errorReason = void 0;
+                    if (e_1 instanceof BuildError) {
+                        errorReason = 'BuildError';
+                        Object(core.error)('image build error');
+                        notifyBuildFailed(thisAction);
+                    }
+                    else if (e_1 instanceof ScanError) {
+                        errorReason = 'ScanError';
+                        Object(core.error)('image scan error');
+                    }
+                    else if (e_1 instanceof TaggingError) {
+                        errorReason = 'TaggingError';
+                        Object(core.error)('image tagging error');
+                    }
+                    else if (e_1 instanceof PushError) {
+                        errorReason = 'PushError';
+                        Object(core.error)('ecr push error');
+                    }
+                    else {
+                        errorReason = 'UnknownError';
+                        Object(core.error)(e_1.message);
+                        Object(core.error)('unknown error');
+                    }
+                    notifier_default().addMetadata('errorDetails', { reason: errorReason });
+                    notifier_default().notify(e_1);
+                    endTime = new Date();
+                    imageName = Object(core.getInput)('image_name');
+                    uploadBuildTime(startTime, endTime, imageName, 'fail', errorReason);
+                    Object(core.setFailed)(e_1);
+                    return [3, 13];
+                case 13: return [2];
+            }
+        });
+    });
+}
+run();
+//# sourceMappingURL=main.js.map
 
 /***/ }),
 /* 236 */,
@@ -8951,47 +9546,7 @@ module.exports = {
 /* 248 */,
 /* 249 */,
 /* 250 */,
-/* 251 */
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
-
-"use strict";
-
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const url_1 = __webpack_require__(835);
-const core = __importStar(__webpack_require__(470));
-class BuildAction {
-    constructor(build) {
-        this.githubURL = new url_1.URL('https://github.com/');
-        core.debug('constructor');
-        core.debug(this.githubURL.href);
-        this.repository = build.repository;
-        this.workflow = build.workflow;
-        this.commitSHA = build.commitSHA;
-        this.runID = build.runID;
-    }
-    get runURL() {
-        core.debug('get runURL');
-        core.debug(new url_1.URL('https://github.com/').href);
-        core.debug(this.githubURL.href);
-        this.githubURL.pathname = `/${this.repository}/actions/runs/${this.runID}`;
-        return this.githubURL;
-    }
-    get githubRepositoryURL() {
-        this.githubURL.pathname = `/${this.repository}`;
-        return this.githubURL;
-    }
-}
-exports.BuildAction = BuildAction;
-
-
-/***/ }),
+/* 251 */,
 /* 252 */,
 /* 253 */,
 /* 254 */,
@@ -9234,51 +9789,7 @@ module.exports = Paginator;
 module.exports = {"pagination":{}};
 
 /***/ }),
-/* 281 */
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-Object.defineProperty(exports, "v1", {
-  enumerable: true,
-  get: function () {
-    return _v.default;
-  }
-});
-Object.defineProperty(exports, "v3", {
-  enumerable: true,
-  get: function () {
-    return _v2.default;
-  }
-});
-Object.defineProperty(exports, "v4", {
-  enumerable: true,
-  get: function () {
-    return _v3.default;
-  }
-});
-Object.defineProperty(exports, "v5", {
-  enumerable: true,
-  get: function () {
-    return _v4.default;
-  }
-});
-
-var _v = _interopRequireDefault(__webpack_require__(893));
-
-var _v2 = _interopRequireDefault(__webpack_require__(209));
-
-var _v3 = _interopRequireDefault(__webpack_require__(430));
-
-var _v4 = _interopRequireDefault(__webpack_require__(384));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/***/ }),
+/* 281 */,
 /* 282 */,
 /* 283 */
 /***/ (function(module, __unusedexports, __webpack_require__) {
@@ -10722,37 +11233,7 @@ module.exports = require("crypto");
 /* 418 */,
 /* 419 */,
 /* 420 */,
-/* 421 */
-/***/ (function(module, __unusedexports, __webpack_require__) {
-
-var AWS = __webpack_require__(395);
-var inherit = AWS.util.inherit;
-
-__webpack_require__(791);
-
-/**
- * @api private
- */
-AWS.Signers.V3Https = inherit(AWS.Signers.V3, {
-  authorization: function authorization(credentials) {
-    return 'AWS3-HTTPS ' +
-      'AWSAccessKeyId=' + credentials.accessKeyId + ',' +
-      'Algorithm=HmacSHA256,' +
-      'Signature=' + this.signature(credentials);
-  },
-
-  stringToSign: function stringToSign() {
-    return this.request.headers['X-Amz-Date'];
-  }
-});
-
-/**
- * @api private
- */
-module.exports = AWS.Signers.V3Https;
-
-
-/***/ }),
+/* 421 */,
 /* 422 */,
 /* 423 */
 /***/ (function(module) {
@@ -12602,7 +13083,7 @@ AWS.util.mixin(AWS.Request, AWS.SequentialExecutor);
 
   XMLRaw = __webpack_require__(781);
 
-  XMLText = __webpack_require__(487);
+  XMLText = __webpack_require__(708);
 
   XMLProcessingInstruction = __webpack_require__(491);
 
@@ -13266,44 +13747,7 @@ exports.getState = getState;
 /* 484 */,
 /* 485 */,
 /* 486 */,
-/* 487 */
-/***/ (function(module, __unusedexports, __webpack_require__) {
-
-// Generated by CoffeeScript 1.12.7
-(function() {
-  var XMLNode, XMLText,
-    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
-
-  XMLNode = __webpack_require__(855);
-
-  module.exports = XMLText = (function(superClass) {
-    extend(XMLText, superClass);
-
-    function XMLText(parent, text) {
-      XMLText.__super__.constructor.call(this, parent);
-      if (text == null) {
-        throw new Error("Missing element text");
-      }
-      this.value = this.stringify.eleText(text);
-    }
-
-    XMLText.prototype.clone = function() {
-      return Object.create(this);
-    };
-
-    XMLText.prototype.toString = function(options) {
-      return this.options.writer.set(options).text(this);
-    };
-
-    return XMLText;
-
-  })(XMLNode);
-
-}).call(this);
-
-
-/***/ }),
+/* 487 */,
 /* 488 */,
 /* 489 */,
 /* 490 */,
@@ -15894,178 +16338,7 @@ function clean(key)
 /* 567 */,
 /* 568 */,
 /* 569 */,
-/* 570 */
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const api = __importStar(__webpack_require__(114));
-const core = __importStar(__webpack_require__(470));
-const client = new api.WebClient(process.env.SLACK_BOT_TOKEN);
-var Color;
-(function (Color) {
-    Color["Danger"] = "#b22222";
-    Color["Good"] = "good";
-})(Color || (Color = {}));
-function postBuildFailed(build) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const attachments = [failedAttachment(build)];
-        const channel = process.env.SLACK_CONTAINERS_NOTIFICATION;
-        return exports.postMessage(channel, `<${build.githubRepositoryURL}|${build.repository}> のビルドに失敗しました`, attachments);
-    });
-}
-exports.postBuildFailed = postBuildFailed;
-function postReadyToDeploy(build, imageName, buildTime, tags) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const attachments = [
-            buildMessageForDeploy(imageName, buildTime, tags, build.repository)
-        ];
-        const channel = process.env.SLACK_CICD_NOTIFICATION_TEST;
-        return exports.postMessage(channel, `<${build.githubRepositoryURL}|${build.repository}> のビルドに成功しました`, attachments);
-    });
-}
-exports.postReadyToDeploy = postReadyToDeploy;
-function buildMessageForDeploy(imageName, buildTime, tags, repo) {
-    const repositoryBlock = {
-        blocks: [
-            {
-                type: 'section',
-                text: {
-                    type: 'plain_text',
-                    text: `image-name: ${imageName} build-time: ${buildTime}\ntag: [${tags}] repo: ${repo}`,
-                    emoji: true
-                }
-            },
-            {
-                type: 'section',
-                text: {
-                    type: 'plain_text',
-                    text: 'デプロイしますか？',
-                    emoji: true
-                }
-            },
-            {
-                type: 'actions',
-                elements: [
-                    {
-                        type: 'button',
-                        text: {
-                            type: 'plain_text',
-                            text: 'デプロイへ',
-                            emoji: true
-                        },
-                        value: `${repo}::${imageName}::${tags}`,
-                        // eslint-disable-next-line @typescript-eslint/camelcase
-                        action_id: 'ready_to_deploy'
-                    }
-                ]
-            }
-        ]
-    };
-    return {
-        color: Color.Good,
-        blocks: repositoryBlock.blocks
-    };
-}
-exports.buildMessageForDeploy = buildMessageForDeploy;
-function failedAttachment(build) {
-    const repositoryBlock = {
-        type: 'section',
-        text: {
-            type: 'mrkdwn',
-            text: `*Action:* <${build.runURL}|${build.repository}>\n*Workflow:* ${build.workflow}\n`
-        }
-    };
-    return {
-        color: Color.Danger,
-        blocks: [repositoryBlock]
-    };
-}
-exports.failedAttachment = failedAttachment;
-function postVulnerability(imageName, target, cve) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (!process.env.SLACK_TRIVY_ALERT) {
-            throw new Error('No channel to post.');
-        }
-        const channel = process.env.SLACK_TRIVY_ALERT;
-        core.debug(`Channel: ${channel}`);
-        const attachment = {
-            color: Color.Danger,
-            fields: [
-                {
-                    title: 'Image Name',
-                    value: imageName,
-                    short: true
-                },
-                {
-                    title: 'Target',
-                    value: target,
-                    short: true
-                },
-                {
-                    title: 'Package Name',
-                    value: cve.PkgName,
-                    short: true
-                },
-                {
-                    title: 'CVE',
-                    value: cve.VulnerabilityID,
-                    short: true
-                },
-                {
-                    title: 'Severity',
-                    value: cve.Severity,
-                    short: true
-                },
-                {
-                    title: 'Installed Version',
-                    value: `"${cve.InstalledVersion}"`,
-                    short: true
-                },
-                {
-                    title: 'Fixed Version',
-                    value: `"${cve.FixedVersion}"`,
-                    short: true
-                }
-            ]
-        };
-        const message = 'ビルドされた Docker イメージに脆弱性が見つかりました。';
-        return postMessage(channel, message, [attachment]);
-    });
-}
-exports.postVulnerability = postVulnerability;
-function postMessage(channel, message, attachments) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const args = {
-            channel,
-            text: message,
-            mrkdwn: true,
-            attachments
-        };
-        return client.chat.postMessage(args);
-    });
-}
-exports.postMessage = postMessage;
-
-
-/***/ }),
+/* 570 */,
 /* 571 */,
 /* 572 */
 /***/ (function(module) {
@@ -23376,128 +23649,33 @@ function isUnixExecutable(stats) {
 
 /***/ }),
 /* 673 */
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
+/***/ (function(module, __unusedexports, __webpack_require__) {
 
-"use strict";
+var AWS = __webpack_require__(395);
+var inherit = AWS.util.inherit;
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const core = __importStar(__webpack_require__(470));
-const s3_1 = __importDefault(__webpack_require__(777));
-const uuid_1 = __webpack_require__(281);
-const ecr = __importStar(__webpack_require__(34));
-const client = new s3_1.default({
-    region: process.env.AWS_REGION
+__webpack_require__(791);
+
+/**
+ * @api private
+ */
+AWS.Signers.V3Https = inherit(AWS.Signers.V3, {
+  authorization: function authorization(credentials) {
+    return 'AWS3-HTTPS ' +
+      'AWSAccessKeyId=' + credentials.accessKeyId + ',' +
+      'Algorithm=HmacSHA256,' +
+      'Signature=' + this.signature(credentials);
+  },
+
+  stringToSign: function stringToSign() {
+    return this.request.headers['X-Amz-Date'];
+  }
 });
-function uploadVulnerability(rowJson) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (!process.env.LOGS_BUCKET_NAME) {
-            throw new Error('No bucket name.');
-        }
-        const bucketName = process.env.LOGS_BUCKET_NAME;
-        const json = convertToJsonLines(rowJson);
-        core.debug(`JSON data: ${json}`);
-        const param = {
-            Bucket: bucketName,
-            Key: generateObjectKey('trivy/', 'json'),
-            Body: json,
-            ContentType: 'application/json',
-            ACL: 'bucket-owner-full-control'
-        };
-        s3PutObject(param);
-    });
-}
-exports.uploadVulnerability = uploadVulnerability;
-function uploadBuildTime(startTime, endTime, repositoryName, buildResult, buildReason) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (!process.env.METRICS_BUCKET_NAME) {
-            throw new Error('No bucket name.');
-        }
-        const bucketName = process.env.METRICS_BUCKET_NAME;
-        const latestImage = yield ecr.getLatestImage(repositoryName);
-        if (!latestImage[0].imagePushedAt) {
-            throw new Error('No push date.');
-        }
-        const imagePushedAt = latestImage[0].imagePushedAt;
-        /* eslint-disable @typescript-eslint/camelcase */
-        const buildData = {
-            start_at: convertDateTimeFormat(startTime),
-            end_at: convertDateTimeFormat(endTime),
-            repository: process.env.GITHUB_REPOSITORY,
-            branch: process.env.GITHUB_REF,
-            run_id: process.env.GITHUB_RUN_ID,
-            pushed_at: convertDateTimeFormat(imagePushedAt),
-            result: buildResult,
-            reason: buildReason
-        };
-        /* eslint-enable */
-        const json = `${JSON.stringify(buildData)}\n`;
-        core.debug(`JSON data: ${json}`);
-        const param = {
-            Bucket: bucketName,
-            Key: generateObjectKey('buildtime/dt=', 'json'),
-            Body: json,
-            ContentType: 'application/json'
-        };
-        s3PutObject(param);
-    });
-}
-exports.uploadBuildTime = uploadBuildTime;
-function s3PutObject(param) {
-    return __awaiter(this, void 0, void 0, function* () {
-        client.upload(param, (err, data) => {
-            if (err) {
-                throw new Error('Failed to upload to S3.');
-            }
-            else {
-                core.debug(`Upload to S3: ${data.Bucket}/${data.Key}`);
-            }
-        });
-    });
-}
-exports.s3PutObject = s3PutObject;
-function generateObjectKey(prefix, fileExtension) {
-    const now = new Date(); // UTC
-    const year = now.getFullYear();
-    const month = zeroPadding(now.getMonth() + 1, 2);
-    const date = zeroPadding(now.getDate(), 2);
-    const hour = zeroPadding(now.getHours(), 2);
-    const minute = zeroPadding(now.getMinutes(), 2);
-    const second = zeroPadding(now.getSeconds(), 2);
-    const objectKey = `${year}-${month}-${date}/${hour}-${minute}-${second}-${uuid_1.v4()}`;
-    return `${prefix}${objectKey}.${fileExtension}`;
-}
-function zeroPadding(num, len) {
-    return num.toString().padStart(len, '0');
-}
-function convertToJsonLines(json) {
-    json = JSON.stringify(JSON.parse(json));
-    return `${json}\n`;
-}
-function convertDateTimeFormat(date) {
-    return date
-        .toISOString()
-        .replace('T', ' ')
-        .replace('Z', '');
-}
+
+/**
+ * @api private
+ */
+module.exports = AWS.Signers.V3Https;
 
 
 /***/ }),
@@ -24268,127 +24446,40 @@ module.exports = {"pagination":{"ListBuckets":{"result_key":"Buckets"},"ListMult
 
 /***/ }),
 /* 708 */
-/***/ (function(__unusedmodule, exports, __webpack_require__) {
+/***/ (function(module, __unusedexports, __webpack_require__) {
 
-"use strict";
+// Generated by CoffeeScript 1.12.7
+(function() {
+  var XMLNode, XMLText,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const exec = __importStar(__webpack_require__(986));
-const core = __importStar(__webpack_require__(470));
-const axios_1 = __importDefault(__webpack_require__(53));
-const qs_1 = __importDefault(__webpack_require__(386));
-// Document for docker engine API.
-// https://docs.docker.com/engine/api/v1.39/
-const apiVersion = 'v1.39';
-exports.axiosInstance = axios_1.default.create({
-    baseURL: `http:/${apiVersion}/`,
-    socketPath: '/var/run/docker.sock'
-});
-function latestBuiltImage(imageName) {
-    return __awaiter(this, void 0, void 0, function* () {
-        core.debug('latestBuiltImage()');
-        const images = yield exports.dockerImageLs(imageName);
-        if (images.length < 1) {
-            throw new Error('No images built');
-        }
-        const latestImage = images[0];
-        const builtImageName = latestImage.RepoTags[0].split(':')[0];
-        const builtImageID = latestImage.Id;
-        const tags = [];
-        for (const repoTag of latestImage.RepoTags) {
-            tags.push(repoTag.split(':').pop());
-        }
-        return {
-            imageName: builtImageName,
-            imageID: builtImageID,
-            tags
-        };
-    });
-}
-exports.latestBuiltImage = latestBuiltImage;
-// Return true when check is OK
-function noBuiltImage() {
-    return __awaiter(this, void 0, void 0, function* () {
-        let stdout = '';
-        yield exec.exec('docker', ['image', 'ls', '-q'], {
-            listeners: {
-                stdout: (data) => {
-                    stdout += data.toString();
-                }
-            }
-        });
-        const imageCount = stdout.split('\n').filter(word => !!word).length;
-        core.debug(`built image count: ${imageCount}`);
-        return imageCount <= 0;
-    });
-}
-exports.noBuiltImage = noBuiltImage;
-/**
- * dockerTagImage creates a tag for a docker image
- * @param {string} imageId The ID of a docker image
- * @param {string} repository The upstream docker repository
- * @param {string} newTag New tag name to be set
- */
-function dockerImageTag(imageId, repository, newTag) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const res = yield exports.axiosInstance.post(`images/${imageId}/tag`, qs_1.default.stringify({ tag: newTag, repo: repository }));
-        if (res.status !== 201 && res.status !== 200) {
-            throw new Error(`POST images/{name}/tag returns error, status code: ${res.status}`);
-        }
-    });
-}
-exports.dockerImageTag = dockerImageTag;
-/**
- * dockerImageLs lists docker images
- * @param {string} imageName The name of a docker image
- */
-function dockerImageLs(imageName) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const res = yield exports.axiosInstance.get('images/json', {
-            params: { filter: imageName }
-        });
-        // Make sure that images are sorted by "Created" desc.
-        return res.data.sort((im1, im2) => {
-            return im2.Created - im1.Created;
-        });
-    });
-}
-exports.dockerImageLs = dockerImageLs;
-/**
- * pushDockerImage pushes a docker image to registry
- * @param {string} imageId The ID of a docker image
- * @param {string} newTag New tag name to be set
- * @param {string} registryAuth Base64 encoded registration auth
- */
-function pushDockerImage(imageId, newTag, registryAuth) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const res = yield exports.axiosInstance.post(`images/${imageId}/push`, qs_1.default.stringify({ tag: newTag }), { headers: { 'X-Registry-Auth': registryAuth } });
-        core.info(res.data);
-        if (res.status !== 200) {
-            throw new Error(`POST images/{name}/push returns error, status code: ${res.status}`);
-        }
-    });
-}
-exports.pushDockerImage = pushDockerImage;
+  XMLNode = __webpack_require__(855);
+
+  module.exports = XMLText = (function(superClass) {
+    extend(XMLText, superClass);
+
+    function XMLText(parent, text) {
+      XMLText.__super__.constructor.call(this, parent);
+      if (text == null) {
+        throw new Error("Missing element text");
+      }
+      this.value = this.stringify.eleText(text);
+    }
+
+    XMLText.prototype.clone = function() {
+      return Object.create(this);
+    };
+
+    XMLText.prototype.toString = function(options) {
+      return this.options.writer.set(options).text(this);
+    };
+
+    return XMLText;
+
+  })(XMLNode);
+
+}).call(this);
 
 
 /***/ }),
@@ -25068,7 +25159,7 @@ module.exports = require("fs");
 
   XMLRaw = __webpack_require__(781);
 
-  XMLText = __webpack_require__(487);
+  XMLText = __webpack_require__(708);
 
   XMLProcessingInstruction = __webpack_require__(491);
 
@@ -25953,7 +26044,7 @@ module.exports = resolveMonitoringConfig;
 
   XMLRaw = __webpack_require__(781);
 
-  XMLText = __webpack_require__(487);
+  XMLText = __webpack_require__(708);
 
   XMLProcessingInstruction = __webpack_require__(491);
 
@@ -30038,7 +30129,207 @@ exports.getLogger = getLogger;
 module.exports = {"version":"2.0","metadata":{"apiVersion":"2015-09-21","endpointPrefix":"api.ecr","jsonVersion":"1.1","protocol":"json","serviceAbbreviation":"Amazon ECR","serviceFullName":"Amazon EC2 Container Registry","serviceId":"ECR","signatureVersion":"v4","signingName":"ecr","targetPrefix":"AmazonEC2ContainerRegistry_V20150921","uid":"ecr-2015-09-21"},"operations":{"BatchCheckLayerAvailability":{"input":{"type":"structure","required":["repositoryName","layerDigests"],"members":{"registryId":{},"repositoryName":{},"layerDigests":{"type":"list","member":{}}}},"output":{"type":"structure","members":{"layers":{"type":"list","member":{"type":"structure","members":{"layerDigest":{},"layerAvailability":{},"layerSize":{"type":"long"},"mediaType":{}}}},"failures":{"type":"list","member":{"type":"structure","members":{"layerDigest":{},"failureCode":{},"failureReason":{}}}}}}},"BatchDeleteImage":{"input":{"type":"structure","required":["repositoryName","imageIds"],"members":{"registryId":{},"repositoryName":{},"imageIds":{"shape":"Si"}}},"output":{"type":"structure","members":{"imageIds":{"shape":"Si"},"failures":{"shape":"Sn"}}}},"BatchGetImage":{"input":{"type":"structure","required":["repositoryName","imageIds"],"members":{"registryId":{},"repositoryName":{},"imageIds":{"shape":"Si"},"acceptedMediaTypes":{"type":"list","member":{}}}},"output":{"type":"structure","members":{"images":{"type":"list","member":{"shape":"Sv"}},"failures":{"shape":"Sn"}}}},"CompleteLayerUpload":{"input":{"type":"structure","required":["repositoryName","uploadId","layerDigests"],"members":{"registryId":{},"repositoryName":{},"uploadId":{},"layerDigests":{"type":"list","member":{}}}},"output":{"type":"structure","members":{"registryId":{},"repositoryName":{},"uploadId":{},"layerDigest":{}}}},"CreateRepository":{"input":{"type":"structure","required":["repositoryName"],"members":{"repositoryName":{},"tags":{"shape":"S12"},"imageTagMutability":{},"imageScanningConfiguration":{"shape":"S17"}}},"output":{"type":"structure","members":{"repository":{"shape":"S1a"}}}},"DeleteLifecyclePolicy":{"input":{"type":"structure","required":["repositoryName"],"members":{"registryId":{},"repositoryName":{}}},"output":{"type":"structure","members":{"registryId":{},"repositoryName":{},"lifecyclePolicyText":{},"lastEvaluatedAt":{"type":"timestamp"}}}},"DeleteRepository":{"input":{"type":"structure","required":["repositoryName"],"members":{"registryId":{},"repositoryName":{},"force":{"type":"boolean"}}},"output":{"type":"structure","members":{"repository":{"shape":"S1a"}}}},"DeleteRepositoryPolicy":{"input":{"type":"structure","required":["repositoryName"],"members":{"registryId":{},"repositoryName":{}}},"output":{"type":"structure","members":{"registryId":{},"repositoryName":{},"policyText":{}}}},"DescribeImageScanFindings":{"input":{"type":"structure","required":["repositoryName","imageId"],"members":{"registryId":{},"repositoryName":{},"imageId":{"shape":"Sj"},"nextToken":{},"maxResults":{"type":"integer"}}},"output":{"type":"structure","members":{"registryId":{},"repositoryName":{},"imageId":{"shape":"Sj"},"imageScanStatus":{"shape":"S1s"},"imageScanFindings":{"type":"structure","members":{"imageScanCompletedAt":{"type":"timestamp"},"vulnerabilitySourceUpdatedAt":{"type":"timestamp"},"findings":{"type":"list","member":{"type":"structure","members":{"name":{},"description":{},"uri":{},"severity":{},"attributes":{"type":"list","member":{"type":"structure","required":["key"],"members":{"key":{},"value":{}}}}}}},"findingSeverityCounts":{"shape":"S27"}}},"nextToken":{}}}},"DescribeImages":{"input":{"type":"structure","required":["repositoryName"],"members":{"registryId":{},"repositoryName":{},"imageIds":{"shape":"Si"},"nextToken":{},"maxResults":{"type":"integer"},"filter":{"type":"structure","members":{"tagStatus":{}}}}},"output":{"type":"structure","members":{"imageDetails":{"type":"list","member":{"type":"structure","members":{"registryId":{},"repositoryName":{},"imageDigest":{},"imageTags":{"shape":"S2f"},"imageSizeInBytes":{"type":"long"},"imagePushedAt":{"type":"timestamp"},"imageScanStatus":{"shape":"S1s"},"imageScanFindingsSummary":{"type":"structure","members":{"imageScanCompletedAt":{"type":"timestamp"},"vulnerabilitySourceUpdatedAt":{"type":"timestamp"},"findingSeverityCounts":{"shape":"S27"}}}}}},"nextToken":{}}}},"DescribeRepositories":{"input":{"type":"structure","members":{"registryId":{},"repositoryNames":{"type":"list","member":{}},"nextToken":{},"maxResults":{"type":"integer"}}},"output":{"type":"structure","members":{"repositories":{"type":"list","member":{"shape":"S1a"}},"nextToken":{}}}},"GetAuthorizationToken":{"input":{"type":"structure","members":{"registryIds":{"type":"list","member":{}}}},"output":{"type":"structure","members":{"authorizationData":{"type":"list","member":{"type":"structure","members":{"authorizationToken":{},"expiresAt":{"type":"timestamp"},"proxyEndpoint":{}}}}}}},"GetDownloadUrlForLayer":{"input":{"type":"structure","required":["repositoryName","layerDigest"],"members":{"registryId":{},"repositoryName":{},"layerDigest":{}}},"output":{"type":"structure","members":{"downloadUrl":{},"layerDigest":{}}}},"GetLifecyclePolicy":{"input":{"type":"structure","required":["repositoryName"],"members":{"registryId":{},"repositoryName":{}}},"output":{"type":"structure","members":{"registryId":{},"repositoryName":{},"lifecyclePolicyText":{},"lastEvaluatedAt":{"type":"timestamp"}}}},"GetLifecyclePolicyPreview":{"input":{"type":"structure","required":["repositoryName"],"members":{"registryId":{},"repositoryName":{},"imageIds":{"shape":"Si"},"nextToken":{},"maxResults":{"type":"integer"},"filter":{"type":"structure","members":{"tagStatus":{}}}}},"output":{"type":"structure","members":{"registryId":{},"repositoryName":{},"lifecyclePolicyText":{},"status":{},"nextToken":{},"previewResults":{"type":"list","member":{"type":"structure","members":{"imageTags":{"shape":"S2f"},"imageDigest":{},"imagePushedAt":{"type":"timestamp"},"action":{"type":"structure","members":{"type":{}}},"appliedRulePriority":{"type":"integer"}}}},"summary":{"type":"structure","members":{"expiringImageTotalCount":{"type":"integer"}}}}}},"GetRepositoryPolicy":{"input":{"type":"structure","required":["repositoryName"],"members":{"registryId":{},"repositoryName":{}}},"output":{"type":"structure","members":{"registryId":{},"repositoryName":{},"policyText":{}}}},"InitiateLayerUpload":{"input":{"type":"structure","required":["repositoryName"],"members":{"registryId":{},"repositoryName":{}}},"output":{"type":"structure","members":{"uploadId":{},"partSize":{"type":"long"}}}},"ListImages":{"input":{"type":"structure","required":["repositoryName"],"members":{"registryId":{},"repositoryName":{},"nextToken":{},"maxResults":{"type":"integer"},"filter":{"type":"structure","members":{"tagStatus":{}}}}},"output":{"type":"structure","members":{"imageIds":{"shape":"Si"},"nextToken":{}}}},"ListTagsForResource":{"input":{"type":"structure","required":["resourceArn"],"members":{"resourceArn":{}}},"output":{"type":"structure","members":{"tags":{"shape":"S12"}}}},"PutImage":{"input":{"type":"structure","required":["repositoryName","imageManifest"],"members":{"registryId":{},"repositoryName":{},"imageManifest":{},"imageManifestMediaType":{},"imageTag":{}}},"output":{"type":"structure","members":{"image":{"shape":"Sv"}}}},"PutImageScanningConfiguration":{"input":{"type":"structure","required":["repositoryName","imageScanningConfiguration"],"members":{"registryId":{},"repositoryName":{},"imageScanningConfiguration":{"shape":"S17"}}},"output":{"type":"structure","members":{"registryId":{},"repositoryName":{},"imageScanningConfiguration":{"shape":"S17"}}}},"PutImageTagMutability":{"input":{"type":"structure","required":["repositoryName","imageTagMutability"],"members":{"registryId":{},"repositoryName":{},"imageTagMutability":{}}},"output":{"type":"structure","members":{"registryId":{},"repositoryName":{},"imageTagMutability":{}}}},"PutLifecyclePolicy":{"input":{"type":"structure","required":["repositoryName","lifecyclePolicyText"],"members":{"registryId":{},"repositoryName":{},"lifecyclePolicyText":{}}},"output":{"type":"structure","members":{"registryId":{},"repositoryName":{},"lifecyclePolicyText":{}}}},"SetRepositoryPolicy":{"input":{"type":"structure","required":["repositoryName","policyText"],"members":{"registryId":{},"repositoryName":{},"policyText":{},"force":{"type":"boolean"}}},"output":{"type":"structure","members":{"registryId":{},"repositoryName":{},"policyText":{}}}},"StartImageScan":{"input":{"type":"structure","required":["repositoryName","imageId"],"members":{"registryId":{},"repositoryName":{},"imageId":{"shape":"Sj"}}},"output":{"type":"structure","members":{"registryId":{},"repositoryName":{},"imageId":{"shape":"Sj"},"imageScanStatus":{"shape":"S1s"}}}},"StartLifecyclePolicyPreview":{"input":{"type":"structure","required":["repositoryName"],"members":{"registryId":{},"repositoryName":{},"lifecyclePolicyText":{}}},"output":{"type":"structure","members":{"registryId":{},"repositoryName":{},"lifecyclePolicyText":{},"status":{}}}},"TagResource":{"input":{"type":"structure","required":["resourceArn","tags"],"members":{"resourceArn":{},"tags":{"shape":"S12"}}},"output":{"type":"structure","members":{}}},"UntagResource":{"input":{"type":"structure","required":["resourceArn","tagKeys"],"members":{"resourceArn":{},"tagKeys":{"type":"list","member":{}}}},"output":{"type":"structure","members":{}}},"UploadLayerPart":{"input":{"type":"structure","required":["repositoryName","uploadId","partFirstByte","partLastByte","layerPartBlob"],"members":{"registryId":{},"repositoryName":{},"uploadId":{},"partFirstByte":{"type":"long"},"partLastByte":{"type":"long"},"layerPartBlob":{"type":"blob"}}},"output":{"type":"structure","members":{"registryId":{},"repositoryName":{},"uploadId":{},"lastByteReceived":{"type":"long"}}}}},"shapes":{"Si":{"type":"list","member":{"shape":"Sj"}},"Sj":{"type":"structure","members":{"imageDigest":{},"imageTag":{}}},"Sn":{"type":"list","member":{"type":"structure","members":{"imageId":{"shape":"Sj"},"failureCode":{},"failureReason":{}}}},"Sv":{"type":"structure","members":{"registryId":{},"repositoryName":{},"imageId":{"shape":"Sj"},"imageManifest":{},"imageManifestMediaType":{}}},"S12":{"type":"list","member":{"type":"structure","members":{"Key":{},"Value":{}}}},"S17":{"type":"structure","members":{"scanOnPush":{"type":"boolean"}}},"S1a":{"type":"structure","members":{"repositoryArn":{},"registryId":{},"repositoryName":{},"repositoryUri":{},"createdAt":{"type":"timestamp"},"imageTagMutability":{},"imageScanningConfiguration":{"shape":"S17"}}},"S1s":{"type":"structure","members":{"status":{},"description":{}}},"S27":{"type":"map","key":{},"value":{"type":"integer"}},"S2f":{"type":"list","member":{}}}};
 
 /***/ }),
-/* 850 */,
+/* 850 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * This is the web browser implementation of `debug()`.
+ *
+ * Expose `debug()` as the module.
+ */
+
+exports = module.exports = __webpack_require__(138);
+exports.log = log;
+exports.formatArgs = formatArgs;
+exports.save = save;
+exports.load = load;
+exports.useColors = useColors;
+exports.storage = 'undefined' != typeof chrome
+               && 'undefined' != typeof chrome.storage
+                  ? chrome.storage.local
+                  : localstorage();
+
+/**
+ * Colors.
+ */
+
+exports.colors = [
+  '#0000CC', '#0000FF', '#0033CC', '#0033FF', '#0066CC', '#0066FF', '#0099CC',
+  '#0099FF', '#00CC00', '#00CC33', '#00CC66', '#00CC99', '#00CCCC', '#00CCFF',
+  '#3300CC', '#3300FF', '#3333CC', '#3333FF', '#3366CC', '#3366FF', '#3399CC',
+  '#3399FF', '#33CC00', '#33CC33', '#33CC66', '#33CC99', '#33CCCC', '#33CCFF',
+  '#6600CC', '#6600FF', '#6633CC', '#6633FF', '#66CC00', '#66CC33', '#9900CC',
+  '#9900FF', '#9933CC', '#9933FF', '#99CC00', '#99CC33', '#CC0000', '#CC0033',
+  '#CC0066', '#CC0099', '#CC00CC', '#CC00FF', '#CC3300', '#CC3333', '#CC3366',
+  '#CC3399', '#CC33CC', '#CC33FF', '#CC6600', '#CC6633', '#CC9900', '#CC9933',
+  '#CCCC00', '#CCCC33', '#FF0000', '#FF0033', '#FF0066', '#FF0099', '#FF00CC',
+  '#FF00FF', '#FF3300', '#FF3333', '#FF3366', '#FF3399', '#FF33CC', '#FF33FF',
+  '#FF6600', '#FF6633', '#FF9900', '#FF9933', '#FFCC00', '#FFCC33'
+];
+
+/**
+ * Currently only WebKit-based Web Inspectors, Firefox >= v31,
+ * and the Firebug extension (any Firefox version) are known
+ * to support "%c" CSS customizations.
+ *
+ * TODO: add a `localStorage` variable to explicitly enable/disable colors
+ */
+
+function useColors() {
+  // NB: In an Electron preload script, document will be defined but not fully
+  // initialized. Since we know we're in Chrome, we'll just detect this case
+  // explicitly
+  if (typeof window !== 'undefined' && window.process && window.process.type === 'renderer') {
+    return true;
+  }
+
+  // Internet Explorer and Edge do not support colors.
+  if (typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/(edge|trident)\/(\d+)/)) {
+    return false;
+  }
+
+  // is webkit? http://stackoverflow.com/a/16459606/376773
+  // document is undefined in react-native: https://github.com/facebook/react-native/pull/1632
+  return (typeof document !== 'undefined' && document.documentElement && document.documentElement.style && document.documentElement.style.WebkitAppearance) ||
+    // is firebug? http://stackoverflow.com/a/398120/376773
+    (typeof window !== 'undefined' && window.console && (window.console.firebug || (window.console.exception && window.console.table))) ||
+    // is firefox >= v31?
+    // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
+    (typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31) ||
+    // double check webkit in userAgent just in case we are in a worker
+    (typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.toLowerCase().match(/applewebkit\/(\d+)/));
+}
+
+/**
+ * Map %j to `JSON.stringify()`, since no Web Inspectors do that by default.
+ */
+
+exports.formatters.j = function(v) {
+  try {
+    return JSON.stringify(v);
+  } catch (err) {
+    return '[UnexpectedJSONParseError]: ' + err.message;
+  }
+};
+
+
+/**
+ * Colorize log arguments if enabled.
+ *
+ * @api public
+ */
+
+function formatArgs(args) {
+  var useColors = this.useColors;
+
+  args[0] = (useColors ? '%c' : '')
+    + this.namespace
+    + (useColors ? ' %c' : ' ')
+    + args[0]
+    + (useColors ? '%c ' : ' ')
+    + '+' + exports.humanize(this.diff);
+
+  if (!useColors) return;
+
+  var c = 'color: ' + this.color;
+  args.splice(1, 0, c, 'color: inherit')
+
+  // the final "%c" is somewhat tricky, because there could be other
+  // arguments passed either before or after the %c, so we need to
+  // figure out the correct index to insert the CSS into
+  var index = 0;
+  var lastC = 0;
+  args[0].replace(/%[a-zA-Z%]/g, function(match) {
+    if ('%%' === match) return;
+    index++;
+    if ('%c' === match) {
+      // we only are interested in the *last* %c
+      // (the user may have provided their own)
+      lastC = index;
+    }
+  });
+
+  args.splice(lastC, 0, c);
+}
+
+/**
+ * Invokes `console.log()` when available.
+ * No-op when `console.log` is not a "function".
+ *
+ * @api public
+ */
+
+function log() {
+  // this hackery is required for IE8/9, where
+  // the `console.log` function doesn't have 'apply'
+  return 'object' === typeof console
+    && console.log
+    && Function.prototype.apply.call(console.log, console, arguments);
+}
+
+/**
+ * Save `namespaces`.
+ *
+ * @param {String} namespaces
+ * @api private
+ */
+
+function save(namespaces) {
+  try {
+    if (null == namespaces) {
+      exports.storage.removeItem('debug');
+    } else {
+      exports.storage.debug = namespaces;
+    }
+  } catch(e) {}
+}
+
+/**
+ * Load `namespaces`.
+ *
+ * @return {String} returns the previously persisted debug modes
+ * @api private
+ */
+
+function load() {
+  var r;
+  try {
+    r = exports.storage.debug;
+  } catch(e) {}
+
+  // If debug isn't set in LS, and we're in Electron, try to load $DEBUG
+  if (!r && typeof process !== 'undefined' && 'env' in process) {
+    r = process.env.DEBUG;
+  }
+
+  return r;
+}
+
+/**
+ * Enable namespaces listed in `localStorage.debug` initially.
+ */
+
+exports.enable(load());
+
+/**
+ * Localstorage attempts to return the localstorage.
+ *
+ * This is necessary because safari throws
+ * when a user disables cookies/localstorage
+ * and you attempt to access it.
+ *
+ * @return {LocalStorage}
+ * @api private
+ */
+
+function localstorage() {
+  try {
+    return window.localStorage;
+  } catch (e) {}
+}
+
+
+/***/ }),
 /* 851 */,
 /* 852 */
 /***/ (function(module, __unusedexports, __webpack_require__) {
@@ -30100,7 +30391,7 @@ module.exports = __webpack_require__(512)
         XMLDeclaration = __webpack_require__(738);
         XMLDocType = __webpack_require__(735);
         XMLRaw = __webpack_require__(781);
-        XMLText = __webpack_require__(487);
+        XMLText = __webpack_require__(708);
         XMLProcessingInstruction = __webpack_require__(491);
       }
     }
@@ -36930,4 +37221,62 @@ RetryOperation.prototype.mainError = function() {
 
 
 /***/ })
-/******/ ]);
+/******/ ],
+/******/ function(__webpack_require__) { // webpackRuntimeModules
+/******/ 	"use strict";
+/******/ 
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	!function() {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = function(exports) {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	}();
+/******/ 	
+/******/ 	/* webpack/runtime/define property getter */
+/******/ 	!function() {
+/******/ 		// define getter function for harmony exports
+/******/ 		var hasOwnProperty = Object.prototype.hasOwnProperty;
+/******/ 		__webpack_require__.d = function(exports, name, getter) {
+/******/ 			if(!hasOwnProperty.call(exports, name)) {
+/******/ 				Object.defineProperty(exports, name, { enumerable: true, get: getter });
+/******/ 			}
+/******/ 		};
+/******/ 	}();
+/******/ 	
+/******/ 	/* webpack/runtime/create fake namespace object */
+/******/ 	!function() {
+/******/ 		// create a fake namespace object
+/******/ 		// mode & 1: value is a module id, require it
+/******/ 		// mode & 2: merge all properties of value into the ns
+/******/ 		// mode & 4: return value when already ns object
+/******/ 		// mode & 8|1: behave like require
+/******/ 		__webpack_require__.t = function(value, mode) {
+/******/ 			if(mode & 1) value = this(value);
+/******/ 			if(mode & 8) return value;
+/******/ 			if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
+/******/ 			var ns = Object.create(null);
+/******/ 			__webpack_require__.r(ns);
+/******/ 			Object.defineProperty(ns, 'default', { enumerable: true, value: value });
+/******/ 			if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
+/******/ 			return ns;
+/******/ 		};
+/******/ 	}();
+/******/ 	
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	!function() {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__webpack_require__.n = function(module) {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				function getDefault() { return module['default']; } :
+/******/ 				function getModuleExports() { return module; };
+/******/ 			__webpack_require__.d(getter, 'a', getter);
+/******/ 			return getter;
+/******/ 		};
+/******/ 	}();
+/******/ 	
+/******/ }
+);
