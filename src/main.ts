@@ -1,6 +1,6 @@
 import * as core from '@actions/core'
 import Docker from './docker'
-import {BuildError, ScanError, PushError} from './error'
+import {BuildError, ScanError, PushError, TaggingError} from './error'
 import {setDelivery} from './deliver'
 import * as notification from './notification'
 import * as s3 from './s3'
@@ -84,8 +84,10 @@ async function run(): Promise<void> {
       if (noPush.toString() === 'true') {
         core.info('no_push: true')
       } else {
+        const upstreamRepo = docker.upstreamRepository()
         for (const tag of docker.builtImage.tags) {
-          await docker.push(tag)
+          await docker.tag(tag, upstreamRepo)
+          await docker.push(tag, upstreamRepo)
         }
       }
       await setDelivery({
@@ -115,6 +117,9 @@ async function run(): Promise<void> {
     } else if (e instanceof ScanError) {
       buildReason = 'ScanError'
       core.error('image scan error')
+    } else if (e instanceof TaggingError) {
+      buildReason = 'TaggingError'
+      core.error('image tagging error')
     } else if (e instanceof PushError) {
       buildReason = 'PushError'
       core.error('ecr push error')
