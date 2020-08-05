@@ -7,7 +7,7 @@ import {
   dockerImageTag,
   pushDockerImage
 } from './docker-util'
-import {BuildError, ScanError, PushError} from './error'
+import {BuildError, ScanError, PushError, TaggingError} from './error'
 import {Vulnerability} from './types'
 import {notifyVulnerability} from './notification'
 import {Buffer} from 'buffer'
@@ -136,18 +136,26 @@ export default class Docker {
     }
   }
 
-  async push(tag: string): Promise<void> {
+  async tag(tag: string, upstreamRegistry: string): Promise<void> {
+    if (!this._builtImage) {
+      throw new Error('No built image to tag')
+    }
+
+    await dockerImageTag(this._builtImage.imageID, upstreamRegistry, tag).catch(
+      e => {
+        core.error('tag() error on dockerImageTag')
+        throw new TaggingError(e)
+      }
+    )
+  }
+
+  async push(tag: string, upstreamRegistry: string): Promise<void> {
     if (!this._builtImage) {
       throw new Error('No built image to push')
     }
-    const registry = this.upstreamRepository()
-    await dockerImageTag(this._builtImage.imageID, registry, tag).catch(e => {
-      core.error('push() error on dockerImageTag')
-      throw new PushError(e)
-    })
 
     const registryAuth = await this.xRegistryAuth()
-    await pushDockerImage(registry, tag, registryAuth).catch(e => {
+    await pushDockerImage(upstreamRegistry, tag, registryAuth).catch(e => {
       core.error('push() error on pushDockerImage')
       throw new PushError(e)
     })
@@ -166,6 +174,13 @@ export default class Docker {
     this._builtImage.tags.push(this.commitHash)
     core.debug(this._builtImage.toString())
     return this._builtImage
+  }
+
+  // function for test
+  async testUpdate(): Promise<DockerImage | void> {
+    if (process.env.NODE_ENV === 'test') {
+      return this.update()
+    }
   }
 }
 

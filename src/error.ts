@@ -12,4 +12,6 @@ export class ScanError extends BaseError {}
 
 export class PushError extends BaseError {}
 
+export class TaggingError extends BaseError {}
+
 export class NotificationError extends BaseError {}
