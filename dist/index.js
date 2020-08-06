@@ -7575,12 +7575,12 @@ const js_1 = __importDefault(__webpack_require__(112));
 function run() {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
+        const startTime = new Date(); // UTC
         const env = process.env;
         const gitHubRepo = env.GITHUB_REPOSITORY;
         const gitHubWorkflow = env.GITHUB_WORKFLOW;
         const commitHash = env.GITHUB_SHA;
         const gitHubRunID = env.GITHUB_RUN_ID;
-        const containerkojoEnv = env.CONTAINERKOJO_ENV;
         const thisAction = new types_1.BuildAction({
             repository: gitHubRepo,
             workflow: gitHubWorkflow,
@@ -7588,50 +7588,54 @@ function run() {
             runID: gitHubRunID
         });
         const bugsnagApiKey = env.BUGSNAG_API_KEY;
-        if (!bugsnagApiKey) {
-            throw new Error('BUGSNAG_API_KEY not found.');
-        }
-        js_1.default.start({
-            apiKey: bugsnagApiKey,
-            enabledReleaseStages: ['production'],
-            appType: 'image_assembly_line',
-            releaseStage: containerkojoEnv,
-            metadata: {
-                actionInformation: {
-                    repository: gitHubRepo,
-                    workflow: gitHubWorkflow,
-                    commitSHA: commitHash,
-                    runID: gitHubRunID
-                }
-            }
-        });
-        const startTime = new Date(); // UTC
+        // REGISTRY_NAME はユーザー側から渡せない様にする
+        const registry = env.REGISTRY_NAME;
         try {
-            // REGISTRY_NAME はユーザー側から渡せない様にする
-            const registry = env.REGISTRY_NAME;
             if (!registry) {
                 throw new Error('REGISTRY_NAME is not set.');
             }
-            core.debug(registry);
+            if (!commitHash) {
+                throw new Error('GITHUB_SHA not found.');
+            }
+            if (!bugsnagApiKey) {
+                throw new Error('BUGSNAG_API_KEY not found.');
+            }
+            js_1.default.start({
+                apiKey: bugsnagApiKey,
+                enabledReleaseStages: ['production'],
+                appType: 'image_assembly_line',
+                releaseStage: env.CONTAINERKOJO_ENV,
+                metadata: {
+                    actionInformation: {
+                        repository: gitHubRepo,
+                        workflow: gitHubWorkflow,
+                        commitSHA: commitHash,
+                        runID: gitHubRunID
+                    }
+                }
+            });
             if (env.GITHUB_TOKEN) {
                 core.setSecret(env.GITHUB_TOKEN);
             }
             const target = core.getInput('target');
-            core.debug(`target: ${target}`);
             const imageName = core.getInput('image_name');
-            core.debug(`image_name: ${imageName}`);
-            if (!commitHash) {
-                throw new Error('GITHUB_SHA not found.');
-            }
-            core.debug(`commit_hash: ${commitHash}`);
             const severityLevel = core.getInput('severity_level');
-            core.debug(`severity_level: ${severityLevel.toString()}`);
             const scanExitCode = core.getInput('scan_exit_code');
-            core.debug(`scan_exit_code: ${scanExitCode.toString()}`);
             const noPush = core.getInput('no_push');
-            core.debug(`no_push: ${noPush.toString()}`);
             const docker = new docker_1.default(registry, imageName, commitHash);
-            core.debug(`docker: ${docker.toString()}`);
+            js_1.default.addMetadata('buildDetails', {
+                builtImage: docker.builtImage,
+                noPush
+            });
+            core.debug(`[INFORMATION]
+      registry: ${registry}
+      target: ${target}
+      image_name: ${imageName}
+      commit_hash: ${commitHash}
+      severity_level: ${severityLevel.toString()}
+      scan_exit_code: ${scanExitCode.toString()}
+      no_push: ${noPush.toString()}
+      docker: ${docker.toString()}`);
             yield docker.build(target);
             yield docker.scan(severityLevel, scanExitCode);
             if (docker.builtImage && gitHubRunID) {
@@ -7641,6 +7645,10 @@ function run() {
                 else {
                     const upstreamRepo = docker.upstreamRepository();
                     for (const tag of docker.builtImage.tags) {
+                        js_1.default.addMetadata('buildDetails', {
+                            tag,
+                            upstreamRegistry: upstreamRepo
+                        });
                         yield docker.tag(tag, upstreamRepo);
                         yield docker.push(tag, upstreamRepo);
                     }
@@ -7657,33 +7665,34 @@ function run() {
             notification.notifyReadyToDeploy(thisAction, imageName, buildTime, (_a = docker.builtImage) === null || _a === void 0 ? void 0 : _a.tags.join(', '));
         }
         catch (e) {
-            let buildReason;
-            js_1.default.notify(e);
+            let errorReason;
             if (e instanceof error_1.BuildError) {
-                buildReason = 'BuildError';
+                errorReason = 'BuildError';
                 core.error('image build error');
                 notification.notifyBuildFailed(thisAction);
             }
             else if (e instanceof error_1.ScanError) {
-                buildReason = 'ScanError';
+                errorReason = 'ScanError';
                 core.error('image scan error');
             }
             else if (e instanceof error_1.TaggingError) {
-                buildReason = 'TaggingError';
+                errorReason = 'TaggingError';
                 core.error('image tagging error');
             }
             else if (e instanceof error_1.PushError) {
-                buildReason = 'PushError';
+                errorReason = 'PushError';
                 core.error('ecr push error');
             }
             else {
-                buildReason = 'UnknownError';
+                errorReason = 'UnknownError';
                 core.error(e.message);
                 core.error('unknown error');
             }
+            js_1.default.addMetadata('errorDetails', { reason: errorReason });
+            js_1.default.notify(e);
             const endTime = new Date(); // UTC
             const imageName = core.getInput('image_name');
-            s3.uploadBuildTime(startTime, endTime, imageName, 'fail', buildReason);
+            s3.uploadBuildTime(startTime, endTime, imageName, 'fail', errorReason);
             core.setFailed(e);
         }
     });
@@ -8383,6 +8392,7 @@ class Docker {
             return this._builtImage;
         });
     }
+    // function for test
     testUpdate() {
         return __awaiter(this, void 0, void 0, function* () {
             if (process.env.NODE_ENV === 'test') {

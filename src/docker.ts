@@ -14,9 +14,9 @@ import {Buffer} from 'buffer'
 import {base64} from './base64'
 
 export default class Docker {
-  private registry: string
-  private imageName: string
-  private commitHash: string
+  private readonly registry: string
+  private readonly imageName: string
+  private readonly commitHash: string
   private _builtImage?: DockerImage
 
   constructor(registry: string, imageName: string, commitHash: string) {
