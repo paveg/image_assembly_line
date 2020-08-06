@@ -8383,6 +8383,7 @@ class Docker {
             return this._builtImage;
         });
     }
+    // function for test
     testUpdate() {
         return __awaiter(this, void 0, void 0, function* () {
             if (process.env.NODE_ENV === 'test') {
