@@ -7623,6 +7623,10 @@ function run() {
             const scanExitCode = core.getInput('scan_exit_code');
             const noPush = core.getInput('no_push');
             const docker = new docker_1.default(registry, imageName, commitHash);
+            js_1.default.addMetadata('actionInformation', {
+                builtImage: docker.builtImage,
+                noPush
+            });
             core.debug(`[INFORMATION]
       registry: ${registry}
       target: ${target}
@@ -7657,33 +7661,34 @@ function run() {
             notification.notifyReadyToDeploy(thisAction, imageName, buildTime, (_a = docker.builtImage) === null || _a === void 0 ? void 0 : _a.tags.join(', '));
         }
         catch (e) {
-            let buildReason;
-            js_1.default.notify(e);
+            let errorReason;
             if (e instanceof error_1.BuildError) {
-                buildReason = 'BuildError';
+                errorReason = 'BuildError';
                 core.error('image build error');
                 notification.notifyBuildFailed(thisAction);
             }
             else if (e instanceof error_1.ScanError) {
-                buildReason = 'ScanError';
+                errorReason = 'ScanError';
                 core.error('image scan error');
             }
             else if (e instanceof error_1.TaggingError) {
-                buildReason = 'TaggingError';
+                errorReason = 'TaggingError';
                 core.error('image tagging error');
             }
             else if (e instanceof error_1.PushError) {
-                buildReason = 'PushError';
+                errorReason = 'PushError';
                 core.error('ecr push error');
             }
             else {
-                buildReason = 'UnknownError';
+                errorReason = 'UnknownError';
                 core.error(e.message);
                 core.error('unknown error');
             }
+            js_1.default.addMetadata('ErrorDetail', { reason: errorReason });
+            js_1.default.notify(e);
             const endTime = new Date(); // UTC
             const imageName = core.getInput('image_name');
-            s3.uploadBuildTime(startTime, endTime, imageName, 'fail', buildReason);
+            s3.uploadBuildTime(startTime, endTime, imageName, 'fail', errorReason);
             core.setFailed(e);
         }
     });
