@@ -60,7 +60,7 @@ async function run(): Promise<void> {
     const noPush = core.getInput('no_push')
 
     const docker = new Docker(registry, imageName, commitHash)
-    Bugsnag.addMetadata('actionInformation', {
+    Bugsnag.addMetadata('buildDetails', {
       builtImage: docker.builtImage,
       noPush
     })
@@ -84,6 +84,10 @@ async function run(): Promise<void> {
       } else {
         const upstreamRepo = docker.upstreamRepository()
         for (const tag of docker.builtImage.tags) {
+          Bugsnag.addMetadata('buildDetails', {
+            tag,
+            upstreamRegistry: upstreamRepo
+          })
           await docker.tag(tag, upstreamRepo)
           await docker.push(tag, upstreamRepo)
         }
@@ -126,7 +130,7 @@ async function run(): Promise<void> {
       core.error('unknown error')
     }
 
-    Bugsnag.addMetadata('ErrorDetail', {reason: errorReason})
+    Bugsnag.addMetadata('errorDetails', {reason: errorReason})
     Bugsnag.notify(e)
     const endTime = new Date() // UTC
     const imageName = core.getInput('image_name')

@@ -7623,7 +7623,7 @@ function run() {
             const scanExitCode = core.getInput('scan_exit_code');
             const noPush = core.getInput('no_push');
             const docker = new docker_1.default(registry, imageName, commitHash);
-            js_1.default.addMetadata('actionInformation', {
+            js_1.default.addMetadata('buildDetails', {
                 builtImage: docker.builtImage,
                 noPush
             });
@@ -7645,6 +7645,10 @@ function run() {
                 else {
                     const upstreamRepo = docker.upstreamRepository();
                     for (const tag of docker.builtImage.tags) {
+                        js_1.default.addMetadata('buildDetails', {
+                            tag,
+                            upstreamRegistry: upstreamRepo
+                        });
                         yield docker.tag(tag, upstreamRepo);
                         yield docker.push(tag, upstreamRepo);
                     }
@@ -7684,7 +7688,7 @@ function run() {
                 core.error(e.message);
                 core.error('unknown error');
             }
-            js_1.default.addMetadata('ErrorDetail', { reason: errorReason });
+            js_1.default.addMetadata('errorDetails', { reason: errorReason });
             js_1.default.notify(e);
             const endTime = new Date(); // UTC
             const imageName = core.getInput('image_name');
