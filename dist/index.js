@@ -2876,7 +2876,7 @@ exports.TaggingError = TaggingError;
 class NotificationError extends BaseError {
 }
 exports.NotificationError = NotificationError;
-
+//# sourceMappingURL=error.js.map
 
 /***/ }),
 /* 26 */
@@ -2944,7 +2944,6 @@ const client = new ecr_1.default({
 function getLatestImage(repositoryName) {
     return __awaiter(this, void 0, void 0, function* () {
         const params = {
-            // eslint-disable-next-line object-shorthand
             repositoryName: repositoryName,
             imageIds: [
                 {
@@ -2963,7 +2962,7 @@ function getLatestImage(repositoryName) {
     });
 }
 exports.getLatestImage = getLatestImage;
-
+//# sourceMappingURL=ecr.js.map
 
 /***/ }),
 /* 35 */
@@ -3569,7 +3568,7 @@ function setDelivery(delivery) {
     });
 }
 exports.setDelivery = setDelivery;
-
+//# sourceMappingURL=deliver.js.map
 
 /***/ }),
 /* 62 */
@@ -3599,7 +3598,6 @@ const slack = __importStar(__webpack_require__(570));
 const s3 = __importStar(__webpack_require__(673));
 function notifyVulnerability(imageName, vulnerabilities, rowJson) {
     try {
-        // Notify Slack
         for (const result of vulnerabilities) {
             if (result.Vulnerabilities != null) {
                 for (const vulnerability of result.Vulnerabilities) {
@@ -3607,7 +3605,6 @@ function notifyVulnerability(imageName, vulnerabilities, rowJson) {
                 }
             }
         }
-        // Upload to S3
         s3.uploadVulnerability(rowJson);
         return;
     }
@@ -3616,9 +3613,6 @@ function notifyVulnerability(imageName, vulnerabilities, rowJson) {
     }
 }
 exports.notifyVulnerability = notifyVulnerability;
-/*
- *
- */
 function notifyBuildFailed(build) {
     return __awaiter(this, void 0, void 0, function* () {
         slack.postBuildFailed(build);
@@ -3631,7 +3625,7 @@ function notifyReadyToDeploy(build, imageName, buildTime, tags) {
     });
 }
 exports.notifyReadyToDeploy = notifyReadyToDeploy;
-
+//# sourceMappingURL=notification.js.map
 
 /***/ }),
 /* 63 */,
@@ -7575,7 +7569,7 @@ const js_1 = __importDefault(__webpack_require__(112));
 function run() {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
-        const startTime = new Date(); // UTC
+        const startTime = new Date();
         const env = process.env;
         const gitHubRepo = env.GITHUB_REPOSITORY;
         const gitHubWorkflow = env.GITHUB_WORKFLOW;
@@ -7588,7 +7582,6 @@ function run() {
             runID: gitHubRunID
         });
         const bugsnagApiKey = env.BUGSNAG_API_KEY;
-        // REGISTRY_NAME はユーザー側から渡せない様にする
         const registry = env.REGISTRY_NAME;
         try {
             if (!registry) {
@@ -7658,7 +7651,7 @@ function run() {
                     gitHubRunID
                 });
             }
-            const endTime = new Date(); // UTC
+            const endTime = new Date();
             s3.uploadBuildTime(startTime, endTime, imageName, 'success', 'NoError');
             const elapsedSec = (endTime.getTime() - startTime.getTime()) / 1000;
             const buildTime = `${Math.floor(elapsedSec / 60)}min ${elapsedSec % 60}sec`;
@@ -7690,7 +7683,7 @@ function run() {
             }
             js_1.default.addMetadata('errorDetails', { reason: errorReason });
             js_1.default.notify(e);
-            const endTime = new Date(); // UTC
+            const endTime = new Date();
             const imageName = core.getInput('image_name');
             s3.uploadBuildTime(startTime, endTime, imageName, 'fail', errorReason);
             core.setFailed(e);
@@ -7698,7 +7691,7 @@ function run() {
     });
 }
 run();
-
+//# sourceMappingURL=main.js.map
 
 /***/ }),
 /* 199 */,
@@ -7759,12 +7752,11 @@ exports.base64 = {
     encode: (str) => {
         return buffer_1.Buffer.from(str).toString('base64');
     },
-    // for debug function
     decode: (str) => {
         return buffer_1.Buffer.from(str, 'base64').toString();
     }
 };
-
+//# sourceMappingURL=base64.js.map
 
 /***/ }),
 /* 207 */,
@@ -8251,7 +8243,6 @@ class Docker {
         if (!imageName) {
             throw new Error('imageName is empty');
         }
-        // remove the last '/'
         this.registry = sanitizedDomain(registry);
         this.imageName = imageName;
         this.commitHash = commitHash;
@@ -8326,7 +8317,6 @@ class Docker {
             let ecrLoginPass = '';
             let ecrLoginError = '';
             const options = {
-                // set silent, not to log the password
                 silent: true,
                 listeners: {
                     stdout: (data) => {
@@ -8392,7 +8382,6 @@ class Docker {
             return this._builtImage;
         });
     }
-    // function for test
     testUpdate() {
         return __awaiter(this, void 0, void 0, function* () {
             if (process.env.NODE_ENV === 'test') {
@@ -8405,7 +8394,7 @@ exports.default = Docker;
 function sanitizedDomain(str) {
     return str.endsWith('/') ? str.substr(0, str.length - 1) : str;
 }
-
+//# sourceMappingURL=docker.js.map
 
 /***/ }),
 /* 232 */
@@ -8989,7 +8978,7 @@ class BuildAction {
     }
 }
 exports.BuildAction = BuildAction;
-
+//# sourceMappingURL=types.js.map
 
 /***/ }),
 /* 252 */,
@@ -15972,7 +15961,6 @@ function buildMessageForDeploy(imageName, buildTime, tags, repo) {
                             emoji: true
                         },
                         value: `${repo}::${imageName}::${tags}`,
-                        // eslint-disable-next-line @typescript-eslint/camelcase
                         action_id: 'ready_to_deploy'
                     }
                 ]
@@ -16063,7 +16051,7 @@ function postMessage(channel, message, attachments) {
     });
 }
 exports.postMessage = postMessage;
-
+//# sourceMappingURL=slack.js.map
 
 /***/ }),
 /* 571 */,
@@ -23437,7 +23425,6 @@ function uploadBuildTime(startTime, endTime, repositoryName, buildResult, buildR
             throw new Error('No push date.');
         }
         const imagePushedAt = latestImage[0].imagePushedAt;
-        /* eslint-disable @typescript-eslint/camelcase */
         const buildData = {
             start_at: convertDateTimeFormat(startTime),
             end_at: convertDateTimeFormat(endTime),
@@ -23448,7 +23435,6 @@ function uploadBuildTime(startTime, endTime, repositoryName, buildResult, buildR
             result: buildResult,
             reason: buildReason
         };
-        /* eslint-enable */
         const json = `${JSON.stringify(buildData)}\n`;
         core.debug(`JSON data: ${json}`);
         const param = {
@@ -23475,7 +23461,7 @@ function s3PutObject(param) {
 }
 exports.s3PutObject = s3PutObject;
 function generateObjectKey(prefix, fileExtension) {
-    const now = new Date(); // UTC
+    const now = new Date();
     const year = now.getFullYear();
     const month = zeroPadding(now.getMonth() + 1, 2);
     const date = zeroPadding(now.getDate(), 2);
@@ -23498,7 +23484,7 @@ function convertDateTimeFormat(date) {
         .replace('T', ' ')
         .replace('Z', '');
 }
-
+//# sourceMappingURL=s3.js.map
 
 /***/ }),
 /* 674 */,
@@ -24296,8 +24282,6 @@ const exec = __importStar(__webpack_require__(986));
 const core = __importStar(__webpack_require__(470));
 const axios_1 = __importDefault(__webpack_require__(53));
 const qs_1 = __importDefault(__webpack_require__(386));
-// Document for docker engine API.
-// https://docs.docker.com/engine/api/v1.39/
 const apiVersion = 'v1.39';
 exports.axiosInstance = axios_1.default.create({
     baseURL: `http:/${apiVersion}/`,
@@ -24325,7 +24309,6 @@ function latestBuiltImage(imageName) {
     });
 }
 exports.latestBuiltImage = latestBuiltImage;
-// Return true when check is OK
 function noBuiltImage() {
     return __awaiter(this, void 0, void 0, function* () {
         let stdout = '';
@@ -24342,12 +24325,6 @@ function noBuiltImage() {
     });
 }
 exports.noBuiltImage = noBuiltImage;
-/**
- * dockerTagImage creates a tag for a docker image
- * @param {string} imageId The ID of a docker image
- * @param {string} repository The upstream docker repository
- * @param {string} newTag New tag name to be set
- */
 function dockerImageTag(imageId, repository, newTag) {
     return __awaiter(this, void 0, void 0, function* () {
         const res = yield exports.axiosInstance.post(`images/${imageId}/tag`, qs_1.default.stringify({ tag: newTag, repo: repository }));
@@ -24357,28 +24334,17 @@ function dockerImageTag(imageId, repository, newTag) {
     });
 }
 exports.dockerImageTag = dockerImageTag;
-/**
- * dockerImageLs lists docker images
- * @param {string} imageName The name of a docker image
- */
 function dockerImageLs(imageName) {
     return __awaiter(this, void 0, void 0, function* () {
         const res = yield exports.axiosInstance.get('images/json', {
             params: { filter: imageName }
         });
-        // Make sure that images are sorted by "Created" desc.
         return res.data.sort((im1, im2) => {
             return im2.Created - im1.Created;
         });
     });
 }
 exports.dockerImageLs = dockerImageLs;
-/**
- * pushDockerImage pushes a docker image to registry
- * @param {string} imageId The ID of a docker image
- * @param {string} newTag New tag name to be set
- * @param {string} registryAuth Base64 encoded registration auth
- */
 function pushDockerImage(imageId, newTag, registryAuth) {
     return __awaiter(this, void 0, void 0, function* () {
         const res = yield exports.axiosInstance.post(`images/${imageId}/push`, qs_1.default.stringify({ tag: newTag }), { headers: { 'X-Registry-Auth': registryAuth } });
@@ -24389,7 +24355,7 @@ function pushDockerImage(imageId, newTag, registryAuth) {
     });
 }
 exports.pushDockerImage = pushDockerImage;
-
+//# sourceMappingURL=docker-util.js.map
 
 /***/ }),
 /* 709 */,
