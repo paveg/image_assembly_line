@@ -2870,10 +2870,13 @@ exports.ScanError = ScanError;
 class PushError extends BaseError {
 }
 exports.PushError = PushError;
+class TaggingError extends BaseError {
+}
+exports.TaggingError = TaggingError;
 class NotificationError extends BaseError {
 }
 exports.NotificationError = NotificationError;
-
+//# sourceMappingURL=error.js.map
 
 /***/ }),
 /* 26 */
@@ -2941,7 +2944,6 @@ const client = new ecr_1.default({
 function getLatestImage(repositoryName) {
     return __awaiter(this, void 0, void 0, function* () {
         const params = {
-            // eslint-disable-next-line object-shorthand
             repositoryName: repositoryName,
             imageIds: [
                 {
@@ -2960,7 +2962,7 @@ function getLatestImage(repositoryName) {
     });
 }
 exports.getLatestImage = getLatestImage;
-
+//# sourceMappingURL=ecr.js.map
 
 /***/ }),
 /* 35 */
@@ -3531,7 +3533,7 @@ module.exports = {"version":"2.0","metadata":{"apiVersion":"2014-06-30","endpoin
 /* 59 */
 /***/ (function(module) {
 
-module.exports = {"_args":[["@slack/web-api@5.9.0","/Users/ikezawa-ryota/src/github.com/C-FO/image_assembly_line"]],"_from":"@slack/web-api@5.9.0","_id":"@slack/web-api@5.9.0","_inBundle":false,"_integrity":"sha512-gIRvuA9wGtp4S/Zc+zfT59IaGHYzNxjob2QxoJlc3JZ3BLuPMa6Lw81YBV0xutJvUVFPX2ytW27KAUakvi5ZMA==","_location":"/@slack/web-api","_phantomChildren":{"asynckit":"0.4.0","combined-stream":"1.0.8","mime-types":"2.1.25"},"_requested":{"type":"version","registry":true,"raw":"@slack/web-api@5.9.0","name":"@slack/web-api","escapedName":"@slack%2fweb-api","scope":"@slack","rawSpec":"5.9.0","saveSpec":null,"fetchSpec":"5.9.0"},"_requiredBy":["/@slack/bolt","/@slack/oauth"],"_resolved":"https://registry.npmjs.org/@slack/web-api/-/web-api-5.9.0.tgz","_spec":"5.9.0","_where":"/Users/ikezawa-ryota/src/github.com/C-FO/image_assembly_line","author":{"name":"Slack Technologies, Inc."},"bugs":{"url":"https://github.com/slackapi/node-slack-sdk/issues"},"dependencies":{"@slack/logger":">=1.0.0 <3.0.0","@slack/types":"^1.2.1","@types/is-stream":"^1.1.0","@types/node":">=8.9.0","@types/p-queue":"^2.3.2","axios":"^0.19.0","eventemitter3":"^3.1.0","form-data":"^2.5.0","is-stream":"^1.1.0","p-queue":"^2.4.2","p-retry":"^4.0.0"},"description":"Official library for using the Slack Platform's Web API","devDependencies":{"@aoberoi/capture-console":"^1.1.0","@types/chai":"^4.1.7","@types/mocha":"^5.2.6","busboy":"^0.3.0","chai":"^4.2.0","codecov":"^3.2.0","mocha":"^6.0.2","nock":"^10.0.6","nyc":"^14.1.1","shelljs":"^0.8.3","shx":"^0.3.2","sinon":"^7.2.7","source-map-support":"^0.5.10","ts-node":"^8.0.3","tslint":"^5.13.1","tslint-config-airbnb":"^5.11.1","typescript":"^3.3.3333"},"engines":{"node":">= 8.9.0","npm":">= 5.5.1"},"files":["dist/**/*"],"homepage":"https://slack.dev/node-slack-sdk/web-api","keywords":["slack","web-api","bot","client","http","api","proxy","rate-limiting","pagination"],"license":"MIT","main":"dist/index.js","name":"@slack/web-api","publishConfig":{"access":"public"},"repository":{"type":"git","url":"git+https://github.com/slackapi/node-slack-sdk.git"},"scripts":{"build":"npm run build:clean && tsc","build:clean":"shx rm -rf ./dist ./coverage ./.nyc_output","coverage":"codecov -F webapi --root=$PWD","lint":"tslint --project .","prepare":"npm run build","test":"npm run build && nyc mocha --config .mocharc.json src/*.spec.js"},"types":"./dist/index.d.ts","version":"5.9.0"};
+module.exports = {"name":"@slack/web-api","version":"5.9.0","description":"Official library for using the Slack Platform's Web API","author":"Slack Technologies, Inc.","license":"MIT","keywords":["slack","web-api","bot","client","http","api","proxy","rate-limiting","pagination"],"main":"dist/index.js","types":"./dist/index.d.ts","files":["dist/**/*"],"engines":{"node":">= 8.9.0","npm":">= 5.5.1"},"repository":"slackapi/node-slack-sdk","homepage":"https://slack.dev/node-slack-sdk/web-api","publishConfig":{"access":"public"},"bugs":{"url":"https://github.com/slackapi/node-slack-sdk/issues"},"scripts":{"prepare":"npm run build","build":"npm run build:clean && tsc","build:clean":"shx rm -rf ./dist ./coverage ./.nyc_output","lint":"tslint --project .","test":"npm run build && nyc mocha --config .mocharc.json src/*.spec.js","coverage":"codecov -F webapi --root=$PWD"},"dependencies":{"@slack/logger":">=1.0.0 <3.0.0","@slack/types":"^1.2.1","@types/is-stream":"^1.1.0","@types/node":">=8.9.0","@types/p-queue":"^2.3.2","axios":"^0.19.0","eventemitter3":"^3.1.0","form-data":"^2.5.0","is-stream":"^1.1.0","p-queue":"^2.4.2","p-retry":"^4.0.0"},"devDependencies":{"@aoberoi/capture-console":"^1.1.0","@types/chai":"^4.1.7","@types/mocha":"^5.2.6","busboy":"^0.3.0","chai":"^4.2.0","codecov":"^3.2.0","mocha":"^6.0.2","nock":"^10.0.6","nyc":"^14.1.1","shelljs":"^0.8.3","shx":"^0.3.2","sinon":"^7.2.7","source-map-support":"^0.5.10","ts-node":"^8.0.3","tslint":"^5.13.1","tslint-config-airbnb":"^5.11.1","typescript":"^3.3.3333"},"_resolved":"https://registry.npmjs.org/@slack/web-api/-/web-api-5.9.0.tgz","_integrity":"sha512-gIRvuA9wGtp4S/Zc+zfT59IaGHYzNxjob2QxoJlc3JZ3BLuPMa6Lw81YBV0xutJvUVFPX2ytW27KAUakvi5ZMA==","_from":"@slack/web-api@5.9.0"};
 
 /***/ }),
 /* 60 */,
@@ -3566,7 +3568,7 @@ function setDelivery(delivery) {
     });
 }
 exports.setDelivery = setDelivery;
-
+//# sourceMappingURL=deliver.js.map
 
 /***/ }),
 /* 62 */
@@ -3596,7 +3598,6 @@ const slack = __importStar(__webpack_require__(570));
 const s3 = __importStar(__webpack_require__(673));
 function notifyVulnerability(imageName, vulnerabilities, rowJson) {
     try {
-        // Notify Slack
         for (const result of vulnerabilities) {
             if (result.Vulnerabilities != null) {
                 for (const vulnerability of result.Vulnerabilities) {
@@ -3604,7 +3605,6 @@ function notifyVulnerability(imageName, vulnerabilities, rowJson) {
                 }
             }
         }
-        // Upload to S3
         s3.uploadVulnerability(rowJson);
         return;
     }
@@ -3613,9 +3613,6 @@ function notifyVulnerability(imageName, vulnerabilities, rowJson) {
     }
 }
 exports.notifyVulnerability = notifyVulnerability;
-/*
- *
- */
 function notifyBuildFailed(build) {
     return __awaiter(this, void 0, void 0, function* () {
         slack.postBuildFailed(build);
@@ -3628,7 +3625,7 @@ function notifyReadyToDeploy(build, imageName, buildTime, tags) {
     });
 }
 exports.notifyReadyToDeploy = notifyReadyToDeploy;
-
+//# sourceMappingURL=notification.js.map
 
 /***/ }),
 /* 63 */,
@@ -7572,12 +7569,12 @@ const js_1 = __importDefault(__webpack_require__(112));
 function run() {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
+        const startTime = new Date();
         const env = process.env;
         const gitHubRepo = env.GITHUB_REPOSITORY;
         const gitHubWorkflow = env.GITHUB_WORKFLOW;
         const commitHash = env.GITHUB_SHA;
         const gitHubRunID = env.GITHUB_RUN_ID;
-        const containerkojoEnv = env.CONTAINERKOJO_ENV;
         const thisAction = new types_1.BuildAction({
             repository: gitHubRepo,
             workflow: gitHubWorkflow,
@@ -7585,50 +7582,53 @@ function run() {
             runID: gitHubRunID
         });
         const bugsnagApiKey = env.BUGSNAG_API_KEY;
-        if (!bugsnagApiKey) {
-            throw new Error('BUGSNAG_API_KEY not found.');
-        }
-        js_1.default.start({
-            apiKey: bugsnagApiKey,
-            enabledReleaseStages: ['production'],
-            appType: 'image_assembly_line',
-            releaseStage: containerkojoEnv,
-            metadata: {
-                actionInformation: {
-                    repository: gitHubRepo,
-                    workflow: gitHubWorkflow,
-                    commitSHA: commitHash,
-                    runID: gitHubRunID
-                }
-            }
-        });
-        const startTime = new Date(); // UTC
+        const registry = env.REGISTRY_NAME;
         try {
-            // REGISTRY_NAME はユーザー側から渡せない様にする
-            const registry = env.REGISTRY_NAME;
             if (!registry) {
                 throw new Error('REGISTRY_NAME is not set.');
             }
-            core.debug(registry);
+            if (!commitHash) {
+                throw new Error('GITHUB_SHA not found.');
+            }
+            if (!bugsnagApiKey) {
+                throw new Error('BUGSNAG_API_KEY not found.');
+            }
+            js_1.default.start({
+                apiKey: bugsnagApiKey,
+                enabledReleaseStages: ['production'],
+                appType: 'image_assembly_line',
+                releaseStage: env.CONTAINERKOJO_ENV,
+                metadata: {
+                    actionInformation: {
+                        repository: gitHubRepo,
+                        workflow: gitHubWorkflow,
+                        commitSHA: commitHash,
+                        runID: gitHubRunID
+                    }
+                }
+            });
             if (env.GITHUB_TOKEN) {
                 core.setSecret(env.GITHUB_TOKEN);
             }
             const target = core.getInput('target');
-            core.debug(`target: ${target}`);
             const imageName = core.getInput('image_name');
-            core.debug(`image_name: ${imageName}`);
-            if (!commitHash) {
-                throw new Error('GITHUB_SHA not found.');
-            }
-            core.debug(`commit_hash: ${commitHash}`);
             const severityLevel = core.getInput('severity_level');
-            core.debug(`severity_level: ${severityLevel.toString()}`);
             const scanExitCode = core.getInput('scan_exit_code');
-            core.debug(`scan_exit_code: ${scanExitCode.toString()}`);
             const noPush = core.getInput('no_push');
-            core.debug(`no_push: ${noPush.toString()}`);
             const docker = new docker_1.default(registry, imageName, commitHash);
-            core.debug(`docker: ${docker.toString()}`);
+            js_1.default.addMetadata('buildDetails', {
+                builtImage: docker.builtImage,
+                noPush
+            });
+            core.debug(`[INFORMATION]
+      registry: ${registry}
+      target: ${target}
+      image_name: ${imageName}
+      commit_hash: ${commitHash}
+      severity_level: ${severityLevel.toString()}
+      scan_exit_code: ${scanExitCode.toString()}
+      no_push: ${noPush.toString()}
+      docker: ${docker.toString()}`);
             yield docker.build(target);
             yield docker.scan(severityLevel, scanExitCode);
             if (docker.builtImage && gitHubRunID) {
@@ -7636,8 +7636,14 @@ function run() {
                     core.info('no_push: true');
                 }
                 else {
+                    const upstreamRepo = docker.upstreamRepository();
                     for (const tag of docker.builtImage.tags) {
-                        yield docker.push(tag);
+                        js_1.default.addMetadata('buildDetails', {
+                            tag,
+                            upstreamRegistry: upstreamRepo
+                        });
+                        yield docker.tag(tag, upstreamRepo);
+                        yield docker.push(tag, upstreamRepo);
                     }
                 }
                 yield deliver_1.setDelivery({
@@ -7645,42 +7651,47 @@ function run() {
                     gitHubRunID
                 });
             }
-            const endTime = new Date(); // UTC
+            const endTime = new Date();
             s3.uploadBuildTime(startTime, endTime, imageName, 'success', 'NoError');
             const elapsedSec = (endTime.getTime() - startTime.getTime()) / 1000;
             const buildTime = `${Math.floor(elapsedSec / 60)}min ${elapsedSec % 60}sec`;
             notification.notifyReadyToDeploy(thisAction, imageName, buildTime, (_a = docker.builtImage) === null || _a === void 0 ? void 0 : _a.tags.join(', '));
         }
         catch (e) {
-            let buildReason;
-            js_1.default.notify(e);
+            let errorReason;
             if (e instanceof error_1.BuildError) {
-                buildReason = 'BuildError';
+                errorReason = 'BuildError';
                 core.error('image build error');
                 notification.notifyBuildFailed(thisAction);
             }
             else if (e instanceof error_1.ScanError) {
-                buildReason = 'ScanError';
+                errorReason = 'ScanError';
                 core.error('image scan error');
             }
+            else if (e instanceof error_1.TaggingError) {
+                errorReason = 'TaggingError';
+                core.error('image tagging error');
+            }
             else if (e instanceof error_1.PushError) {
-                buildReason = 'PushError';
+                errorReason = 'PushError';
                 core.error('ecr push error');
             }
             else {
-                buildReason = 'UnknownError';
+                errorReason = 'UnknownError';
                 core.error(e.message);
                 core.error('unknown error');
             }
-            const endTime = new Date(); // UTC
+            js_1.default.addMetadata('errorDetails', { reason: errorReason });
+            js_1.default.notify(e);
+            const endTime = new Date();
             const imageName = core.getInput('image_name');
-            s3.uploadBuildTime(startTime, endTime, imageName, 'fail', buildReason);
+            s3.uploadBuildTime(startTime, endTime, imageName, 'fail', errorReason);
             core.setFailed(e);
         }
     });
 }
 run();
-
+//# sourceMappingURL=main.js.map
 
 /***/ }),
 /* 199 */,
@@ -7741,12 +7752,11 @@ exports.base64 = {
     encode: (str) => {
         return buffer_1.Buffer.from(str).toString('base64');
     },
-    // for debug function
     decode: (str) => {
         return buffer_1.Buffer.from(str, 'base64').toString();
     }
 };
-
+//# sourceMappingURL=base64.js.map
 
 /***/ }),
 /* 207 */,
@@ -8233,7 +8243,6 @@ class Docker {
         if (!imageName) {
             throw new Error('imageName is empty');
         }
-        // remove the last '/'
         this.registry = sanitizedDomain(registry);
         this.imageName = imageName;
         this.commitHash = commitHash;
@@ -8308,7 +8317,6 @@ class Docker {
             let ecrLoginPass = '';
             let ecrLoginError = '';
             const options = {
-                // set silent, not to log the password
                 silent: true,
                 listeners: {
                     stdout: (data) => {
@@ -8335,21 +8343,27 @@ class Docker {
             }
         });
     }
-    push(tag) {
+    tag(tag, upstreamRegistry) {
         return __awaiter(this, void 0, void 0, function* () {
-            try {
-                if (!this._builtImage) {
-                    throw new Error('No built image to push');
-                }
-                const registry = this.upstreamRepository();
-                yield docker_util_1.dockerImageTag(this._builtImage.imageID, registry, tag);
-                const registryAuth = yield this.xRegistryAuth();
-                yield docker_util_1.pushDockerImage(registry, tag, registryAuth);
+            if (!this._builtImage) {
+                throw new Error('No built image to tag');
             }
-            catch (e) {
-                core.error('push() error');
+            yield docker_util_1.dockerImageTag(this._builtImage.imageID, upstreamRegistry, tag).catch(e => {
+                core.error('tag() error on dockerImageTag');
+                throw new error_1.TaggingError(e);
+            });
+        });
+    }
+    push(tag, upstreamRegistry) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this._builtImage) {
+                throw new Error('No built image to push');
+            }
+            const registryAuth = yield this.xRegistryAuth();
+            yield docker_util_1.pushDockerImage(upstreamRegistry, tag, registryAuth).catch(e => {
+                core.error('push() error on pushDockerImage');
                 throw new error_1.PushError(e);
-            }
+            });
         });
     }
     upstreamRepository() {
@@ -8368,12 +8382,19 @@ class Docker {
             return this._builtImage;
         });
     }
+    testUpdate() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (process.env.NODE_ENV === 'test') {
+                return this.update();
+            }
+        });
+    }
 }
 exports.default = Docker;
 function sanitizedDomain(str) {
     return str.endsWith('/') ? str.substr(0, str.length - 1) : str;
 }
-
+//# sourceMappingURL=docker.js.map
 
 /***/ }),
 /* 232 */
@@ -8957,7 +8978,7 @@ class BuildAction {
     }
 }
 exports.BuildAction = BuildAction;
-
+//# sourceMappingURL=types.js.map
 
 /***/ }),
 /* 252 */,
@@ -10287,7 +10308,7 @@ module.exports = require("assert");
 /* 361 */
 /***/ (function(module) {
 
-module.exports = {"_args":[["axios@0.19.2","/Users/ikezawa-ryota/src/github.com/C-FO/image_assembly_line"]],"_from":"axios@0.19.2","_id":"axios@0.19.2","_inBundle":false,"_integrity":"sha512-fjgm5MvRHLhx+osE2xoekY70AhARk3a6hkN+3Io1jc00jtquGvxYlKlsFUhmUET0V5te6CcZI7lcv2Ym61mjHA==","_location":"/axios","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"axios@0.19.2","name":"axios","escapedName":"axios","rawSpec":"0.19.2","saveSpec":null,"fetchSpec":"0.19.2"},"_requiredBy":["/@slack/bolt","/@slack/web-api"],"_resolved":"https://registry.npmjs.org/axios/-/axios-0.19.2.tgz","_spec":"0.19.2","_where":"/Users/ikezawa-ryota/src/github.com/C-FO/image_assembly_line","author":{"name":"Matt Zabriskie"},"browser":{"./lib/adapters/http.js":"./lib/adapters/xhr.js"},"bugs":{"url":"https://github.com/axios/axios/issues"},"bundlesize":[{"path":"./dist/axios.min.js","threshold":"5kB"}],"dependencies":{"follow-redirects":"1.5.10"},"description":"Promise based HTTP client for the browser and node.js","devDependencies":{"bundlesize":"^0.17.0","coveralls":"^3.0.0","es6-promise":"^4.2.4","grunt":"^1.0.2","grunt-banner":"^0.6.0","grunt-cli":"^1.2.0","grunt-contrib-clean":"^1.1.0","grunt-contrib-watch":"^1.0.0","grunt-eslint":"^20.1.0","grunt-karma":"^2.0.0","grunt-mocha-test":"^0.13.3","grunt-ts":"^6.0.0-beta.19","grunt-webpack":"^1.0.18","istanbul-instrumenter-loader":"^1.0.0","jasmine-core":"^2.4.1","karma":"^1.3.0","karma-chrome-launcher":"^2.2.0","karma-coverage":"^1.1.1","karma-firefox-launcher":"^1.1.0","karma-jasmine":"^1.1.1","karma-jasmine-ajax":"^0.1.13","karma-opera-launcher":"^1.0.0","karma-safari-launcher":"^1.0.0","karma-sauce-launcher":"^1.2.0","karma-sinon":"^1.0.5","karma-sourcemap-loader":"^0.3.7","karma-webpack":"^1.7.0","load-grunt-tasks":"^3.5.2","minimist":"^1.2.0","mocha":"^5.2.0","sinon":"^4.5.0","typescript":"^2.8.1","url-search-params":"^0.10.0","webpack":"^1.13.1","webpack-dev-server":"^1.14.1"},"homepage":"https://github.com/axios/axios","keywords":["xhr","http","ajax","promise","node"],"license":"MIT","main":"index.js","name":"axios","repository":{"type":"git","url":"git+https://github.com/axios/axios.git"},"scripts":{"build":"NODE_ENV=production grunt build","coveralls":"cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js","examples":"node ./examples/server.js","fix":"eslint --fix lib/**/*.js","postversion":"git push && git push --tags","preversion":"npm test","start":"node ./sandbox/server.js","test":"grunt test && bundlesize","version":"npm run build && grunt version && git add -A dist && git add CHANGELOG.md bower.json package.json"},"typings":"./index.d.ts","version":"0.19.2"};
+module.exports = {"name":"axios","version":"0.19.2","description":"Promise based HTTP client for the browser and node.js","main":"index.js","scripts":{"test":"grunt test && bundlesize","start":"node ./sandbox/server.js","build":"NODE_ENV=production grunt build","preversion":"npm test","version":"npm run build && grunt version && git add -A dist && git add CHANGELOG.md bower.json package.json","postversion":"git push && git push --tags","examples":"node ./examples/server.js","coveralls":"cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js","fix":"eslint --fix lib/**/*.js"},"repository":{"type":"git","url":"https://github.com/axios/axios.git"},"keywords":["xhr","http","ajax","promise","node"],"author":"Matt Zabriskie","license":"MIT","bugs":{"url":"https://github.com/axios/axios/issues"},"homepage":"https://github.com/axios/axios","devDependencies":{"bundlesize":"^0.17.0","coveralls":"^3.0.0","es6-promise":"^4.2.4","grunt":"^1.0.2","grunt-banner":"^0.6.0","grunt-cli":"^1.2.0","grunt-contrib-clean":"^1.1.0","grunt-contrib-watch":"^1.0.0","grunt-eslint":"^20.1.0","grunt-karma":"^2.0.0","grunt-mocha-test":"^0.13.3","grunt-ts":"^6.0.0-beta.19","grunt-webpack":"^1.0.18","istanbul-instrumenter-loader":"^1.0.0","jasmine-core":"^2.4.1","karma":"^1.3.0","karma-chrome-launcher":"^2.2.0","karma-coverage":"^1.1.1","karma-firefox-launcher":"^1.1.0","karma-jasmine":"^1.1.1","karma-jasmine-ajax":"^0.1.13","karma-opera-launcher":"^1.0.0","karma-safari-launcher":"^1.0.0","karma-sauce-launcher":"^1.2.0","karma-sinon":"^1.0.5","karma-sourcemap-loader":"^0.3.7","karma-webpack":"^1.7.0","load-grunt-tasks":"^3.5.2","minimist":"^1.2.0","mocha":"^5.2.0","sinon":"^4.5.0","typescript":"^2.8.1","url-search-params":"^0.10.0","webpack":"^1.13.1","webpack-dev-server":"^1.14.1"},"browser":{"./lib/adapters/http.js":"./lib/adapters/xhr.js"},"typings":"./index.d.ts","dependencies":{"follow-redirects":"1.5.10"},"bundlesize":[{"path":"./dist/axios.min.js","threshold":"5kB"}],"_resolved":"https://registry.npmjs.org/axios/-/axios-0.19.2.tgz","_integrity":"sha512-fjgm5MvRHLhx+osE2xoekY70AhARk3a6hkN+3Io1jc00jtquGvxYlKlsFUhmUET0V5te6CcZI7lcv2Ym61mjHA==","_from":"axios@0.19.2"};
 
 /***/ }),
 /* 362 */,
@@ -15940,7 +15961,6 @@ function buildMessageForDeploy(imageName, buildTime, tags, repo) {
                             emoji: true
                         },
                         value: `${repo}::${imageName}::${tags}`,
-                        // eslint-disable-next-line @typescript-eslint/camelcase
                         action_id: 'ready_to_deploy'
                     }
                 ]
@@ -16031,7 +16051,7 @@ function postMessage(channel, message, attachments) {
     });
 }
 exports.postMessage = postMessage;
-
+//# sourceMappingURL=slack.js.map
 
 /***/ }),
 /* 571 */,
@@ -23405,7 +23425,6 @@ function uploadBuildTime(startTime, endTime, repositoryName, buildResult, buildR
             throw new Error('No push date.');
         }
         const imagePushedAt = latestImage[0].imagePushedAt;
-        /* eslint-disable @typescript-eslint/camelcase */
         const buildData = {
             start_at: convertDateTimeFormat(startTime),
             end_at: convertDateTimeFormat(endTime),
@@ -23416,7 +23435,6 @@ function uploadBuildTime(startTime, endTime, repositoryName, buildResult, buildR
             result: buildResult,
             reason: buildReason
         };
-        /* eslint-enable */
         const json = `${JSON.stringify(buildData)}\n`;
         core.debug(`JSON data: ${json}`);
         const param = {
@@ -23443,7 +23461,7 @@ function s3PutObject(param) {
 }
 exports.s3PutObject = s3PutObject;
 function generateObjectKey(prefix, fileExtension) {
-    const now = new Date(); // UTC
+    const now = new Date();
     const year = now.getFullYear();
     const month = zeroPadding(now.getMonth() + 1, 2);
     const date = zeroPadding(now.getDate(), 2);
@@ -23466,7 +23484,7 @@ function convertDateTimeFormat(date) {
         .replace('T', ' ')
         .replace('Z', '');
 }
-
+//# sourceMappingURL=s3.js.map
 
 /***/ }),
 /* 674 */,
@@ -24264,8 +24282,6 @@ const exec = __importStar(__webpack_require__(986));
 const core = __importStar(__webpack_require__(470));
 const axios_1 = __importDefault(__webpack_require__(53));
 const qs_1 = __importDefault(__webpack_require__(386));
-// Document for docker engine API.
-// https://docs.docker.com/engine/api/v1.39/
 const apiVersion = 'v1.39';
 exports.axiosInstance = axios_1.default.create({
     baseURL: `http:/${apiVersion}/`,
@@ -24293,7 +24309,6 @@ function latestBuiltImage(imageName) {
     });
 }
 exports.latestBuiltImage = latestBuiltImage;
-// Return true when check is OK
 function noBuiltImage() {
     return __awaiter(this, void 0, void 0, function* () {
         let stdout = '';
@@ -24310,12 +24325,6 @@ function noBuiltImage() {
     });
 }
 exports.noBuiltImage = noBuiltImage;
-/**
- * dockerTagImage creates a tag for a docker image
- * @param {string} imageId The ID of a docker image
- * @param {string} repository The upstream docker repository
- * @param {string} newTag New tag name to be set
- */
 function dockerImageTag(imageId, repository, newTag) {
     return __awaiter(this, void 0, void 0, function* () {
         const res = yield exports.axiosInstance.post(`images/${imageId}/tag`, qs_1.default.stringify({ tag: newTag, repo: repository }));
@@ -24330,7 +24339,6 @@ function dockerImageLs(imageName) {
         const res = yield exports.axiosInstance.get('images/json', {
             params: { filter: imageName }
         });
-        // Make sure that images are sorted by "Created" desc.
         return res.data.sort((im1, im2) => {
             return im2.Created - im1.Created;
         });
@@ -24347,7 +24355,7 @@ function pushDockerImage(imageId, newTag, registryAuth) {
     });
 }
 exports.pushDockerImage = pushDockerImage;
-
+//# sourceMappingURL=docker-util.js.map
 
 /***/ }),
 /* 709 */,

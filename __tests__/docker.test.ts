@@ -49,6 +49,28 @@ describe('Docker#build()', () => {
   })
 })
 
+describe('Docker#tag()', () => {
+  const docker = new Docker(
+    '1234567890.dkr.ecr.ap-northeast-1.amazonaws.com/',
+    'imagename/app',
+    commitHash
+  )
+
+  test('tag', async () => {
+    jest.spyOn(dockerUtil, 'noBuiltImage').mockResolvedValue(true)
+    jest.spyOn(dockerUtil, 'latestBuiltImage').mockResolvedValueOnce({
+      imageID: '1234567890',
+      imageName: 'build-image/debug',
+      tags: ['latest']
+    })
+    await docker.testUpdate()
+
+    await expect(
+      docker.tag('test', docker.upstreamRepository())
+    ).rejects.toThrowError()
+  })
+})
+
 describe('Docker#scan()', () => {
   const docker = new Docker(
     '1234567890.dkr.ecr.ap-northeast-1.amazonaws.com/',
