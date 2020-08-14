@@ -172,7 +172,7 @@ export default class Docker {
   private async update(): Promise<DockerImage> {
     this._builtImage = await latestBuiltImage(this.imageName)
     this._builtImage.tags.push(this.commitHash)
-    core.debug(this._builtImage.toString())
+    core.debug(JSON.stringify(this._builtImage))
     return this._builtImage
   }
 
