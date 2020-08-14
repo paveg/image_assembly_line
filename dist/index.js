@@ -7628,7 +7628,7 @@ function run() {
       severity_level: ${severityLevel.toString()}
       scan_exit_code: ${scanExitCode.toString()}
       no_push: ${noPush.toString()}
-      docker: ${docker.toString()}`);
+      docker: ${JSON.stringify(docker)}`);
             yield docker.build(target);
             yield docker.scan(severityLevel, scanExitCode);
             if (docker.builtImage && gitHubRunID) {
@@ -8378,7 +8378,7 @@ class Docker {
         return __awaiter(this, void 0, void 0, function* () {
             this._builtImage = yield docker_util_1.latestBuiltImage(this.imageName);
             this._builtImage.tags.push(this.commitHash);
-            core.debug(this._builtImage.toString());
+            core.debug(JSON.stringify(this._builtImage));
             return this._builtImage;
         });
     }
