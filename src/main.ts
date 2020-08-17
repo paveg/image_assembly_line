@@ -73,7 +73,7 @@ async function run(): Promise<void> {
       severity_level: ${severityLevel.toString()}
       scan_exit_code: ${scanExitCode.toString()}
       no_push: ${noPush.toString()}
-      docker: ${docker.toString()}`)
+      docker: ${JSON.stringify(docker)}`)
     await docker.build(target)
 
     await docker.scan(severityLevel, scanExitCode)

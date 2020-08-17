@@ -42,6 +42,9 @@ export default class Docker {
       if (!(await noBuiltImage())) {
         throw new Error('Built image exists')
       }
+      core.info(`[Build] Registry name: ${this.registry}`)
+      core.info(`[Build] Image name: ${this.imageName}`)
+
       await exec.exec('make', [
         `REGISTRY_NAME=${this.registry}`,
         `IMAGE_NAME=${this.imageName}`,
@@ -76,6 +79,7 @@ export default class Docker {
       }
 
       const imageName = `${this._builtImage.imageName}:${this._builtImage.tags[0]}`
+      core.info(`[Scan] Image name: ${imageName}`)
       const result = await exec.exec(
         'trivy',
         [
@@ -141,6 +145,8 @@ export default class Docker {
       throw new Error('No built image to tag')
     }
 
+    core.info(`[Tag] Image ID: ${this._builtImage.imageID}`)
+    core.info(`[Tag] Tag to add: ${tag}`)
     await dockerImageTag(this._builtImage.imageID, upstreamRegistry, tag).catch(
       e => {
         core.error('tag() error on dockerImageTag')
@@ -155,6 +161,9 @@ export default class Docker {
     }
 
     const registryAuth = await this.xRegistryAuth()
+    core.info(`[Push] Upstream registry: ${upstreamRegistry}`)
+    core.info(`[Push] Tag: ${tag}`)
+
     await pushDockerImage(upstreamRegistry, tag, registryAuth).catch(e => {
       core.error('push() error on pushDockerImage')
       throw new PushError(e)
@@ -172,7 +181,7 @@ export default class Docker {
   private async update(): Promise<DockerImage> {
     this._builtImage = await latestBuiltImage(this.imageName)
     this._builtImage.tags.push(this.commitHash)
-    core.debug(this._builtImage.toString())
+    core.debug(JSON.stringify(this._builtImage))
     return this._builtImage
   }
 
