@@ -142,26 +142,10 @@ export default class Docker {
   }
 
   private async loginRegistery(): Promise<void> {
-    let ecrLoginPass = ''
-    let ecrLoginError = ''
-    const options: im.ExecOptions = {
-      // set silent, not to log the password
-      silent: true,
-      listeners: {
-        stdout: (data: Buffer) => {
-          ecrLoginPass += data.toString()
-        },
-        stderr: (data: Buffer) => {
-          ecrLoginError += data.toString()
-        }
-      }
-    }
-
     try {
-      await exec.exec('aws', ['ecr', 'get-login-password'], options)
-      await exec.exec('docker', ['login', '-u', 'AWS', '-p', `${ecrLoginPass}`, `https://${this.registry}`])
+      await exec.exec(`aws ecr get-login-password | docker login -u AWS --password-stdin https://${this.registry}`)
     } catch (e) {
-      core.error(ecrLoginError.trim())
+      core.error('login error')
       throw e
     }
   }

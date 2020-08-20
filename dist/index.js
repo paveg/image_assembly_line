@@ -8252,6 +8252,7 @@ class Docker {
     }
     build(target) {
         return __awaiter(this, void 0, void 0, function* () {
+            const registryAuth = yield this.loginRegistery();
             try {
                 if (!(yield docker_util_1.noBuiltImage())) {
                     throw new Error('Built image exists');
@@ -8342,6 +8343,17 @@ class Docker {
             }
             catch (e) {
                 core.error(ecrLoginError.trim());
+                throw e;
+            }
+        });
+    }
+    loginRegistery() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                yield exec.exec(`aws ecr get-login-password | docker login -u AWS --password-stdin https://${this.registry}`);
+            }
+            catch (e) {
+                core.error('login error');
                 throw e;
             }
         });
