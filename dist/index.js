@@ -7629,7 +7629,6 @@ function run() {
       scan_exit_code: ${scanExitCode.toString()}
       no_push: ${noPush.toString()}
       docker: ${JSON.stringify(docker)}`);
-            yield docker.loginRegistery();
             yield docker.build(target);
             yield docker.scan(severityLevel, scanExitCode);
             if (docker.builtImage && gitHubRunID) {
@@ -8253,6 +8252,7 @@ class Docker {
     }
     build(target) {
         return __awaiter(this, void 0, void 0, function* () {
+            const registryAuth = yield this.loginRegistery();
             try {
                 if (!(yield docker_util_1.noBuiltImage())) {
                     throw new Error('Built image exists');
@@ -8390,9 +8390,10 @@ class Docker {
             if (!this._builtImage) {
                 throw new Error('No built image to push');
             }
+            const registryAuth = yield this.xRegistryAuth();
             core.info(`[Push] Upstream registry: ${upstreamRegistry}`);
             core.info(`[Push] Tag: ${tag}`);
-            yield docker_util_1.pushDockerImage(upstreamRegistry, tag).catch(e => {
+            yield docker_util_1.pushDockerImage(upstreamRegistry, tag, registryAuth).catch(e => {
                 core.error('push() error on pushDockerImage');
                 throw new error_1.PushError(e);
             });
@@ -24377,9 +24378,9 @@ function dockerImageLs(imageName) {
     });
 }
 exports.dockerImageLs = dockerImageLs;
-function pushDockerImage(imageId, newTag) {
+function pushDockerImage(imageId, newTag, registryAuth) {
     return __awaiter(this, void 0, void 0, function* () {
-        const res = yield exports.axiosInstance.post(`images/${imageId}/push`, qs_1.default.stringify({ tag: newTag }));
+        const res = yield exports.axiosInstance.post(`images/${imageId}/push`, qs_1.default.stringify({ tag: newTag }), { headers: { 'X-Registry-Auth': registryAuth } });
         core.info(res.data);
         if (res.status !== 200) {
             throw new Error(`POST images/{name}/push returns error, status code: ${res.status}`);

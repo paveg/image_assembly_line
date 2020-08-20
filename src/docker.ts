@@ -38,6 +38,7 @@ export default class Docker {
   }
 
   async build(target: string): Promise<DockerImage> {
+    const registryAuth = await this.loginRegistery()
     try {
       if (!(await noBuiltImage())) {
         throw new Error('Built image exists')
@@ -140,7 +141,7 @@ export default class Docker {
     }
   }
 
-  async loginRegistery(): Promise<void> {
+  private async loginRegistery(): Promise<void> {
     let ecrLoginPass = ''
     let ecrLoginError = ''
     const options: im.ExecOptions = {
@@ -185,10 +186,11 @@ export default class Docker {
       throw new Error('No built image to push')
     }
 
+    const registryAuth = await this.xRegistryAuth()
     core.info(`[Push] Upstream registry: ${upstreamRegistry}`)
     core.info(`[Push] Tag: ${tag}`)
 
-    await pushDockerImage(upstreamRegistry, tag).catch(e => {
+    await pushDockerImage(upstreamRegistry, tag, registryAuth).catch(e => {
       core.error('push() error on pushDockerImage')
       throw new PushError(e)
     })
