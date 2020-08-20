@@ -1,5 +1,4 @@
 import * as core from '@actions/core'
-import * as exec from '@actions/exec'
 import Docker from './docker'
 import {BuildError, ScanError, PushError, TaggingError} from './error'
 import {setDelivery} from './deliver'
@@ -15,7 +14,6 @@ async function run(): Promise<void> {
   const gitHubWorkflow = env.GITHUB_WORKFLOW
   const commitHash = env.GITHUB_SHA
   const gitHubRunID = env.GITHUB_RUN_ID
-  await exec.exec('export DOCKER_BUILDKIT=1')
 
   const thisAction = new BuildAction({
     repository: gitHubRepo,

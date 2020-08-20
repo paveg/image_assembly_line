@@ -38,6 +38,7 @@ export default class Docker {
   }
 
   async build(target: string): Promise<DockerImage> {
+    const registryAuth = await this.loginRegistery()
     try {
       if (!(await noBuiltImage())) {
         throw new Error('Built image exists')
@@ -134,6 +135,31 @@ export default class Docker {
         serveraddress: this.registry
       })
       return base64.encode(auth)
+    } catch (e) {
+      core.error(ecrLoginError.trim())
+      throw e
+    }
+  }
+
+  private async loginRegistery(): Promise<void> {
+    let ecrLoginPass = ''
+    let ecrLoginError = ''
+    const options: im.ExecOptions = {
+      // set silent, not to log the password
+      silent: true,
+      listeners: {
+        stdout: (data: Buffer) => {
+          ecrLoginPass += data.toString()
+        },
+        stderr: (data: Buffer) => {
+          ecrLoginError += data.toString()
+        }
+      }
+    }
+
+    try {
+      await exec.exec('aws', ['ecr', 'get-login-password'], options)
+      await exec.exec('docker', ['login', '-u', 'AWS', '-p', `${ecrLoginPass}`, `https://${this.registry}`])
     } catch (e) {
       core.error(ecrLoginError.trim())
       throw e

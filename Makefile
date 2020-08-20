@@ -6,14 +6,11 @@ build:
 
 test.build_image:
 	docker build -f Dockerfile \
-		--build-arg BUILDKIT_INLINE_CACHE=1 \
-		--cache-from=${REGISTRY_NAME}/${IMAGE_NAME}:latest \
 		-t ${IMAGE_NAME} .
 
 dev.build_image:
 	docker build -f dev.Dockerfile \
-		--build-arg NODE_VERSION=${NODE_VERSION} BUILDKIT_INLINE_CACHE=1 \
-		--cache-from=${REGISTRY_NAME}/${IMAGE_NAME}:latest \
+		--build-arg NODE_VERSION=${NODE_VERSION} \
 		-t ${IMAGE_NAME} .
 
 dev.all:
