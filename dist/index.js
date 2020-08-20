@@ -8349,11 +8349,25 @@ class Docker {
     }
     loginRegistery() {
         return __awaiter(this, void 0, void 0, function* () {
+            let ecrLoginPass = '';
+            let ecrLoginError = '';
+            const options = {
+                silent: true,
+                listeners: {
+                    stdout: (data) => {
+                        ecrLoginPass += data.toString();
+                    },
+                    stderr: (data) => {
+                        ecrLoginError += data.toString();
+                    }
+                }
+            };
             try {
-                yield exec.exec(`aws ecr get-login-password | docker login -u AWS --password-stdin https://${this.registry}`);
+                yield exec.exec('aws', ['ecr', 'get-login-password'], options);
+                yield exec.exec('docker', ['login', '-u', 'AWS', '-p', `${ecrLoginPass}`, `https://${this.registry}`]);
             }
             catch (e) {
-                core.error('login error');
+                core.error(ecrLoginError.trim());
                 throw e;
             }
         });
