@@ -7614,7 +7614,7 @@ function run() {
             const imageName = core.getInput('image_name');
             const severityLevel = core.getInput('severity_level');
             const scanExitCode = core.getInput('scan_exit_code');
-            const noPush = core.getInput('no_push');
+            const noPush = core.getInput('no_push').toString() === 'true';
             const docker = new docker_1.default(registry, imageName, commitHash);
             js_1.default.addMetadata('buildDetails', {
                 builtImage: docker.builtImage,
@@ -7629,10 +7629,10 @@ function run() {
       scan_exit_code: ${scanExitCode.toString()}
       no_push: ${noPush.toString()}
       docker: ${JSON.stringify(docker)}`);
-            yield docker.build(target, noPush.toString());
+            yield docker.build(target, noPush);
             yield docker.scan(severityLevel, scanExitCode);
             if (docker.builtImage && gitHubRunID) {
-                if (noPush.toString() === 'true') {
+                if (noPush) {
                     core.info('no_push: true');
                 }
                 else {
@@ -8252,7 +8252,7 @@ class Docker {
     }
     build(target, noPush) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (noPush !== 'true') {
+            if (!noPush) {
                 yield this.loginRegistery();
             }
             try {
@@ -8261,19 +8261,14 @@ class Docker {
                 }
                 core.info(`[Build] Registry name: ${this.registry}`);
                 core.info(`[Build] Image name: ${this.imageName}`);
-                if (noPush === 'true') {
-                    yield exec.exec('make', [
-                        `IMAGE_NAME=${this.imageName}`,
-                        target
-                    ]);
+                const execParams = [
+                    target,
+                    `IMAGE_NAME=${this.imageName}`
+                ];
+                if (!noPush) {
+                    execParams.push(`REGISTRY_NAME=${this.registry}`);
                 }
-                else {
-                    yield exec.exec('make', [
-                        `REGISTRY_NAME=${this.registry}`,
-                        `IMAGE_NAME=${this.imageName}`,
-                        target
-                    ]);
-                }
+                yield exec.exec('make', execParams);
                 return this.update();
             }
             catch (e) {

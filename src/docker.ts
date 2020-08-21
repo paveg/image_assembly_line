@@ -37,8 +37,8 @@ export default class Docker {
     return this._builtImage
   }
 
-  async build(target: string, noPush: string): Promise<DockerImage> {
-    if(noPush !== 'true') {
+  async build(target: string, noPush: boolean): Promise<DockerImage> {
+    if(!noPush) {
       await this.loginRegistery()
     }
     try {
@@ -47,19 +47,15 @@ export default class Docker {
       }
       core.info(`[Build] Registry name: ${this.registry}`)
       core.info(`[Build] Image name: ${this.imageName}`)
+      const execParams = [
+        target,
+        `IMAGE_NAME=${this.imageName}`
+      ]
 
-      if(noPush === 'true') {
-        await exec.exec('make', [
-          `IMAGE_NAME=${this.imageName}`,
-          target
-        ])
-      } else {
-        await exec.exec('make', [
-          `REGISTRY_NAME=${this.registry}`,
-          `IMAGE_NAME=${this.imageName}`,
-          target
-        ])
+      if(!noPush) {
+        execParams.push(`REGISTRY_NAME=${this.registry}`)
       }
+      await exec.exec('make', execParams)
 
       return this.update()
     } catch (e) {

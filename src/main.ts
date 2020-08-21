@@ -57,7 +57,7 @@ async function run(): Promise<void> {
     const imageName = core.getInput('image_name')
     const severityLevel = core.getInput('severity_level')
     const scanExitCode = core.getInput('scan_exit_code')
-    const noPush = core.getInput('no_push')
+    const noPush = core.getInput('no_push').toString() === 'true'
 
     const docker = new Docker(registry, imageName, commitHash)
     Bugsnag.addMetadata('buildDetails', {
@@ -74,12 +74,12 @@ async function run(): Promise<void> {
       scan_exit_code: ${scanExitCode.toString()}
       no_push: ${noPush.toString()}
       docker: ${JSON.stringify(docker)}`)
-    await docker.build(target, noPush.toString())
+    await docker.build(target, noPush)
 
     await docker.scan(severityLevel, scanExitCode)
 
     if (docker.builtImage && gitHubRunID) {
-      if (noPush.toString() === 'true') {
+      if (noPush) {
         core.info('no_push: true')
       } else {
         const upstreamRepo = docker.upstreamRepository()
