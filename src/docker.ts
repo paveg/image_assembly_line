@@ -37,8 +37,10 @@ export default class Docker {
     return this._builtImage
   }
 
-  async build(target: string): Promise<DockerImage> {
-    const registryAuth = await this.loginRegistery()
+  async build(target: string, noPush: string): Promise<DockerImage> {
+    if(noPush !== 'true') {
+      await this.loginRegistery()
+    }
     try {
       if (!(await noBuiltImage())) {
         throw new Error('Built image exists')
@@ -156,10 +158,13 @@ export default class Docker {
         }
       }
     }
-
+    const loginOptions: im.ExecOptions = {
+      // set silent, not to log the password
+      silent: true,
+    }
     try {
       await exec.exec('aws', ['ecr', 'get-login-password'], options)
-      await exec.exec('docker', ['login', '-u', 'AWS', '-p', `${ecrLoginPass}`, `https://${this.registry}`])
+      await exec.exec('docker', ['login', '-u', 'AWS', '-p', `${ecrLoginPass}`, `https://${this.registry}`], loginOptions)
     } catch (e) {
       core.error(ecrLoginError.trim())
       throw e

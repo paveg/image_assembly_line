@@ -7629,7 +7629,7 @@ function run() {
       scan_exit_code: ${scanExitCode.toString()}
       no_push: ${noPush.toString()}
       docker: ${JSON.stringify(docker)}`);
-            yield docker.build(target);
+            yield docker.build(target, noPush.toString());
             yield docker.scan(severityLevel, scanExitCode);
             if (docker.builtImage && gitHubRunID) {
                 if (noPush.toString() === 'true') {
@@ -8250,9 +8250,11 @@ class Docker {
     get builtImage() {
         return this._builtImage;
     }
-    build(target) {
+    build(target, noPush) {
         return __awaiter(this, void 0, void 0, function* () {
-            const registryAuth = yield this.loginRegistery();
+            if (noPush !== 'true') {
+                yield this.loginRegistery();
+            }
             try {
                 if (!(yield docker_util_1.noBuiltImage())) {
                     throw new Error('Built image exists');
@@ -8362,9 +8364,12 @@ class Docker {
                     }
                 }
             };
+            const loginOptions = {
+                silent: true,
+            };
             try {
                 yield exec.exec('aws', ['ecr', 'get-login-password'], options);
-                yield exec.exec('docker', ['login', '-u', 'AWS', '-p', `${ecrLoginPass}`, `https://${this.registry}`]);
+                yield exec.exec('docker', ['login', '-u', 'AWS', '-p', `${ecrLoginPass}`, `https://${this.registry}`], loginOptions);
             }
             catch (e) {
                 core.error(ecrLoginError.trim());
