@@ -48,11 +48,18 @@ export default class Docker {
       core.info(`[Build] Registry name: ${this.registry}`)
       core.info(`[Build] Image name: ${this.imageName}`)
 
-      await exec.exec('make', [
-        `REGISTRY_NAME=${this.registry}`,
-        `IMAGE_NAME=${this.imageName}`,
-        target
-      ])
+      if(noPush === 'true') {
+        await exec.exec('make', [
+          `IMAGE_NAME=${this.imageName}`,
+          target
+        ])
+      } else {
+        await exec.exec('make', [
+          `REGISTRY_NAME=${this.registry}`,
+          `IMAGE_NAME=${this.imageName}`,
+          target
+        ])
+      }
 
       return this.update()
     } catch (e) {

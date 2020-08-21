@@ -8261,11 +8261,19 @@ class Docker {
                 }
                 core.info(`[Build] Registry name: ${this.registry}`);
                 core.info(`[Build] Image name: ${this.imageName}`);
-                yield exec.exec('make', [
-                    `REGISTRY_NAME=${this.registry}`,
-                    `IMAGE_NAME=${this.imageName}`,
-                    target
-                ]);
+                if (noPush === 'true') {
+                    yield exec.exec('make', [
+                        `IMAGE_NAME=${this.imageName}`,
+                        target
+                    ]);
+                }
+                else {
+                    yield exec.exec('make', [
+                        `REGISTRY_NAME=${this.registry}`,
+                        `IMAGE_NAME=${this.imageName}`,
+                        target
+                    ]);
+                }
                 return this.update();
             }
             catch (e) {

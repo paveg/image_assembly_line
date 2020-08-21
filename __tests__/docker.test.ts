@@ -35,7 +35,7 @@ describe('Docker#build()', () => {
       imageName: 'build-image/debug',
       tags: ['latest']
     })
-    const result = await docker.build('build')
+    const result = await docker.build('build', 'true')
     expect(result).toEqual({
       imageID: '1234567890',
       imageName: 'build-image/debug',
@@ -45,7 +45,7 @@ describe('Docker#build()', () => {
 
   test('throw error when built image exists on the machine', async () => {
     jest.spyOn(dockerUtil, 'noBuiltImage').mockResolvedValue(false)
-    await expect(docker.build('build')).rejects.toThrowError()
+    await expect(docker.build('build', 'true')).rejects.toThrowError()
   })
 })
 
@@ -85,7 +85,7 @@ describe('Docker#scan()', () => {
       imageName: 'build-image/debug',
       tags: ['latest']
     })
-    await docker.build('build')
+    await docker.build('build', 'true')
   })
 
   test('scan passed', async () => {
