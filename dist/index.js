@@ -8321,7 +8321,7 @@ class Docker {
             }
         });
     }
-    xRegistryAuth() {
+    getEcrPass() {
         return __awaiter(this, void 0, void 0, function* () {
             let ecrLoginPass = '';
             let ecrLoginError = '';
@@ -8338,13 +8338,7 @@ class Docker {
             };
             try {
                 yield exec.exec('aws', ['ecr', 'get-login-password'], options);
-                const auth = JSON.stringify({
-                    username: 'AWS',
-                    password: ecrLoginPass,
-                    email: 'none',
-                    serveraddress: this.registry
-                });
-                return base64_1.base64.encode(auth);
+                return ecrLoginPass;
             }
             catch (e) {
                 core.error(ecrLoginError.trim());
@@ -8352,30 +8346,29 @@ class Docker {
             }
         });
     }
+    xRegistryAuth() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const ecrLoginPass = yield this.getEcrPass();
+            const auth = JSON.stringify({
+                username: 'AWS',
+                password: ecrLoginPass,
+                email: 'none',
+                serveraddress: this.registry
+            });
+            return base64_1.base64.encode(auth);
+        });
+    }
     loginRegistery() {
         return __awaiter(this, void 0, void 0, function* () {
-            let ecrLoginPass = '';
-            let ecrLoginError = '';
-            const options = {
-                silent: true,
-                listeners: {
-                    stdout: (data) => {
-                        ecrLoginPass += data.toString();
-                    },
-                    stderr: (data) => {
-                        ecrLoginError += data.toString();
-                    }
-                }
-            };
             const loginOptions = {
                 silent: true,
             };
             try {
-                yield exec.exec('aws', ['ecr', 'get-login-password'], options);
+                const ecrLoginPass = yield this.getEcrPass();
                 yield exec.exec('docker', ['login', '-u', 'AWS', '-p', `${ecrLoginPass}`, `https://${this.registry}`], loginOptions);
             }
             catch (e) {
-                core.error(ecrLoginError.trim());
+                core.error('loginRegistery() error');
                 throw e;
             }
         });

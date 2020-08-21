@@ -115,7 +115,7 @@ export default class Docker {
     }
   }
 
-  private async xRegistryAuth(): Promise<string> {
+  private async getEcrPass(): Promise<string> {
     let ecrLoginPass = ''
     let ecrLoginError = ''
     const options: im.ExecOptions = {
@@ -133,43 +133,34 @@ export default class Docker {
 
     try {
       await exec.exec('aws', ['ecr', 'get-login-password'], options)
-      const auth = JSON.stringify({
-        username: 'AWS',
-        password: ecrLoginPass,
-        email: 'none',
-        serveraddress: this.registry
-      })
-      return base64.encode(auth)
+      return ecrLoginPass
     } catch (e) {
       core.error(ecrLoginError.trim())
       throw e
     }
   }
 
+  private async xRegistryAuth(): Promise<string> {
+    const ecrLoginPass = await this.getEcrPass()
+    const auth = JSON.stringify({
+      username: 'AWS',
+      password: ecrLoginPass,
+      email: 'none',
+      serveraddress: this.registry
+    })
+    return base64.encode(auth)
+  }
+
   private async loginRegistery(): Promise<void> {
-    let ecrLoginPass = ''
-    let ecrLoginError = ''
-    const options: im.ExecOptions = {
-      // set silent, not to log the password
-      silent: true,
-      listeners: {
-        stdout: (data: Buffer) => {
-          ecrLoginPass += data.toString()
-        },
-        stderr: (data: Buffer) => {
-          ecrLoginError += data.toString()
-        }
-      }
-    }
     const loginOptions: im.ExecOptions = {
       // set silent, not to log the password
       silent: true,
     }
     try {
-      await exec.exec('aws', ['ecr', 'get-login-password'], options)
+      const ecrLoginPass = await this.getEcrPass()
       await exec.exec('docker', ['login', '-u', 'AWS', '-p', `${ecrLoginPass}`, `https://${this.registry}`], loginOptions)
     } catch (e) {
-      core.error(ecrLoginError.trim())
+      core.error('loginRegistery() error')
       throw e
     }
   }
