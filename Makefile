@@ -5,13 +5,28 @@ build:
 	echo "hello"
 
 test.build_image:
-	docker build -f Dockerfile \
-		-t ${IMAGE_NAME} .
+	if [ -z "${REGISTRY_NAME}" ]; then \
+		docker build -f Dockerfile \
+			-t ${IMAGE_NAME} .; \
+	else \
+		DOCKER_BUILDKIT=1 docker build -f Dockerfile \
+			--build-arg BUILDKIT_INLINE_CACHE=1 \
+			--cache-from=${REGISTRY_NAME}/${IMAGE_NAME}:latest \
+			-t ${IMAGE_NAME} .; \
+	fi
 
 dev.build_image:
-	docker build -f dev.Dockerfile \
-		--build-arg NODE_VERSION=${NODE_VERSION} \
-		-t ${IMAGE_NAME} .
+	if [ -z "${REGISTRY_NAME}" ]; then \
+		docker build -f dev.Dockerfile \
+			--build-arg NODE_VERSION=${NODE_VERSION} \
+			-t ${IMAGE_NAME} . ; \
+	else \
+		DOCKER_BUILDKIT=1 docker build -f dev.Dockerfile \
+			--build-arg NODE_VERSION=${NODE_VERSION} \
+			--build-arg BUILDKIT_INLINE_CACHE=1 \
+			--cache-from=${REGISTRY_NAME}/${IMAGE_NAME}:latest \
+			-t ${IMAGE_NAME} . ; \
+	fi
 
 dev.all:
 	docker run --rm \
