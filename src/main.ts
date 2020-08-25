@@ -83,14 +83,16 @@ async function run(): Promise<void> {
         core.info('no_push: true')
       } else {
         const upstreamRepo = docker.upstreamRepository()
-        for (const tag of docker.builtImage.tags) {
-          Bugsnag.addMetadata('buildDetails', {
-            tag,
-            upstreamRegistry: upstreamRepo
-          })
-          await docker.tag(tag, upstreamRepo)
-          await docker.push(tag, upstreamRepo)
-        }
+        await Promise.all(docker.builtImage.tags.map((tag) => {
+          return async () => {
+            Bugsnag.addMetadata('buildDetails', {
+              tag,
+              upstreamRegistry: upstreamRepo
+            })
+            await docker.tag(tag, upstreamRepo)
+            await docker.push(tag, upstreamRepo)
+          }
+        }))
       }
       await setDelivery({
         dockerImage: docker.builtImage,

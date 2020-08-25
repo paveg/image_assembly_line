@@ -7637,14 +7637,16 @@ function run() {
                 }
                 else {
                     const upstreamRepo = docker.upstreamRepository();
-                    for (const tag of docker.builtImage.tags) {
-                        js_1.default.addMetadata('buildDetails', {
-                            tag,
-                            upstreamRegistry: upstreamRepo
+                    yield Promise.all(docker.builtImage.tags.map((tag) => {
+                        return () => __awaiter(this, void 0, void 0, function* () {
+                            js_1.default.addMetadata('buildDetails', {
+                                tag,
+                                upstreamRegistry: upstreamRepo
+                            });
+                            yield docker.tag(tag, upstreamRepo);
+                            yield docker.push(tag, upstreamRepo);
                         });
-                        yield docker.tag(tag, upstreamRepo);
-                        yield docker.push(tag, upstreamRepo);
-                    }
+                    }));
                 }
                 yield deliver_1.setDelivery({
                     dockerImage: docker.builtImage,
