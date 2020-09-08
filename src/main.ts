@@ -14,6 +14,7 @@ async function run(): Promise<void> {
   const gitHubWorkflow = env.GITHUB_WORKFLOW
   const commitHash = env.GITHUB_SHA
   const gitHubRunID = env.GITHUB_RUN_ID
+  const actionDirectory = env.GITHUB_WORKSPACE
 
   const thisAction = new BuildAction({
     repository: gitHubRepo,
@@ -34,6 +35,9 @@ async function run(): Promise<void> {
     }
     if (!bugsnagApiKey) {
       throw new Error('BUGSNAG_API_KEY not found.')
+    }
+    if (!actionDirectory) {
+      throw new Error('GITHUB_WORKSPACE not found.')
     }
     Bugsnag.start({
       apiKey: bugsnagApiKey,
@@ -58,6 +62,7 @@ async function run(): Promise<void> {
     const severityLevel = core.getInput('severity_level')
     const scanExitCode = core.getInput('scan_exit_code')
     const noPush = core.getInput('no_push').toString() === 'true'
+    const buildDirectory = core.getInput('build_directory')
 
     const docker = new Docker(registry, imageName, commitHash)
     Bugsnag.addMetadata('buildDetails', {
@@ -74,7 +79,13 @@ async function run(): Promise<void> {
       scan_exit_code: ${scanExitCode.toString()}
       no_push: ${noPush.toString()}
       docker: ${JSON.stringify(docker)}`)
-    await docker.build(target, noPush)
+
+    try {
+      process.chdir(buildDirectory)
+      await docker.build(target, noPush)
+    } finally {
+      process.chdir(actionDirectory)
+    }
 
     await docker.scan(severityLevel, scanExitCode)
 
@@ -83,14 +94,16 @@ async function run(): Promise<void> {
         core.info('no_push: true')
       } else {
         const upstreamRepo = docker.upstreamRepository()
-        await Promise.all(docker.builtImage.tags.map(async (tag) => {
-          Bugsnag.addMetadata('buildDetails', {
-            tag,
-            upstreamRegistry: upstreamRepo
+        await Promise.all(
+          docker.builtImage.tags.map(async tag => {
+            Bugsnag.addMetadata('buildDetails', {
+              tag,
+              upstreamRegistry: upstreamRepo
+            })
+            await docker.tag(tag, upstreamRepo)
+            await docker.push(tag, upstreamRepo)
           })
-          await docker.tag(tag, upstreamRepo)
-          await docker.push(tag, upstreamRepo)
-        }))
+        )
       }
       await setDelivery({
         dockerImage: docker.builtImage,
