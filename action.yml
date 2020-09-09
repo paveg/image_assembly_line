@@ -13,6 +13,9 @@ inputs:
   scan_exit_code:
     description: 'Exit code when vulnerabilities were found'
     default: '0'
+  build_directory:
+    description: 'where to run make command'
+    default: './'
   no_push:
     description: 'set true if you do not want to push image to ECR'
     default: ''
