@@ -38,7 +38,7 @@ export default class Docker {
   }
 
   async build(target: string, noPush: boolean): Promise<DockerImage> {
-    if(!noPush) {
+    if (!noPush) {
       await this.loginRegistery()
     }
     try {
@@ -47,14 +47,12 @@ export default class Docker {
       }
       core.info(`[Build] Registry name: ${this.registry}`)
       core.info(`[Build] Image name: ${this.imageName}`)
-      const execParams = [
-        target,
-        `IMAGE_NAME=${this.imageName}`
-      ]
+      const execParams = [target, `IMAGE_NAME=${this.imageName}`]
 
-      if(!noPush) {
+      if (!noPush) {
         execParams.push(`REGISTRY_NAME=${this.registry}`)
       }
+
       await exec.exec('make', execParams)
 
       return this.update()
@@ -154,11 +152,22 @@ export default class Docker {
   private async loginRegistery(): Promise<void> {
     const loginOptions: im.ExecOptions = {
       // set silent, not to log the password
-      silent: true,
+      silent: true
     }
     try {
       const ecrLoginPass = await this.getEcrPass()
-      await exec.exec('docker', ['login', '-u', 'AWS', '-p', `${ecrLoginPass}`, `https://${this.registry}`], loginOptions)
+      await exec.exec(
+        'docker',
+        [
+          'login',
+          '-u',
+          'AWS',
+          '-p',
+          `${ecrLoginPass}`,
+          `https://${this.registry}`
+        ],
+        loginOptions
+      )
     } catch (e) {
       core.error('loginRegistery() error')
       throw e
