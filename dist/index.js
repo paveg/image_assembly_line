@@ -24339,7 +24339,7 @@ exports.axiosInstance = axios_1.default.create({
 function latestBuiltImage(imageName) {
     return __awaiter(this, void 0, void 0, function* () {
         core.debug('latestBuiltImage()');
-        const images = yield exports.dockerImageLs(imageName);
+        const images = yield dockerImageLs(imageName);
         if (images.length < 1) {
             throw new Error('No images built');
         }
@@ -24347,8 +24347,10 @@ function latestBuiltImage(imageName) {
         const builtImageName = latestImage.RepoTags[0].split(':')[0];
         const builtImageID = latestImage.Id;
         const tags = [];
+        core.debug(`tags: ${latestImage.RepoTags.toString()}`);
         for (const repoTag of latestImage.RepoTags) {
-            tags.push(repoTag.split(':').pop());
+            const tag = repoTag.split(':').pop();
+            tags.push(tag);
         }
         return {
             imageName: builtImageName,
@@ -24397,7 +24399,7 @@ exports.dockerImageLs = dockerImageLs;
 function pushDockerImage(imageId, newTag, registryAuth) {
     return __awaiter(this, void 0, void 0, function* () {
         const res = yield exports.axiosInstance.post(`images/${imageId}/push`, qs_1.default.stringify({ tag: newTag }), { headers: { 'X-Registry-Auth': registryAuth } });
-        core.info(res.data);
+        core.debug(res.data);
         if (res.status !== 200) {
             throw new Error(`POST images/{name}/push returns error, status code: ${res.status}`);
         }
