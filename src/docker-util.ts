@@ -16,7 +16,7 @@ export async function latestBuiltImage(
   imageName: string
 ): Promise<DockerImage> {
   core.debug('latestBuiltImage()')
-  const images = await exports.dockerImageLs(imageName)
+  const images = await dockerImageLs(imageName)
   if (images.length < 1) {
     throw new Error('No images built')
   }
@@ -25,9 +25,11 @@ export async function latestBuiltImage(
 
   const builtImageName = latestImage.RepoTags[0].split(':')[0]
   const builtImageID = latestImage.Id
-  const tags = []
+  const tags: string[] = []
+  core.debug(`tags: ${latestImage.RepoTags.toString()}`)
   for (const repoTag of latestImage.RepoTags) {
-    tags.push(repoTag.split(':').pop())
+    const tag = repoTag.split(':').pop() as string
+    tags.push(tag)
   }
 
   return {
@@ -111,7 +113,8 @@ export async function pushDockerImage(
     qs.stringify({tag: newTag}),
     {headers: {'X-Registry-Auth': registryAuth}}
   )
-  core.info(res.data)
+
+  core.debug(res.data)
   if (res.status !== 200) {
     throw new Error(
       `POST images/{name}/push returns error, status code: ${res.status}`
