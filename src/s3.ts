@@ -30,6 +30,7 @@ export async function uploadVulnerability(rowJson: string): Promise<void> {
 export async function uploadBuildTime(
   startTime: Date,
   endTime: Date,
+  registry: string,
   repositoryName: string,
   buildResult: string,
   buildReason: string
@@ -38,8 +39,9 @@ export async function uploadBuildTime(
     throw new Error('No bucket name.')
   }
   const bucketName: string = process.env.METRICS_BUCKET_NAME
+  const registryId: string = registry.split('.')[0]
 
-  const latestImage = await ecr.getLatestImage(repositoryName)
+  const latestImage = await ecr.getLatestImage(repositoryName, registryId)
   if (!latestImage[0].imagePushedAt) {
     throw new Error('No push date.')
   }

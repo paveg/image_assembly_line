@@ -6,11 +6,18 @@ const client = new ecr({
 })
 
 export async function getLatestImage(
-  repositoryName: string
+  repositoryName: string,
+  registryId: string
 ): Promise<ecr.ImageDetailList> {
+  core.debug(`[INFORMATION]
+    repositoryName: ${repositoryName}
+    registryId: ${registryId}`)
+
   const params: ecr.Types.DescribeImagesRequest = {
     // eslint-disable-next-line object-shorthand
     repositoryName: repositoryName,
+    // eslint-disable-next-line object-shorthand
+    registryId: registryId,
     imageIds: [
       {
         imageTag: 'latest'
