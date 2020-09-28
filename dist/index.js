@@ -8273,9 +8273,6 @@ class Docker {
                 yield this.loginRegistery();
             }
             try {
-                if (!(yield docker_util_1.noBuiltImage())) {
-                    throw new Error('Built image exists');
-                }
                 core.info(`[Build] Registry name: ${this.registry}`);
                 core.info(`[Build] Image name: ${this.imageName}`);
                 const execParams = [target, `IMAGE_NAME=${this.imageName}`];
@@ -24334,7 +24331,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const exec = __importStar(__webpack_require__(986));
 const core = __importStar(__webpack_require__(470));
 const axios_1 = __importDefault(__webpack_require__(53));
 const qs_1 = __importDefault(__webpack_require__(386));
@@ -24367,22 +24363,6 @@ function latestBuiltImage(imageName) {
     });
 }
 exports.latestBuiltImage = latestBuiltImage;
-function noBuiltImage() {
-    return __awaiter(this, void 0, void 0, function* () {
-        let stdout = '';
-        yield exec.exec('docker', ['image', 'ls', '-q'], {
-            listeners: {
-                stdout: (data) => {
-                    stdout += data.toString();
-                }
-            }
-        });
-        const imageCount = stdout.split('\n').filter(word => !!word).length;
-        core.debug(`built image count: ${imageCount}`);
-        return imageCount <= 0;
-    });
-}
-exports.noBuiltImage = noBuiltImage;
 function dockerImageTag(imageId, repository, newTag) {
     return __awaiter(this, void 0, void 0, function* () {
         const res = yield exports.axiosInstance.post(`images/${imageId}/tag`, qs_1.default.stringify({ tag: newTag, repo: repository }));
