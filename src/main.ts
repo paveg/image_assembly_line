@@ -112,7 +112,14 @@ async function run(): Promise<void> {
     }
 
     const endTime = new Date() // UTC
-    s3.uploadBuildTime(startTime, endTime, imageName, 'success', 'NoError')
+    s3.uploadBuildTime(
+      startTime,
+      endTime,
+      registry,
+      imageName,
+      'success',
+      'NoError'
+    )
 
     const elapsedSec = (endTime.getTime() - startTime.getTime()) / 1000
     const buildTime = `${Math.floor(elapsedSec / 60)}min ${elapsedSec % 60}sec`
@@ -147,7 +154,16 @@ async function run(): Promise<void> {
     Bugsnag.notify(e)
     const endTime = new Date() // UTC
     const imageName = core.getInput('image_name')
-    s3.uploadBuildTime(startTime, endTime, imageName, 'fail', errorReason)
+    if (registry) {
+      s3.uploadBuildTime(
+        startTime,
+        endTime,
+        registry,
+        imageName,
+        'fail',
+        errorReason
+      )
+    }
 
     core.setFailed(e)
   }
