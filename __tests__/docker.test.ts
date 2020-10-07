@@ -29,7 +29,6 @@ describe('Docker#build()', () => {
   )
 
   test('build', async () => {
-    jest.spyOn(dockerUtil, 'noBuiltImage').mockResolvedValue(true)
     jest.spyOn(dockerUtil, 'latestBuiltImage').mockResolvedValueOnce({
       imageID: '1234567890',
       imageName: 'build-image/debug',
@@ -42,11 +41,6 @@ describe('Docker#build()', () => {
       tags: ['latest', commitHash]
     })
   })
-
-  test('throw error when built image exists on the machine', async () => {
-    jest.spyOn(dockerUtil, 'noBuiltImage').mockResolvedValue(false)
-    await expect(docker.build('build', true)).rejects.toThrowError()
-  })
 })
 
 describe('Docker#tag()', () => {
@@ -57,7 +51,6 @@ describe('Docker#tag()', () => {
   )
 
   test('tag', async () => {
-    jest.spyOn(dockerUtil, 'noBuiltImage').mockResolvedValue(true)
     jest.spyOn(dockerUtil, 'latestBuiltImage').mockResolvedValueOnce({
       imageID: '1234567890',
       imageName: 'build-image/debug',
@@ -79,7 +72,6 @@ describe('Docker#scan()', () => {
   )
 
   beforeAll(async () => {
-    jest.spyOn(dockerUtil, 'noBuiltImage').mockResolvedValue(true)
     jest.spyOn(dockerUtil, 'latestBuiltImage').mockResolvedValueOnce({
       imageID: '1234567890',
       imageName: 'build-image/debug',

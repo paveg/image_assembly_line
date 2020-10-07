@@ -1,12 +1,7 @@
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 import * as im from '@actions/exec/lib/interfaces'
-import {
-  latestBuiltImage,
-  noBuiltImage,
-  dockerImageTag,
-  pushDockerImage
-} from './docker-util'
+import {latestBuiltImage, dockerImageTag, pushDockerImage} from './docker-util'
 import {BuildError, ScanError, PushError, TaggingError} from './error'
 import {Vulnerability} from './types'
 import {notifyVulnerability} from './notification'
@@ -42,9 +37,6 @@ export default class Docker {
       await this.loginRegistery()
     }
     try {
-      if (!(await noBuiltImage())) {
-        throw new Error('Built image exists')
-      }
       core.info(`[Build] Registry name: ${this.registry}`)
       core.info(`[Build] Image name: ${this.imageName}`)
       const execParams = [target, `IMAGE_NAME=${this.imageName}`]

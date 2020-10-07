@@ -1,5 +1,4 @@
 import {DockerImage} from './docker'
-import * as exec from '@actions/exec'
 import * as core from '@actions/core'
 import axios from 'axios'
 import qs from 'qs'
@@ -37,24 +36,6 @@ export async function latestBuiltImage(
     imageID: builtImageID,
     tags
   }
-}
-
-// Return true when check is OK
-export async function noBuiltImage(): Promise<boolean> {
-  let stdout = ''
-
-  await exec.exec('docker', ['image', 'ls', '-q'], {
-    listeners: {
-      stdout: (data: Buffer) => {
-        stdout += data.toString()
-      }
-    }
-  })
-
-  const imageCount = stdout.split('\n').filter(word => !!word).length
-
-  core.debug(`built image count: ${imageCount}`)
-  return imageCount <= 0
 }
 
 /**
