@@ -94,6 +94,9 @@ async function run(): Promise<void> {
         core.info('no_push: true')
       } else {
         const upstreamRepo = docker.upstreamRepository()
+        if (!docker.builtImage.tags.includes('latest')) {
+          docker.builtImage.tags.push('latest')
+        }
         await Promise.all(
           docker.builtImage.tags.map(async tag => {
             Bugsnag.addMetadata('buildDetails', {

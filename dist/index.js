@@ -7710,6 +7710,9 @@ function run() {
                 }
                 else {
                     const upstreamRepo = docker.upstreamRepository();
+                    if (!docker.builtImage.tags.includes('latest')) {
+                        docker.builtImage.tags.push('latest');
+                    }
                     yield Promise.all(docker.builtImage.tags.map((tag) => __awaiter(this, void 0, void 0, function* () {
                         js_1.default.addMetadata('buildDetails', {
                             tag,
